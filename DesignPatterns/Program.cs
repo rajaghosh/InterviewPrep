@@ -9,8 +9,8 @@ namespace DesignPatterns
             Console.WriteLine("Hello World!");
 
             //***********SingletonPattern Implementation
-            //SingletonImplementation1 si1 = new SingletonImplementation1();
-            //SingletonImplementation2 si2 = new SingletonImplementation2();
+            SingletonImplementation1 si1 = new SingletonImplementation1();
+            SingletonImplementation2 si2 = new SingletonImplementation2();
         }
     }
 }
