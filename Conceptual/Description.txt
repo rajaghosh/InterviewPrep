@@ -1,0 +1,1 @@
+﻿This project has basic .net core C# examples

@@ -1,0 +1,1 @@
+﻿This project has Design Pattern related .net core C# examples
