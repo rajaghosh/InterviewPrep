@@ -1,0 +1,15 @@
+﻿This project is about Repository Pattern.
+
+Repository Pattern states the DB implementation must be decoupled from Business or any above layer.
+As Such we bring an extra layer of Abstaction using "Interface". Which says we would call the DB using the interface instance.
+For our task if needed we can inject the interface with actual implementation class in StartUp.cs
+
+In the current project we have 2 DB implementation (In Models) -> EmployeeRepositoryLocal and EmployeeRepositorySQL.
+Currently we used EmployeeRepositorySQL as DependencyInjection.
+If needed we can use the EmployeeRepositoryLocal.
+This wont cause any issue as above layers are implements the interface members. So the method template wont cause any issue.
+
+Connectivity:
+1. We have used a Employee.cs Model to be inserted in the DB
+2. We have another Model Dept.cs but that is not updated in DB, as the details are not there in the AppDBContext.cs DBset.
+3. WebApi Controller is present in "EmployeeController".

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>DesignPatterns</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,6 +12,10 @@
 
   <ItemGroup>
     <Content Include="Description.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DesignPatternsRepositoryPattern\DesignPatternsRepositoryPattern(NetCore).csproj" />
   </ItemGroup>
 
 </Project>

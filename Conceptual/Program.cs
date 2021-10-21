@@ -16,6 +16,14 @@ namespace Conceptual1
             SerializeVsDeserialize svd1 = new SerializeVsDeserialize(); 
 
             Console.ReadLine();
+
+            //*********Calling Non Static Method inside Static
+            Program P = new Program();
+            P.Test();
+        }
+
+        public void Test()
+        {
         }
     }
 }

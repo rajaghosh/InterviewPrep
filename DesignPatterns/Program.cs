@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DesignPatternsRepositoryPattern.Models;
+using System;
 
 namespace DesignPatterns
 {
@@ -16,7 +17,9 @@ namespace DesignPatterns
             //AdapterDesignPattern ad1 = new AdapterDesignPattern();
             //TemplateMethodDesignPattern tm1 = new TemplateMethodDesignPattern();
 
-            BridgeDesignPattern bp1 = new BridgeDesignPattern();
+            //BridgeDesignPattern bp1 = new BridgeDesignPattern();
+            //BridgeDesignPattern2 bp2 = new BridgeDesignPattern2();
+
         }
     }
 }
