@@ -9,7 +9,8 @@ namespace DesignPatterns
         //Here all the logic is there only in Customer class
         public class Customer
         {
-            private List<Address> _Addresses { get; set; }
+            private List<Address> _Addresses = new List<Address>();
+
 
             public void Addr(Address adr)
             {
