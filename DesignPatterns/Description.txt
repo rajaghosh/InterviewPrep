@@ -22,6 +22,23 @@ It gets very important when we want to instanciate a single logic scope for all 
 Ex - Suppost there are several users. For each users we can have same resource allocation. Say we need some configuration data fetch from DB
 for mail sending. Now this config data will be same for every users. So only one instance initiation will be enough.
 
+So real world usage of Singleton is:
+1. Logging
+2. Managing a connection or a pool of connections to DB.
+3. Printer Spooling
+4. File
+5. Configuration
+6. Cache
+7. Session Based Shopping Cart
+
+One important concept is 
+
+Static vs Singleton Class
+1. Static is a Keyword and Singleton is a design pattern.
+2. Static classes can only contain static members.
+3. Singleton is an object creational pattern with one instance of the class. It can implement interfaces, inherit from other class and it aligns
+with OOP concepts.
+
 
 *************************************************************************************************************
 *************************************************************************************************************
@@ -40,9 +57,15 @@ Adapter Design Pattern - Also called Wrapper Class Pattern.
  * This comes under "Structural Design Pattern" as this combines the capability of 2 independent interfaces.
 *************************************************************************************************************
 *************************************************************************************************************
-
-
-
+Factory Design Pattern - Creational Design Pattern - Design an interface for creating objects. But let the sub-class determine which classes to 
+instanciate.
+Here we will create object without providing creational logic to the client.
+*************************************************************************************************************
+*************************************************************************************************************
+Abstract Factory Design Pattern - It is a creational design pattern. Here we can have several factory patterns. Each Factory Implementation 
+Interface is listed in a Super Interface. 
+So if we have N factory interfaces all of the interface link will be declared inside the Abstract Factory Super Interface. No during execution 
+we will have a choice to choose the required factory interface and its required implementation.
 
 
 

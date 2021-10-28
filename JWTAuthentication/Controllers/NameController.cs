@@ -1,5 +1,6 @@
 ﻿using JWTAuthentication.JWTHelpers;
 using JWTAuthentication.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace JWTAuthentication.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] //This is needed to test the bearer token based authentication
     [Route("api/[controller]")]
     [ApiController]
     public class NameController : ControllerBase
@@ -32,36 +33,10 @@ namespace JWTAuthentication.Controllers
             return Ok(token);
         }
 
-        // GET: api/<NameController>
-        [HttpGet]
+        [HttpGet("GetData")]
         public IEnumerable<string> Get()
         {
             return new string[] { "Kolkata", "Mumbai" };
         }
-
-        // GET api/<NameController>/5
-        //[HttpGet("{id}")]
-        //public string Get(int id)
-        //{
-        //    return "value";
-        //}
-
-        //// POST api/<NameController>
-        //[HttpPost]
-        //public void Post([FromBody] string value)
-        //{
-        //}
-
-        //// PUT api/<NameController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
-
-        //// DELETE api/<NameController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
     }
 }

@@ -1,1 +1,49 @@
 ﻿This project has basic .net core C# examples
+
+Terms - 
+
+------------------------------------------------------------------------------------------------------
+
+Boxing and Unboxing - 
+
+Boxing - The process of Converting a Value Type (char, int etc.) to a Reference Type(object) is called Boxing.
+Boxing is implicit conversion process in which object type (super type) is used.
+The Value type is always stored in Stack. The Referenced Type is stored in Heap.
+Example :
+int num = 23; // 23 will assigned to num
+Object Obj = num; // Boxing
+
+Unboxing - The process of converting reference type into the value type is known as Unboxing.
+It is explicit conversion process.
+Example :
+int num = 23;         // value type is int and assigned value 23
+Object Obj = num;    // Boxing
+int i = (int)Obj;    // Unboxing
+
+------------------------------------------------------------------------------------------------------
+
+CLR and CLI - 
+(Already open in the last tab. To be Updated)
+------------------------------------------------------------------------------------------------------
+
+Reflection - It is inspection of an Assembly and checking what are the usable members the assembly contains.
+
+------------------------------------------------------------------------------------------------------
+Var vs Dynamic
+
+ * Var - It is early binded. So when value is assigned compiler will be able to detect the metadata like what kind of value it contains.
+ * Dynamic - It is late binded. It is binded during runtime. So what value has been assigned would not be evaluated by compiler.
+ Even if some error will be assigned to it say 
+ dynamic a = "ABC";
+ int t = a.length //It must be a.Length (Caps L)
+ this would not be any error during compile time but during run-time there would be exceptions.
+
+
+
+
+
+
+
+
+
+

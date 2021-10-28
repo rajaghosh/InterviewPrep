@@ -1,0 +1,2 @@
+﻿This project is about implementation of Logger Using Singleton Design Pattern
+

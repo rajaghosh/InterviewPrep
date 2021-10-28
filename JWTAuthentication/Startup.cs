@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,8 +32,9 @@ namespace JWTAuthentication
         {
             services.AddControllers();
 
+            #region JWT CODE
             var _key = "MYKEY_1234567890"; //This should be atleast 16 Bytes long else there would be issues
-             var _secureKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_key));
+            var _secureKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_key));
 
             services.AddAuthentication(x =>
             {
@@ -50,6 +52,7 @@ namespace JWTAuthentication
                     IssuerSigningKey = _secureKey
                 };
             });
+            #endregion
 
             services.AddSingleton<IJWTAuthenticationManager>(new JWTAuthenticationManager(_key));
         }
@@ -66,8 +69,10 @@ namespace JWTAuthentication
 
             app.UseRouting();
 
+            #region JWT AUTHORIZATION
             app.UseAuthentication(); //Added
             app.UseAuthorization();
+            #endregion
 
             //app.UseCors();
 

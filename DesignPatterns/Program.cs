@@ -59,8 +59,9 @@ namespace DesignPatterns
             //-------------------------------------------------------
 
             //*************Singleton Example 3
-            Singleton3 s3 = new Singleton3();
+            //Singleton3 s3 = new Singleton3();
 
+            Factory f1 = new Factory();
 
 
             Console.WriteLine("Print Complete");

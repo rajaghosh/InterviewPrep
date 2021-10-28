@@ -15,8 +15,15 @@ namespace Conceptual1
 
             //SerializeVsDeserialize svd1 = new SerializeVsDeserialize(); 
 
-            LazyLoading ll1 = new LazyLoading();
+            //LazyLoading ll1 = new LazyLoading();
 
+            //Reflection r1 = new Reflection();
+
+            //ToStringOverride tso1 = new ToStringOverride();
+
+            //StringEqualsVsEqualequal sevee1 = new StringEqualsVsEqualequal();
+
+            ArrayOfJson aj1 = new ArrayOfJson();
 
             Console.ReadLine();
 

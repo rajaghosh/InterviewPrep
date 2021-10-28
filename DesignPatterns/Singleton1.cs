@@ -28,7 +28,7 @@ namespace DesignPatterns
             }
         }
 
-        //Derived Nested Class - Can be used here so we have made Singleton Class Sealed
+        //Derived Nested Class - Instance of the Singleton1 class can be created from DerivedSingleton class so we have made Singleton Class Sealed
         //public class DerivedSingleton : Singleton1
         //{
 

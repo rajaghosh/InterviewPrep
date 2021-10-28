@@ -11,9 +11,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JWTAuthentication", "JWTAut
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesignPatterns", "DesignPatterns\DesignPatterns.csproj", "{506798B0-BBB0-42FA-9350-7766E93EC4B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DesignPatternsRepositoryPattern(NetCore)", "DesignPatternsRepositoryPattern\DesignPatternsRepositoryPattern(NetCore).csproj", "{507786B5-12CC-4C93-BD2D-7C917271F425}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesignPatternsRepositoryPattern(NetCore)", "DesignPatternsRepositoryPattern\DesignPatternsRepositoryPattern(NetCore).csproj", "{507786B5-12CC-4C93-BD2D-7C917271F425}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiEFCoreSetup(NonInterview)", "WebApiEFCoreSetup\WebApiEFCoreSetup(NonInterview).csproj", "{D32DC8E3-F9CA-4569-AFA3-57289DB6BE74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SingletonLogger", "SingletonLogger\SingletonLogger.csproj", "{D0AA25C9-3A22-4853-B551-04489C4F810F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureFuncDemo", "AzureFuncDemo\AzureFuncDemo.csproj", "{9F1F5E38-ECE1-46C0-8B04-D630DA590986}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JWTAuthentication2", "JWTAuthentication2\JWTAuthentication2.csproj", "{F313D347-4ADE-4900-8666-9B1D6BA0FA67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCoreAnalysis", "NetCoreAnalysis\NetCoreAnalysis.csproj", "{98AF3B16-1AD7-48FC-8CE6-0C91CBF8CEF4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +53,22 @@ Global
 		{D32DC8E3-F9CA-4569-AFA3-57289DB6BE74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D32DC8E3-F9CA-4569-AFA3-57289DB6BE74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D32DC8E3-F9CA-4569-AFA3-57289DB6BE74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0AA25C9-3A22-4853-B551-04489C4F810F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0AA25C9-3A22-4853-B551-04489C4F810F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0AA25C9-3A22-4853-B551-04489C4F810F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0AA25C9-3A22-4853-B551-04489C4F810F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F1F5E38-ECE1-46C0-8B04-D630DA590986}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F1F5E38-ECE1-46C0-8B04-D630DA590986}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F1F5E38-ECE1-46C0-8B04-D630DA590986}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F1F5E38-ECE1-46C0-8B04-D630DA590986}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F313D347-4ADE-4900-8666-9B1D6BA0FA67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F313D347-4ADE-4900-8666-9B1D6BA0FA67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F313D347-4ADE-4900-8666-9B1D6BA0FA67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F313D347-4ADE-4900-8666-9B1D6BA0FA67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98AF3B16-1AD7-48FC-8CE6-0C91CBF8CEF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98AF3B16-1AD7-48FC-8CE6-0C91CBF8CEF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98AF3B16-1AD7-48FC-8CE6-0C91CBF8CEF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98AF3B16-1AD7-48FC-8CE6-0C91CBF8CEF4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
