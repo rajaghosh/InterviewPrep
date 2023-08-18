@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Conceptual1
 {
-    class StringEqualsVsEqualequal
+    class ObjectEqualsVsEqualequal
     {
-        public StringEqualsVsEqualequal()
+        public ObjectEqualsVsEqualequal()
         {
             object s1 = "Hello World";
             object s2 = s1;

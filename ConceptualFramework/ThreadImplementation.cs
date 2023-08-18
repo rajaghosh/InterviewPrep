@@ -7,6 +7,22 @@ namespace Conceptual2
 {
     class ThreadImplementation
     {
+        public ThreadImplementation()
+        {
+            //By creating threads we will run main program in a main thread and other process on seperate threads
+            Thread obj1 = new Thread(Function1);
+            Thread obj2 = new Thread(Function2);
+
+            obj1.Start();
+            obj2.Start();
+
+
+            Thread obj3 = new Thread(Function3);
+            obj3.IsBackground = true; //making the thread background thread
+            obj3.Start();
+
+        }
+
         private void Function1()
         {
             for(int i = 0; i < 10; i++)
@@ -40,24 +56,7 @@ namespace Conceptual2
             Console.WriteLine("Function 3 has exited...");
         }
 
-        public ThreadImplementation()
-        {
-            //Function1();
-            //Function2();
-
-
-            Thread obj1 = new Thread(Function1);
-            Thread obj2 = new Thread(Function2);
-
-            obj1.Start();
-            obj2.Start();
-
-
-            Thread obj3 = new Thread(Function3);
-            obj3.IsBackground = true; //making the thread background thread
-            obj3.Start();
-
-        }
+        
     }
 }
 

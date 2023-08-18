@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Conceptual2
 {
-    
 
+    //ThreadSynchronization-ExclusiveLocks
     class ThreadSynchronization
     {
         //------------------------------------------------------------------------------------------
@@ -16,16 +16,18 @@ namespace Conceptual2
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
         //LOCK - This will force a tread to work in critical section then once completed the next tread will start working
-        //private static object _locker1 = new object();
-        //public static void Doworkwithlock()
-        //{
-        //    lock (_locker1)
-        //    {
-        //        Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} starting...");
-        //        Thread.Sleep(2000);
-        //        Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} completed...");
-        //    }
-        //}
+
+        private static object _locker1 = new object();
+        public static void Doworkwithlock()
+        {
+            lock (_locker1)
+            {
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} starting...");
+                Thread.Sleep(2000);
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} completed...");
+            }
+        }
+
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
@@ -39,26 +41,28 @@ namespace Conceptual2
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
         //MONITOR - This will work same as Lock + will provide try catch mechanism
-        //private static object _locker2 = new object();
-        //public static void DoworkwithMonitor()
-        //{
-        //    try
-        //    {
-        //        Monitor.Enter(_locker2);
-        //        Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} starting...");
-        //        Thread.Sleep(2000);
-        //        Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} completed...");       
-        //    }
-        //    catch(Exception ex)
-        //    {
 
-        //    }
-        //    finally
-        //    {
-        //        Monitor.Exit(_locker2);
-        //    }
-        //}
-        ////------------------------------------------------------------------------------------------
+        private static object _locker2 = new object();
+        public static void DoworkwithMonitor()
+        {
+            try
+            {
+                Monitor.Enter(_locker2);
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} starting...");
+                Thread.Sleep(2000);
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} completed...");
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                Monitor.Exit(_locker2);
+            }
+        }
+
+        //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
@@ -74,25 +78,27 @@ namespace Conceptual2
         //WaitOne() - This will force the flow to wait till all the block event get completed. | SIGNAL WAIT
         //Reset() - This will initiate a block event in the flow. | SIGNAL STOP
         //Set() - This will mark the block event is completed. | SIGNAL START
-        //private static ManualResetEvent _mre = new ManualResetEvent(false); //False will indicate there is no signal
 
-        //public static void Writer()
-        //{
+        private static ManualResetEvent _mre = new ManualResetEvent(false); //False will indicate there is no signal
 
-        //    Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} starting for Write...");
-        //    _mre.Reset(); //This will cause a block
-        //    Thread.Sleep(5000);
-        //    Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} completed Writing...");
-        //    _mre.Set(); //This will release the block to proceed
-        //}
+        public static void Writer()
+        {
 
-        //public static void Reader()
-        //{
-        //    Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} waiting for Read...");
-        //    _mre.WaitOne(); //Waits until the block event gets completed
-        //    Thread.Sleep(2000);
-        //    Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} completed Reading...");
-        //}
+            Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} starting for Write...");
+            _mre.Reset(); //This will cause a block
+            Thread.Sleep(5000);
+            Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} completed Writing...");
+            _mre.Set(); //This will release the block to proceed
+        }
+
+        public static void Reader()
+        {
+            Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} waiting for Read...");
+            _mre.WaitOne(); //Waits until the block event gets completed
+            Thread.Sleep(2000);
+            Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} completed Reading...");
+        }
+
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------

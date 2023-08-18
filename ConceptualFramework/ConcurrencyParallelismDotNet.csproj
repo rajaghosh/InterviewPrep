@@ -48,8 +48,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TaskAndThread-Async.cs" />
     <Compile Include="ThreadImplementation.cs" />
-    <Compile Include="ThreadSynchronization.cs" />
-    <Compile Include="ThreadSynchronization2.cs" />
+    <Compile Include="ThreadSynchronization-ExclusiveLocks.cs" />
+    <Compile Include="ThreadSynchronization2-NonExclusiveLocks.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

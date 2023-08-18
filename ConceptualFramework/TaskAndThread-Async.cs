@@ -7,7 +7,22 @@ using System.Threading.Tasks;
 namespace Conceptual2
 {
     class TaskAndThread
-    {
+    { 
+        public TaskAndThread()
+        {
+            Console.WriteLine("Started.......");
+
+            //Call using normal task - task using normal time slicing the main thread.
+            Function1();    //Here portion of time slicling will be further partioned by 2 as there are 2 tasks
+            Function2();    
+            Function3();
+
+            //Call using task parallel library (TPL) - Here each task will run on parallel thread of different cores of the CPU
+            Task.Factory.StartNew(Function4);
+            Task.Factory.StartNew(Function5);
+        }
+
+
         //This method will run 2 tasks from a single method
         public void Function1()
         {
@@ -18,7 +33,7 @@ namespace Conceptual2
 
         }
 
-        //Between Function2 and Function3 to increase efficiency context switching will happen
+        //Between Function2 and Function3 to increase efficiency context switching will happen - time slicing
         //That is the functions will run concurrently on same thread.
         public async void Function2()
         {
@@ -47,16 +62,6 @@ namespace Conceptual2
         }
 
 
-        public TaskAndThread()
-        {
-            Console.WriteLine("Started.......");
-            //Function1();
 
-            //Function2();
-            //Function3();
-
-            Task.Factory.StartNew(Function4);
-            Task.Factory.StartNew(Function5);
-        }
     }
 }

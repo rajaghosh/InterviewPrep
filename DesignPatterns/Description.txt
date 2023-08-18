@@ -2,10 +2,33 @@
 
 Design Patterns - Reusable solutions to the problems that we encouter every day of programming.
 
+Design patterns are design level solutions for recurring problems that we software engineers come across often. 
+It’s not code - I repeat, ❌CODE. It is like a description on how to tackle these problems and design a solution.
+Using these patterns is considered good practice, as the design of the solution is quite tried and tested, resulting 
+in higher readability of the final code. 
+
+
+There are about 26 Patterns currently discovered
+
+These 26 can be classified into 3 types:
+
+1. Creational: These patterns are designed for class instantiation. 
+They can be either class-creation patterns or object-creational patterns.
+
+2. Structural: These patterns are designed with regard to a class's structure and composition. 
+The main goal of most of these patterns is to increase the functionality of the class(es) involved, 
+without changing much of its composition.
+
+3. Behavioral: These patterns are designed depending on how one class communicates with others.
+
+
+
+
 *************************************************************************************************************
 *************************************************************************************************************
-Singleton Design Pattern - (Creational Design Pattern) - This pattern is used when we need to ensure that only one object of a particular
-class need to be created. All further References to the objects are referred to the same underlying instance created. 
+Singleton Design Pattern - (Creational Design Pattern) - This pattern is used when we need to ensure that only one 
+object of a particular class need to be created. 
+All further References to the objects are referred to the same underlying instance created. 
 
 Advantages of Singleton - 
 a. Singleton controls concurrent access to the resource.
@@ -19,7 +42,7 @@ Implementation Guidelines -
 	c. The instance is stored as a private static variable.
 
 It gets very important when we want to instanciate a single logic scope for all the object instanciation.
-Ex - Suppost there are several users. For each users we can have same resource allocation. Say we need some configuration data fetch from DB
+Ex - Suppose there are several users. For each users we can have same resource allocation. Say we need some configuration data fetch from DB
 for mail sending. Now this config data will be same for every users. So only one instance initiation will be enough.
 
 So real world usage of Singleton is:
@@ -42,26 +65,34 @@ with OOP concepts.
 
 *************************************************************************************************************
 *************************************************************************************************************
+
 Aggregate Root Design Pattern - It is an aggregate relationship that references all other methods or classes via a single class.
 So this single class would be a single entry point or the aggregate root.
 It will be implemented where we want to treat 1:N as a single logical unit.
+
 *************************************************************************************************************
 *************************************************************************************************************
+
 Iterator Design Pattern - It helps to loop through data in Aggregate Root condition. 
  * Iterator is a behavioral design pattern 
  * that lets you traverse elements of a collection without exposing its underlying representation (list, stack, tree, etc.).
+
 *************************************************************************************************************
 *************************************************************************************************************
+
 Adapter Design Pattern - Also called Wrapper Class Pattern.
  * This design pattern allows 2 dissimilar classes to interact using 2 different "Interface" having similar communication endpoints.
  * This comes under "Structural Design Pattern" as this combines the capability of 2 independent interfaces.
+
 *************************************************************************************************************
 *************************************************************************************************************
 Factory Design Pattern - Creational Design Pattern - Design an interface for creating objects. But let the sub-class determine which classes to 
 instanciate.
 Here we will create object without providing creational logic to the client.
+
 *************************************************************************************************************
 *************************************************************************************************************
+
 Abstract Factory Design Pattern - It is a creational design pattern. Here we can have several factory patterns. Each Factory Implementation 
 Interface is listed in a Super Interface. 
 So if we have N factory interfaces all of the interface link will be declared inside the Abstract Factory Super Interface. No during execution 
