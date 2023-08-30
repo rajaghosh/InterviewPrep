@@ -28,7 +28,8 @@ namespace DesignPatterns
             }
         }
 
-        //Derived Nested Class - Instance of the Singleton1 class can be created from DerivedSingleton class so we have made Singleton Class Sealed
+        //Derived Nested Class - Instance of the Singleton1 class can be created from
+        //DerivedSingleton class so we have made Singleton Class Sealed
         //public class DerivedSingleton : Singleton1
         //{
 
@@ -40,7 +41,7 @@ namespace DesignPatterns
         }
     }
 
-
+    //NOTE - In the class Singleton1Helper we have 2 methods which are actually calling
     public class Singleton1Helper
     {
         public static void PrintEmployee1Details()
@@ -83,5 +84,6 @@ namespace DesignPatterns
  * 
  * We will have violation of Singleton class if we run parallel tasks. This can be easily seen when we invoke PrintEmployee2Details() and PrintStudent1Details() 
  * parallely. Here we can see the 2 instances will be created. So there is race condition.
+ * 
  * 
  */

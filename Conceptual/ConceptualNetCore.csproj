@@ -7,6 +7,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Description - AzureActiveDirectory (TBD).txt" />
+    <None Remove="Description - AzureLogicApp(TBD).txt" />
+    <None Remove="Description - GraphApi (TBD).txt" />
+    <None Remove="Description - OpenIAM (TBD).txt" />
+    <None Remove="Description - RadisCache (TBD).txt" />
+    <None Remove="Description - SQL (TBD)-Later.txt" />
+    <None Remove="Description-AzureAppInsight.txt" />
+    <None Remove="Description-EFCore.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Description - RadisCache %28TBD%29.txt" />
+    <Content Include="Description - OpenIAM %28TBD%29.txt" />
+    <Content Include="Description - AzureLogicApp%28TBD%29.txt" />
+    <Content Include="Description-AzureAppInsight.txt" />
+    <Content Include="Description - AzureActiveDirectory %28TBD%29.txt" />
+    <Content Include="Description-EFCore.txt" />
+    <Content Include="Description - GraphApi %28TBD%29.txt" />
+    <Content Include="Description - SQL %28TBD%29-Later.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
   </ItemGroup>

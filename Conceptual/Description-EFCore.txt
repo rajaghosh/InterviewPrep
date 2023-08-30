@@ -1,0 +1,67 @@
+﻿----------------------------------------------------------------------------------------------------------------------------------------
+
+EF Core - 
+	
+In EF Core is a ORM to communicate with DB.
+Here we have 2 appraches to communicate between Domain Classes and DB
+
+-> Here we create models (Domain Class) 
+-> Refer those class instance in the DBContext class by using DBSet<>
+
+1. Code-First Approach 
+	-> We need to make sure DB connection is proper.
+	-> Create migration script -> Add-Migration "<MigrationFileName>" -context <DBContextname>
+	-> A migration file will be created and DB will be updated as per the data.
+
+2. DB-First Approach
+	-> We need to make sure DB connection is proper.
+	-> Create DB object in the DB (No by code)
+	-> Now if we already have DB classes we can run scaffold command pull DB objects into classes
+	Scaffold-DBContext "<DBConnection>" Microsoft.EntityFrameworkCore.SqlServer -OutputDir EFModels
+	This will create Model Classes in EFModels Folder
+
+*Run command in Package Manager Console
+
+NuGet packages -
+	Microsoft.EntityFrameworkCore.SqlServer
+	Microsoft.EntityFrameworkCore.Tools
+	Microsoft.EntityFrameworkCore.Design
+
+	
+DBContext Class -
+It is the main co-ordinator between the services and DB.
+1. Managing DB Connection.
+2. Configuring entries and the reln between them
+3. CRUB Operations. (Here method of Repo will use the references)
+4. Transaction Management Support
+
+public class MyContext : DbContext
+{
+	public DbSet<Class1> Employees {get; set;}
+
+	protected override void OnConfiguring(DbContextOptionsBuilder builder)
+	{
+		if(!builder.IsConfigured)
+		{
+			builder.UseSqlServer("<DBConnection>")
+		}
+	}
+
+}
+
+
+DbSet<T> - Represents a collection for a given entity within the model and is 
+the gateway to perform database operations against an entity.
+
+Fluent API - By using the fluent API we can override the default conventions in 
+Entity Framework Core. This will provide more configuration options.
+
+
+Advantage
+Disadvantage
+
+Use of EDMX is DB first or Model first
+
+
+Basic of ADO
+

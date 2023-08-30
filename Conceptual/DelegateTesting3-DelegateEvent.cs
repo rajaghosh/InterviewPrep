@@ -14,9 +14,11 @@ namespace Conceptual1
             //Multicasting here we can make the delgate null - So we can think it as broadcast / also can be called as naked delegate
             x.senderObj += Receiver;
             x.senderObj += Receiver2;
-            //x.senderObj = null; //Will give error as this makes the delegate null
+            //x.senderObj = null; 
+            //We can write it no compile-time error, but this will
+            //give error as this makes the delegate null - run-time error
 
-            //Event - We cant make it null (Works same as multicast but we cant make it null)
+            //Event - We cant make it null -> compile-time error (Works same as multicast but we cant make it null)
             x.senderObj2 += Receiver;
             x.senderObj2 += Receiver2;
 

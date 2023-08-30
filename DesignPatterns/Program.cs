@@ -10,7 +10,7 @@ namespace DesignPatterns
         {
             Console.WriteLine("Hello World!");
 
-            //***********SingletonPattern Implementation
+            //***********Some Other Design Pattern Implementation
             //AggregateRootDesignPattern ardp1 = new AggregateRootDesignPattern();
             //IteratorDesignPattern i1 = new IteratorDesignPattern();
             //AdapterDesignPattern ad1 = new AdapterDesignPattern();
@@ -61,7 +61,7 @@ namespace DesignPatterns
             //*************Singleton Example 3
             //Singleton3 s3 = new Singleton3();
 
-            Factory f1 = new Factory();
+            //Factory f1 = new Factory();
 
 
             Console.WriteLine("Print Complete");

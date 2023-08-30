@@ -11,10 +11,12 @@ namespace Conceptual1
         {
             //Basic delegate
             DelgateMethod1 delMet1 = new DelgateMethod1(Method1);
+            
             //Two ways to call
-            delMet1.Invoke();
-            delMet1();
-            delMet2.Invoke();
+            delMet1.Invoke();   //Process 1 - Call Style 1
+            delMet1();          //Process 1 - Call Style 2
+
+            delMet2.Invoke();   //Process 2 - Call Style 1
 
             //Delegate as a function param
             LongRunning(MyCallbackMethod);
@@ -75,7 +77,7 @@ namespace Conceptual1
  
  We have delegate shown here -
     1. Normal Delegate 
-    2. Delegate as parama
+    2. Delegate as param
     3. Multicast delegate
     4. Anonymous delegate - Delegate used with anonymous methods
  

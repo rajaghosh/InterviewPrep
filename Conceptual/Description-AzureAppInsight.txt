@@ -1,0 +1,293 @@
+﻿*********************************************************************************************************
+*********************************************************************************************************
+*********************************************************************************************************
+*********************************************************************************************************
+
+
+Azure AppInsights
+
+Purpose : Used for logging the telemetry data.
+Application Insights sends telemetry from your web application to the Azure portal so that you can analyze 
+the performance and usage of your application. The telemetry model is standardized, 
+so it's possible to create platform- and language-independent monitoring.
+
+The following types of telemetry are used to monitor the execution of your app. 
+The Application Insights SDK from the web application framework automatically collects these three types:
+
+	1. Request: Generated to log a request received by your app. For example, the Application Insights web 
+	SDK automatically generates a Request telemetry item for each HTTP request that your web app receives.
+	
+	2. Exception: Typically represents an exception that causes an operation to fail.
+
+	3. Dependency: Represents a call from your app to an external service or storage, 
+	such as a REST API or SQL. In ASP.NET, dependency calls to SQL are defined by System.Data. 
+	Calls to HTTP endpoints are defined by System.Net.
+
+Application Insights provides three data types for custom telemetry:
+
+Trace: Used either directly or through an adapter to implement diagnostics logging by using an 
+instrumentation framework that's familiar to you, such as Log4Net or System.Diagnostics.
+
+Event: Typically used to capture user interaction with your service to analyze usage patterns.
+
+Metric: Used to report periodic scalar measurements.
+
+----------------------------------------------------------------------------------------
+
+To Create -> Go to azure portal -> Create a Application Insights 
+There we have be TransactionSearch -> We can add some data and search
+
+This will have few config data
+
+	1. Instrumentation Key
+	2. Connection String
+
+Implement with .net code
+
+For AppService (Important)
+	We will log data directly to AppInsights by enabling ApplicationInsights options in AppService
+	This will create a service principle from AppsService for the AppInsights
+
+For .net core
+	Step A. Automatic We can click on the solution -> Right click "Add Application Insights"
+	Step B. Custom ->
+
+		1. Add Package -> 
+			Microsoft.ApplicationInsights.AspNetCore
+		
+		2. In AppSettings.Json -> 
+			Add block 
+				
+				"Logging" : {
+					"ApplicationInsights" : {
+						"LogLevel" : {
+								"Default" : "Information",
+							}
+					}
+				},
+				"ApplicationInsights" : {
+					"InstrumentationKey" : <InstrumentationKey of AppInsights from Portal>, 
+				}
+
+			Note - By default Information, Error, Warning will be logged,
+			to log Debug/Critical we have to make Debug as Default log level.
+			i.e
+				"Logging" : {
+					"ApplicationInsights" : {
+						"LogLevel" : {
+								"Default" : "Debug",
+							}
+					}
+				},
+
+
+		3. In StartUp.Cs ->
+			In configureServices(){
+				....
+				services.AddApplicationInsightsTelemetry(<AppInsightsInstrumentationKey>);
+			
+			}
+		
+		4. In order to use AppInsights we will use ILogger interface
+			
+			ILogger<Constructor/SeviceName> _logger;
+
+
+
+	From service method in the class:
+		private readonly ILogger _logger;
+		_logger.LogInformation()
+		_logger.Error()
+		_logger.Warning()
+
+
+	The log levels (Severity level) in Application Insights are typically categorized as follows:
+
+	1. Verbose/Debug:
+
+	This level captures a high volume of detailed information.
+	Useful for debugging and diagnosing complex issues.
+	Use it with caution as it can generate a large amount of telemetry data.
+	
+	2. Information:
+
+	This level captures general information about the application's operations.
+	Useful for understanding the flow of requests and the application's behavior.
+	
+	3. Warning:
+
+	This level captures issues that may lead to problems if not addressed but don't necessarily indicate a failure.
+	Useful for identifying potential issues that need attention.
+	
+	4. Error:
+
+	This level captures errors and exceptions that occur in the application.
+	Useful for identifying issues that impact the application's functionality.
+	
+	5. Critical:
+
+	This level captures critical errors that may lead to application failures.
+	Useful for identifying severe issues that require immediate attention.
+
+
+-----------------------------------------------------------------------------
+
+KQL - Basics (TBD)
+
+Search types - Traces, Event, Metric etc
+
+Ex - 
+1. traces 
+| order by timestamp desc
+| where message == "ABC"
+
+-----------------------------------------------------------------------------
+
+Limitation -
+1. It might take upto 5 mins to show log data in the AppInsights
+
+
+-----------------------------------------------------------------------------
+
+Identifiers to check
+
+various identifiers used in Azure Application Insights, which is a monitoring and diagnostics service provided 
+by Microsoft Azure for applications. Let's break down each of these identifiers:
+
+1. OperationId: The operationId is a unique identifier assigned to each individual operation or request 
+within your application. It helps you track the flow and performance of specific operations as they 
+move through different components of your application. This can be especially useful for diagnosing performance 
+bottlenecks or tracing the execution of a particular user request.
+
+2. ParentOperationId: The parentOperationId is used in the context of distributed tracing. It indicates the identifier 
+of the parent operation that initiated the current operation. Distributed tracing is crucial for understanding 
+how different services or components interact with each other in a distributed architecture.
+
+3. InstrumentationKey: The instrumentationKey is a unique key associated with your Application Insights resource. 
+It's used to identify and send telemetry data from your application to the correct Application Insights instance. 
+You typically configure your application with this key to ensure that the monitoring data is sent to the correct destination.
+
+4. CorrelationId: The correlationId is an identifier that is often used to track and correlate activities across 
+different services or components. It helps to maintain the relationship between different logs, events, and traces 
+associated with a particular operation. This is crucial for troubleshooting and understanding the end-to-end flow of operations.
+
+
+
+Note - For API we use Correlation Id/Trace Id
+For FunctionApp we use invocatioonId
+
+
+
+*********************************************************************************************************
+*********************************************************************************************************
+*********************************************************************************************************
+*********************************************************************************************************
+
+
+Azure key Vault
+-------------------------------------------------------------------------------------------
+
+Note - In .net core whatever is in launchSettings.json will be configured into the AppService Configuration.
+
+KeyVault works as a centralized storage to keep secrets (i.e Data stored in keyvault known as Secrets) to keep them for a 
+long term. That is generally they keep data which we know wont be changed frequently like DBConnection data. 
+
+Properties
+
+1. Azure Key Vault manages and stores data securely like passwords, certificates, and other credentials.
+2. It provides centralized storage in which we can manage our all credentials.
+3. There are many scenarios in which we store our sensitive information like database connection strings and passwords inside our codebase but that may cause in the future because sometimes wrong people can access it.
+4. Key Vault provides centralized storage and also, and we can monitor and keep track of access and usage of our secrets.
+
+Flow 
+
+	Application -> Key Vault Rest API -> Azure KeyVault
+
+	Inside AKV (Azure Key Vault) we have our KeyVault (which contain Certificate, Key, Secret)
+
+Steps to Implement -
+
+1. Use the Nuget Package - Microsoft.Extensions.Configuration.AzureKeyVault
+2. Add environment variable in AppSettings.Json
+	
+	    {
+            ................
+            "KeyVaultConfiguration": {
+                "KeyVaultURL": "",
+                "ClientId": "",
+                "ClientSecret": ""
+            }
+        }
+3. Create IKayVaultService and KeyVaultService. 
+    Provide lifetime in StartUp.cs under configureServices as Services.AddTransient()
+    Or builder.services.AddTransient<>
+4. In the KeyVaultService  class
+    a. Get the data
+        KeyVaultEndPoint, 
+        KeyVaultTenantId,
+        KeyVaultClientId,
+        KeyVaultClientSecret
+
+    b. Create, SecretClient instance
+
+            SecretClient _secretClient
+                = new SecretClient(
+                        new Uri(KeyVaultEndPoint),
+                        new ClientSecretCredential(KeyVaultTenantId, KeyVaultClientId, KeyVaultClientSecret)
+                    );
+
+    c. Create Get() and Set()
+        async Task<string> Get(string keyName)
+        {
+            var secret = await _secretClient.GetSecretAsync(keyName);
+            return secret.Value.Value;
+        }
+
+        async Task<string> Set(string keyName, string keyValue)
+        {
+            var secret = await _secretClient.SetSecretAsync(keyName, keyValue);
+            return secret.Value.Value;
+        }
+
+
+----------------------------------------------------------------------------------------------------
+
+In the Azure Portal (Skip this part if possible only add this when the concept of AAD is clear)
+1. Create a KeyVault
+2. Add New Secrets
+3. Need to register an APP that will configure the Ids.
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+
+
+*********************************************************************************************************
+*********************************************************************************************************
+*********************************************************************************************************
+*********************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

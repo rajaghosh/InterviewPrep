@@ -1,0 +1,168 @@
+﻿This project has Design Pattern related .net core C# examples.
+
+Design Patterns - Reusable solutions to the problems that we encouter every day of programming.
+
+Design patterns are design level solutions for recurring problems that we software engineers come across often. 
+It’s not code - I repeat, ❌CODE. It is like a description on how to tackle these problems and design a solution.
+Using these patterns is considered good practice, as the design of the solution is quite tried and tested, resulting 
+in higher readability of the final code. 
+
+
+There are about 26 Patterns currently discovered
+
+These 26 can be classified into 3 types:
+
+1. Creational: These patterns are designed for class instantiation. 
+They can be either class-creation patterns or object-creational patterns.
+
+2. Structural: These patterns are designed with regard to a class's structure and composition. 
+The main goal of most of these patterns is to increase the functionality of the class(es) involved, 
+without changing much of its composition.
+
+3. Behavioral: These patterns are designed depending on how one class communicates with others.
+
+
+
+
+-------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------
+Singleton Design Pattern - (Creational Design Pattern) - This pattern is used when we need to ensure that only one 
+object of a particular class need to be created. 
+All further References to the objects are referred to the same underlying instance created. 
+
+Advantages of Singleton - 
+a. Singleton controls concurrent access to the resource.
+b. It ensures that there is only one object available across the application in a controlled state.
+
+Implementation Guidelines - 
+1. Ensure that only one instance of the class exists.
+2. Provide global access to that instance by:
+	a. Declaring all constructors of the class to be private.
+	b. Providing static method that returns a reference to the instance
+	c. The instance is stored as a private static variable.
+
+It gets very important when we want to instanciate a single logic scope for all the object instanciation.
+Ex - Suppose there are several users. For each users we can have same resource allocation. Say we need some configuration data fetch from DB
+for mail sending. Now this config data will be same for every users. So only one instance initiation will be enough.
+
+So real world usage of Singleton is:
+1. Logging
+2. Managing a connection or a pool of connections to DB.
+3. Printer Spooling
+4. File
+5. Configuration
+6. Cache
+7. Session Based Shopping Cart
+
+One important concept is 
+
+Static vs Singleton Class
+1. Static is a Keyword and Singleton is a design pattern.
+2. Static classes can only contain static members.
+3. Singleton is an object creational pattern with one instance of the class. It can implement interfaces, inherit from other class and it aligns
+with OOP concepts.
+
+
+Why do we need to use SEALED class and PRIVATE constructor while creating a Singleton Class?
+Ans -> 
+We all know a singleton class can have a single instance only. That is either directly i.e Class A creating instance of SingletonClass
+or by inheriting i.e Child Class B creating instance of SingletonClass must be restricted.
+
+So we have used SEALED so that it could not be inherited and PRIAVTE constructor so that instance cannot be created directly.
+Now this combination is a must so that a NESTED DERIVED class cannot be used to create an instance of the Singleton Class directly.
+
+Example
+
+//public sealed class MySingleton
+public class MySingleton
+{
+	private MySingleton(){
+	
+	}
+
+	//My NestedDerived Class
+	public class NestedDerived : MySingleton{
+	
+	}
+}
+
+public class ClassA{
+	NestedDerived obj = new NestedDerived();
+}
+
+In the above code we have removed the SEALED keyword. Now we can create the instance indirectly via the NESTED DERIVED class.
+So the combination of SEALED + PRIVATE is needed.
+
+
+-------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------
+
+Aggregate Root Design Pattern - 
+	- It is an aggregate relationship that references all other methods or classes via a single class.
+	- So this single class would be a single entry point or the aggregate root.
+	- It will be implemented where we want to treat 1:N as a single logical unit.
+
+-------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------
+
+Iterator Design Pattern 
+	- It helps to loop through data in Aggregate Root condition. 
+	- Iterator is a behavioral design pattern 
+	- that lets you traverse elements of a collection without exposing its underlying representation (list, stack, tree, etc.).
+
+-------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------
+
+Adapter Design Pattern 
+	- Also called Wrapper Class Pattern.
+	- This design pattern allows 2 dissimilar classes to interact using 2 different "Interface" having similar communication endpoints.
+	- This comes under "Structural Design Pattern" as this combines the capability of 2 independent interfaces.
+
+-------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------
+Factory Design Pattern - Creational Design Pattern 
+	- Design an interface for creating objects. But let the sub-class determine which classes to instanciate.
+	- Here we will create object without providing creational logic to the client.
+
+-------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------
+
+Abstract Factory Design Pattern 
+	- It is a creational design pattern. Here we can have several factory patterns. Each Factory Implementation 
+	Interface is listed in a Super Interface. So if we have N factory interfaces all of the interface link 
+	will be declared inside the Abstract Factory Super Interface. No during execution we will have a choice 
+	to choose the required factory interface and its required implementation.
+
+-------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------
+
+Repository Design Pattern
+	- Repository Design Pattern in C# is used to create an Abstraction Layer between the Data Access Layer 
+	and Business Logic Layer to perform the CRUD operations against the underlying database. 
+	We also discussed that the Repository Design Pattern pattern can be implemented in the following two ways.
+
+	1. Generic Repository Design Pattern in C#
+		The Generic Repository Design Pattern in C# is used to define common database operations such as 
+		Create, Retrieve, Update, Delete, etc. for all the database entities in a single class. 
+		That means the common operations for all the database entities are going to be defined inside 
+		the Generic Repository.
+
+	2. Non-Generic Repository Pattern (Specific Repository)
+		The	Non-Generic Repository Design Pattern in C# is used to define the database operations which are 
+		related to a specific entity in a separate class. For example, if you have two entities let’s say, 
+		Employee and Customer, then each entity will have its own implementation Repository. 
+		
+		That means the common operations are going to be defined inside the Generic Repository, 
+		and the operations which are specific to an entity are going to be defined in a separate repository.
+
+		So, before implementing both generic and specific repositories let us first understand the implementation guidelines. 
+		That means when to use Generic and when to use Specific and when to use both generic and specific in an application.
+
+
+
+
+
+
+
+
+

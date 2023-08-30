@@ -1,0 +1,527 @@
+﻿Classes and Structures have the following basic differences −
+
+1.	classes are reference types and structs are value types
+2.	structures do not support inheritance
+3.	structures cannot have default constructor (but can have parameterized constructor)
+4.	A struct object can be created with or without the new operator
+5.	Structure members cannot be specified as abstract, virtual, or protected.
+
+************************************************************************
+
+C# Access Specifier
+
+1.	Public
+2.	Private
+3.	Protected
+4.	Internal
+5.	Protected Internal
+6.	Private Protected (Introduced in C# 7.2)
+
+1.	Public - Can be accessed from anywhere. Its own class, derived, within the namespace/assembly or outside the namespace.
+2.	Private - Can only be accessed only in the class it is declared.
+3.	Protected - Can be accessed in its own class and its "directly" derived class only.
+4.	Internal -	Can be accessed anywhere within its namespace only.
+5.	Protected Internal - Can be thought as inheritance between 2 namespace using "protected" mode. 
+	So internal in its own namespace 
+	and protected in derived namespace.
+6.	Private Protected - Here it is :
+	Protected in its own namespace
+	and private in derived namespace.
+
+	In C# we inherit using the following format
+	public class A{
+		//Content
+	}
+	public class B : A {
+	}
+
+	Here we do not any access keyword of "Access Specifier" during inheritance rather whatever is the content inside the class 
+	will be inherited according to its access specifier.
+
+C# Default access specifier
+
+If no access specifier is declared then the behaviour:
+1.	The default is "Internal". So everything without any access specifier will be internal [With exception to members within the class].
+2.	The members within a class without any access specifier will be "private" by default.
+
+Static Modifier - The static modifier on a class means that the class cannot be instantiated, 
+and that all of its members are static. 
+A static member has one version regardless of how many instances of its enclosing type are created.
+
+Sealed classes - They are used to restrict the inheritance feature of object oriented programming. 
+Once a class is defined as a sealed class, this class cannot be inherited. 
+In C#, the sealed modifier is used to declare a class as sealed. In Visual Basic .NET, NotInheritable keyword serves the purpose of sealed. 
+If a class is derived from a sealed class, compiler throws an error.
+Structs can also be sealed.
+	
+A sealed class, in C#, is a class that cannot be inherited by any class but can be instantiated. 
+The design intent of a sealed class is to indicate that the class is specialized and there is no need
+to extend it to provide any additional functionality through inheritance to override its behavior.
+
+	Purpose of Sealed Classes
+	We just saw how to create and use a sealed class in C#. 
+	The main purpose of a sealed class is to take away the inheritance feature from the class users 
+	so they cannot derive a class from it. One of the best usage of sealed classes 
+	is when you have a class with static members. For example, the Pens and Brushes classes of the System.Drawing namespace.
+
+	The Pens class represents the pens with standard colors. 
+	This class has only static members. For example, Pens.Blue represents a pen with blue color. 
+	Similarly, the Brushes class represents standard brushes. The Brushes.Blue represents a brush with blue color.
+
+
+	// Sealed class  
+	sealed class SealedClass  
+	{  
+	}   
+
+    //Another example
+	class X  
+    {  
+        protected virtual void F()  
+        {   
+            Console.WriteLine("X.F");   
+        }  
+        protected virtual void F2()  
+        {  
+            Console.WriteLine("X.F2");   
+        }  
+    }  
+    class Y : X  
+    {  
+        sealed protected override void F()  //Sealed
+        {  
+            Console.WriteLine("Y.F");  
+        }  
+        protected override void F2()  
+        {  
+            Console.WriteLine("X.F3");  
+        }  
+    }  
+    class Z : Y  
+    {  
+        // Attempting to override F causes compiler error CS0239.  
+        //   
+        protected override void F()  
+        {  
+             Console.WriteLine("C.F");   
+        }  
+        // Overriding F2 is allowed.   
+        protected override void F2()  
+        {  
+            Console.WriteLine("Z.F2");   
+        }  
+    }  
+
+************************************************************************
+
+Types of Inheritance
+
+1.  Single inheritance
+2.  Multi-level inheritance
+3.  Multiple inheritance
+4.  Multipath inheritance
+5.  Hierarchical Inheritance
+6.  Hybrid Inheritance
+
+1.  Single - Here a single class is derived from base class.
+    Ex -
+    class A{}
+    class B: A{}
+
+2.  Multi-Level - Here a class can be derived from another derived class.
+    Ex -
+    class A{}
+    class B: A{}
+    class C: B{}
+
+3.  Multiple - Here derived class can have more than one base class. In .net we use interface for the same
+    interface A{}
+    interface B{}
+    interface C : A, B
+    
+    Cause of avoiding multiple inheritance in C# - This is Cause by diamond Shape problems of two classes 
+    If two classes B and C inherit from A, and class D inherits from both B and C. 
+    A          
+    B,C
+    D
+    If a method in D calls a method defined in A (and does not override it), and B and C have overridden that method differently, 
+    then via which class does it inherit: B, or C? 
+    So., multiple inheritance is not possible in C#. that is called Diamond Problem. 
+    But., in C# we can solve the Diamond problem with the help of interfaces in some cases.
+
+4.  Multipath - Here we have the diamond structure. Not possible in C#
+    class A{}
+    class B:A{}
+    class C:A{}
+    class D: B,C {}
+
+5.  Hierchical - Multiple classes are derived from one base class. This is needed when we need the feature of base class 
+    in all the other class.
+
+    class A{}
+    
+    class B: A{}
+    class C: B{}
+    class D: B{}
+
+    class E: A{}
+    class F: E{}
+    class G: E{}
+
+6. Hybrid - Any combination of existing type of inheritance.
+
+************************************************************************
+
+Final vs Finalize vs Finally (with respect to Java)
+
+Final - (In C# it is called sealed) It applies restriction to a class. Can be used with class, method and variables.
+        Final class cannot be inherited.
+        Final method cannot be overridden by sub-class.
+        Final variables once declared they become constant that is they cannot be changed.
+
+        This is not available in C# and written with respect to java.
+        For C# we can use sealed keyword with class and method.
+        For variables we can use const and readonly. So that values cannot be changed. [Const vs Readonly in below block]
+
+Finally - This works with try catch blocks.
+        Once try throws an error it will be received by catch block. Once that exception handling is done, the 
+        finally block will be executed. That is whether the control is in try or catch still finally will be executed.
+        If declared it will always be executed. Even if the code inside the finally block has any exception it will
+        still be run. This exception can be handled using some other external try catch blocks.
+        It will be used for clean up purpose. ex - any variables declared will be cleaned, or any opened file will 
+        be closed.
+
+        try{}
+        catch(){}
+        finally{}
+
+        What will happen if exception is encountered in Finally block?
+        Ans - The exception propagates out and can be handled at upper level.
+        The finally block will not be completed once it hits the exception.
+        If there is an existing exception in try block (and not handled in immediate catch block) 
+        and then this finally block encounters the exception then the try block exception will be lost.
+
+        Ex - 
+        Case 1
+
+        using System;
+
+        class Program
+        {
+            static void Main(string[] args)
+            {
+                try
+                {
+                    try
+                    {
+                        throw new Exception("exception thrown from try block");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Inner catch block handling {0}.", ex.Message);
+                        throw;
+                    }
+                    finally
+                    {
+                        Console.WriteLine("Inner finally block");
+                        throw new Exception("exception thrown from finally block");
+                        Console.WriteLine("This line is never reached");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Outer catch block handling {0}.", ex.Message);
+                }
+                finally
+                {
+                    Console.WriteLine("Outer finally block");
+                }
+            }
+        }
+
+        Output -
+        Inner catch block handling exception thrown from try block. <------------------
+        Inner finally block
+        Outer catch block handling exception thrown from finally block.
+        Outer finally block
+
+        Case 2
+
+        using System;
+
+        class Program
+        {
+            static void Main(string[] args)
+            {
+                try
+                {
+                    try
+                    {
+                        throw new Exception("exception thrown from try block");
+                    }
+                    finally
+                    {
+                        Console.WriteLine("Inner finally block");
+                        throw new Exception("exception thrown from finally block");
+                        Console.WriteLine("This line is never reached");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Outer catch block handling {0}.", ex.Message);
+                }
+                finally
+                {
+                    Console.WriteLine("Outer finally block");
+                }
+            }
+        }
+
+        Output - 
+        <Try block exception information lost as not handled in catch> <------------------
+        Inner finally block 
+        Outer catch block handling exception thrown from finally block.
+        Outer finally block
+
+
+
+Finalize - This will be used for garbage collection purpose. It will be used before obect is destroyed. They are implemented using destructors.
+        
+************************************************************************
+
+Const VS readonly
+
+Ex : 
+public const double x=1.0, y=2.0, z=3.0;
+public static readonly uint l1 = (uint) DateTime.Now.Ticks;
+
+Readonly - Runtime constant. i.e on execution of a statement the value will be stored and that value wont be changed.
+        Ex - readonly int a1 = (a + b) * c; // After execution a1 value can't be changed throughout the execution.
+        Cannot be declared inside the method of the class.
+
+Const - Compiletime constant. i.e that is values will be predefined.
+
+************************************************************************
+
+Managed and Unmanaged Code 
+
+Managed Code - Created and handled by CLR (Common language runtime). Well handled by Garbage collector.
+Unmanage Code - Not controlled by CLR. Garbage collector cannot totally handle this code.
+
+************************************************************************
+
+C# finalize, dispose, destructors, and garbage collection
+
+Destructor - It is a method inside a class to destroy instances of a class when they are no longer needed.
+            It is implicitly called by .net Garbage Collector so it will be automatically called even if 
+            we are not implementing it.
+
+            Though we can declare it to have some added control.
+            Syntax - ~<Destroctor name>.
+            Ex -
+            class MyClass{
+                public MyClass(){}  //Constructor
+                ~MyClass() {}       //Destructor - No parameter or Access specifier
+            }
+
+Garbage Collection - 
+    GC manages the allocation and release of memory. It serves as an automatic memory manager. We do not need to 
+    track the allocation and release of memory.
+    Allocation will be done with use of 'new' keyword.
+    When execution is completed or when there isn't enough memory to allocate an object, the GC must collect and
+    dispose of garbage memory to make memory available for new allocations.
+
+    Features-
+            -   GC keep tracks of all the objects and ensures that each object get destroyed once.
+            -   GC ensures that objects, which are being referenced are not destroyed.
+            -   GC destroys the object only when necessary. We can explicity call System.GC.Collect() to invoke garbage collector
+         
+         
+C# - Finalize (or Destructors) vs Dispose -
+    Unamanged Code in C# will be handled using Dispose().
+
+    Finalize
+    -   Now Finalize is created using the Destructors.
+    -   Generally it will be controlled by GC. So there is less control when finalize will be called.
+    -   Will clean the managed code only.
+
+    Dispose 
+    -   Dispose is used by calling Dispose().
+    -   Dispose can be called explicitly call to release resource both managed + unmanaged. So if dispose is called its 
+    better we should not call the GC (or finalize again).
+    -   To implement the class must inherit from "IDisposable" interface.
+
+    Dispose Implementation
+
+    //Microsoft recommended
+    class ReadFileClass : IDisposable
+    {
+        Boolean disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true); //Freeing both Managed + Unmanaged Resource
+            GC.SuppressFinalize(this); //Suppressing Freeing of Managed Resource Again
+        }
+
+        //If disposing is false then only unmanaged code will be cleaning
+        protected virtual void Dispose(boolean disposing)
+        {
+            if (disposed) 
+                return;
+
+            if (disposing)
+            {
+                Console.WriteLine("Freeing Managed Resource");
+            }
+
+            Console.WriteLine ("Freeing Unmanaged Resource");
+        
+            disposed = true;
+        }
+    }
+
+ NOTE - Next iteration SafeHandle.Dispose use 
+ https://www.youtube.com/watch?v=6_Upud25iFQ
+ https://dzone.com/articles/when-and-how-to-use-dispose-and-finalize-in-c
+
+************************************************************************
+
+Ref vs Out
+
+Ref and Out keyword will be utilized for using as reference variable.
+
+For ref it has to be initialized to be updated with new data.
+For out we can simply assign value to it without initializing with data.
+
+    Ref Example :
+
+    public static string GetNextName(ref int id)
+    {
+        string returnText = "Next-" + id.ToString();
+        id += 1;
+        return returnText;
+    }
+    static void Main(string[] args)
+    {
+        int i = 1;
+        Console.WriteLine("Previous value of integer i:" + i.ToString());
+        string test = GetNextName(ref i);
+        Console.WriteLine("Current value of integer i:" + i.ToString());
+    }
+
+    Out Example :
+
+    public static string GetNextNameByOut(out int id)
+    {
+        id = 1;
+        string returnText = "Next-" + id.ToString();
+        return returnText;
+    }
+    static void Main(string[] args)
+    {
+        int i = 0;
+        Console.WriteLine("Previous value of integer i:" + i.ToString());
+        string test = GetNextNameByOut(out i);
+        Console.WriteLine("Current value of integer i:" + i.ToString());
+    }
+
+************************************************************************
+
+Serialize vs Deserialize
+
+Serialize - Copy data from object to file. Ex - List Data to JSON data.
+Deserialize - Copy file data to object. Ex - JSON data to List Data.
+
+************************************************************************
+
+What is the difference between Array and Arraylist?
+In an array, we can have items of the same type only. The size of the array is fixed when compared. 
+To an arraylist is similar to an array, but it doesn’t have a fixed size.
+
+Array - 
+
+int[] intArray = new int[5];
+intArray[0] = 10;
+intArray[1] = 20;
+// ...
+
+ArrayList - 
+
+using System.Collections;
+
+ArrayList arrayList = new ArrayList();
+arrayList.Add(10);
+arrayList.Add("Hello");
+
+
+************************************************************************
+
+What are the differences between System.String and System.Text.StringBuilder classes?
+System.String is immutable. When we modify the value of a string variable, then a new memory is allocated 
+to the new value and the previous memory allocation released. System.StringBuilder was designed to have a 
+concept of a mutable string where a variety of operations can be performed without allocation separate 
+memory location for the modified string.
+
+************************************************************************
+
+What is Boxing and Unboxing in C#? 
+ 
+Boxing and Unboxing both are used for type conversions.
+ 
+The process of converting from a value type to a reference type is called boxing. 
+Boxing is an implicit conversion. Here is an example of boxing in C#.
+    // Boxing  
+    int anum = 123;  
+    Object obj = anum;  
+    Console.WriteLine(anum);  
+    Console.WriteLine(obj); 
+
+
+The process of converting from a reference type to a value type is called unboxing. Here is an example of unboxing in C#.
+    // Unboxing  
+    Object obj2 = 123;  
+    int anum2 = (int)obj;  
+    Console.WriteLine(anum2);  
+    Console.WriteLine(obj);  
+
+************************************************************************
+
+Can “this” be used within a static method?
+ 
+We can't use 'this' in a static method because the keyword 'this' returns a reference to the current instance of the class containing it. 
+Static methods (or any static member) do not belong to a particular instance. They exist without creating an instance of the class 
+and are called with the name of a class, not by instance, so we can’t use this keyword in the body of static Methods. However, 
+in the case of Extension Methods, we can use the parameters of the function.
+Let’s have a look at the “this” keyword.
+
+************************************************************************
+
+Extension methods in C#?
+ 
+Extension methods enable you to add methods to existing types without creating a new derived type, recompiling, 
+or otherwise modifying the original type. 
+
+************************************************************************
+
+SOLID Principles
+
+S - Single Responsibility Principle
+O - Open Closed Principle
+L - Liskov Substitution Principle
+I - Interface Segregation Principle
+D - Dependeny Inversion Principle
+
+Single Responsibility Principle - The class must have only one target to complete. Or it must only have a single task. 
+        Lesser the task lesser the bug.
+
+Open Closed Principle - A class must be open for extension /inheritance but must be closed for change.
+
+Liskov Substitution Principle - Sub type must be replacable as needed due to the change in the base type 
+        without change in the flow of the program.
+
+Interface Segregation - Larger "interfaces" must be broken down into smaller interface such that impementing class 
+        should only implement those methods which are needed.
+
+Dependency Inversion - It says high level module should not be dependent on any other module. 
+        Rather they should be dependent on an interface.

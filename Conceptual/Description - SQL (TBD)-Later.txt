@@ -1,0 +1,88 @@
+﻿Max Columns in a Table - 1024
+Max Columns per insert - 4096
+Max Columns per select - 4096
+Max Columns per update - 4096
+
+Max Non-Clustered Index per table - 999
+
+
+
+Table variable is a type of local variable that used to store data temporarily, similar to the temp table in SQL Server. Tempdb database is used to store table variables.
+
+
+In SQL Server, both table variables and temporary tables are used to store and manipulate temporary data within a session or a scope. However, they have some differences in terms of usage, behavior, and performance characteristics. Here's a comparison between table variables and temporary tables:
+
+Table Variables:
+
+Scope: Table variables have a scope limited to the batch, stored procedure, or function in which they are defined. They cannot be accessed outside of that scope.
+
+Transaction: Table variables are part of the transaction and are rolled back if the transaction is rolled back.
+
+Statistics: SQL Server does not maintain statistics on table variables. This can lead to less optimal query optimization.
+
+Memory: Table variables are typically stored in memory. However, if they consume too much memory, they can be spilled to the TempDB.
+
+Usage: Table variables are often recommended for smaller datasets, where the performance benefits of in-memory data outweigh the limitations.
+
+Indexing: You can define primary keys on table variables, but you cannot create non-clustered indexes explicitly.
+
+Table Type: Table variables do not have a fixed schema; they are defined using a DECLARE statement with the table structure. This makes them flexible but can lead to potential query plan recompilations.
+
+Temporary Tables:
+
+Scope: Temporary tables can be used across different scopes and sessions within the same database. They persist until explicitly dropped or until the session ends.
+
+Transaction: Temporary tables can be created and used within transactions, and their data can be either committed or rolled back based on the transaction outcome.
+
+Statistics: Temporary tables have statistics, which can aid query optimization and lead to better execution plans.
+
+Memory: Temporary tables can be created either in memory or on disk based on factors like table size and memory availability.
+
+Usage: Temporary tables are suitable for larger datasets, complex queries, and when you need more control over indexing and statistics.
+
+Indexing: Temporary tables can have both primary keys and non-clustered indexes, allowing for better optimization of query performance.
+
+Table Type: Temporary tables have a defined schema, and you need to create them explicitly using the CREATE TABLE statement.
+
+In general, if you're working with small datasets and your operations are contained within a smaller scope (e.g., a single stored procedure), table variables might be a good choice. For larger datasets, complex queries, or scenarios where you need more control over indexing and statistics, temporary tables could be more suitable. Always consider the specific requirements of your application and performance characteristics when choosing between the two.
+
+
+
+
+User
+Primary mem is stack or heap
+ChatGPT
+In programming, primary memory is typically categorized into two main areas: the stack and the heap. However, these terms are usually associated with how memory is managed in languages like C and C++, where you have more direct control over memory allocation. In higher-level languages like C# or Java, memory management is abstracted away, and the distinction between stack and heap memory is less prominent.
+
+Here's a general explanation of stack and heap memory:
+
+Stack Memory:
+
+Stack memory is used for storing local variables, function parameters, and return addresses.
+Memory allocation and deallocation are managed automatically and quickly.
+Memory is allocated in a Last-In-First-Out (LIFO) manner.
+Stack memory is generally limited in size and is usually smaller than heap memory.
+Memory management is more efficient but less flexible.
+Primitive data types and references to objects are often stored on the stack.
+Heap Memory:
+
+Heap memory is used for dynamically allocated objects, such as objects created using the new keyword in C# or Java.
+Memory allocation and deallocation are managed by the programmer (or the garbage collector in managed languages) and can take more time.
+Memory allocation in the heap is more flexible, and the memory can be allocated and deallocated in any order.
+Heap memory is generally larger than stack memory.
+Objects in the heap can outlive the scope in which they were created.
+Complex data structures and objects are stored on the heap.
+In the context of managed languages like C# (.NET) or Java, memory management is abstracted away from the programmer to a significant extent. Objects are created using constructs like the new keyword, and the memory allocation and deallocation are managed by the garbage collector. The exact memory management mechanisms and optimizations vary between different programming languages and runtime environments.
+
+In summary, the terms "stack" and "heap" refer to memory management concepts, and their usage and behavior depend on the programming language and runtime environment you're working with. In managed languages like C# and Java, memory management is more abstract and handled by the runtime environment, making the distinction between stack and heap less relevant from a programmer's perspective.
+
+
+
+
+
+
+
+
+
+
+

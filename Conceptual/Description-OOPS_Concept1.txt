@@ -1,0 +1,256 @@
+﻿OOPS -
+
+Features
+1. Emphasis on Data rather than procedure.
+2. Data security
+3. Follows bottom-up approach. 
+	Here in this approach the modules are designed individually and are then integrated together to complete the design.
+	Advantage - Testing and Reusability gets easier.
+	While the top-down approach focusses on breaking down a bigger problem into smaller and understandable chunk, the 
+	bottom-up approach first focusses on solving the smaller problems at the fundamental level and then integrating them 
+	into whole and complete solution.
+
+Properties
+1.	Classes and Objects.
+2.	Data abstraction and encapsulation - Wrapping up of data and functions into a single unit (called class) is known 
+	as "encapsulation". The data is generally not accessible to outside world and methods inside the class can access it.
+	So the methods form the medium through which data can be exchanged between object and the program. This insulation from
+	direct access by the program is called "data hiding".
+	Abstraction referes to the act of representing essential features without including the background details or explanations.
+	Since classes use the concept of data abstraction they are known as Abstract Data types.
+3.	Inheritance - It is the process by which one class acquire the properties of objects of another class.
+4.  Polymorphism - Same name but different logic. Ex - Method overloading : Here we can have multiple methods of same name 
+	but different parameters. Ex - Operator Overloading : Operator exhibit different behavior in diff instances.
+5.	Dynamic Binding - Also called late binding. Here the code associated with a given procedure call is not known till the 
+	code is run or at instantiation.
+
+************************************************************************
+
+Data Types
+1. Built-in Types - Integral Types - Int, Char
+					Void
+					Floating - Float, double
+2. User-Defined - Structure, Union, Class, enum
+3. Derived - Array, function, pointer, reference
+
+************************************************************************
+
+C++ Example of Pointers - 
+	int *ptr;
+	ptr = &add; //Assign address of "add" in ptr
+	*ptr = 10; //10 is assigned to "add" through indirection
+
+C++ SizeOf Operator Example - 
+	sizeof('x'); or sizeof(int);
+
+
+//PascalCase vs camelCase
+
+************************************************************************
+
+Reference Variable - Its an alias to the original variable. The reference variable and the original variable will share the same memory space.
+	Ex :	float total = 100;
+			float &sum = total;
+
+Type cast in C# 
+	Ex int a = (int) 1.01;
+
+************************************************************************
+(IGNORE)
+Call by reference
+	C++ - 
+	void cppSwap ( int &a, int &b){
+		int t =a;
+		a = b ;
+		b = t;
+	}
+
+	C -
+	void cSwap (int *a, int *b){
+		int t;
+		t = *a;
+		*a = *b;
+		*b = t;
+	}
+
+	C# - The ref keyword in C# is used for passing or returning references of values to or from Methods. 
+	Basically, it means that any change made to a value that is passed by reference will reflect this 
+	change since you are modifying the value at the address and not just the value.
+
+	Swap between 2 variables with no additional variable
+	public static void Main(string[] args){
+		int a = 10;
+		int b = 5;
+		Swap(ref a, ref b);
+		Console.Writeline("A : " + a + ", B : " + b);
+	}
+
+	void Swap(ref int a, ref int b){
+		a = a + b;
+		b = a - b;
+		a = a - b;
+	}
+
+C++ return by reference
+	max(a,b) = -1;
+
+	int &max(int &x, int *y)
+	{
+		if(x>y)
+			return x;
+		else
+			return y;
+	}
+	Here if a is greater then -1 will be assigned
+	else b will be assigned to -1;
+
+
+Default argument
+	func(int a, int b, int c = 1) 
+	Restrictions
+	1. Must be assigned to variables at the RHS end.
+	2. If there are more than one then assigned in chain from the RHS end. like func(int a, int b, int c = 1, int d = 2)
+	Helful
+	1. When we dont want to pass any value for the parameter.
+
+************************************************************************
+(IGNORE)
+Friend class 
+
+C++ - A friend class can access private and protected members of other class in which it is declared as friend. 
+It is sometimes useful to allow a particular class to access private members of other class.
+
+	// C++ program to demonstrate the working of friend class
+
+	#include <iostream>
+	using namespace std;
+
+	// forward declaration
+	class ClassB;
+
+	class ClassA {
+		private:
+			int numA;
+
+			// friend class declaration
+			friend class ClassB;
+
+		public:
+			// constructor to initialize numA to 12
+			ClassA() : numA(12) {}
+	};
+
+	class ClassB {
+		private:
+			int numB;
+
+		public:
+			// constructor to initialize numB to 1
+			ClassB() : numB(1) {}
+    
+		// member function to add numA
+		// from ClassA and numB from ClassB
+		int add() {
+			ClassA objectA;
+			return objectA.numA + numB;
+		}
+	};
+
+	int main() {
+		ClassB objectB;
+		cout << "Sum: " << objectB.add();
+		return 0;
+	}
+
+
+************************************************************************
+(IGNORE)
+C++ Friend Function
+
+A friend function of a class is defined outside that class' scope but it has the right to access all private and protected members 
+of the class. Even though the prototypes for friend functions appear in the class definition, friends are not member functions.
+
+A friend can be a function, function template, or member function, or a class or class template, 
+in which case the entire class and all of its members are friends.
+
+To declare a function as a friend of a class, precede the function prototype in the class definition with keyword friend as follows −
+
+	#include <iostream>
+ 
+	using namespace std;
+ 
+	class Box {
+	   double width;
+   
+	   public:
+		  friend void printWidth( Box box );
+		  void setWidth( double wid );
+	};
+
+	// Member function definition
+	void Box::setWidth( double wid ) {
+	   width = wid;
+	}
+
+	// Note: printWidth() is not a member function of any class.
+	void printWidth( Box box ) {
+	   /* Because printWidth() is a friend of Box, it can
+	   directly access any member of this class */
+	   cout << "Width of box : " << box.width <<endl;
+	}
+ 
+	// Main function for the program
+	int main() {
+	   Box box;
+ 
+	   // set box width without member function
+	   box.setWidth(10.0);
+   
+	   // Use friend function to print the wdith.
+	   printWidth( box );
+ 
+	   return 0;
+	}
+
+************************************************************************
+
+C# virtual method -
+	
+	It is a method that can be redefined in derived classes. 
+
+	In C#, a virtual method has an implementation in a base class as well as derived the class. 
+
+	It is used when a method's basic functionality is the same but sometimes more functionality 
+	is needed in the derived class. A virtual method is created in the base class that can be 
+	overriden in the derived class. We create a virtual method in the base class using the virtual keyword 
+	and that method is overriden in the derived class using the override keyword.
+ 
+	When a method is declared as a virtual method in a base class then that method can be defined in a base 
+	class and it is optional for the derived class to override that method. The overriding method also provides 
+	more than one form for a method. Hence it is also an example for polymorphism.
+ 
+	When a method is declared as a virtual method in a base class and that method has the same definition 
+	in a derived class then there is no need to override it in the derived class. But when a virtual method 
+	has a different definition in the base class and the derived class then there is a need to override 
+	it in the derived class.
+ 
+	When a virtual method is invoked, the run-time type of the object is checked for an overriding member. 
+	The overriding member in the most derived class is called, which might be the original member, 
+	if no derived class has overridden the member.
+
+Check : Virtual2.cs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Description.txt" />
+    <None Remove="Description-DesignPattern.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Description.txt" />
+    <Content Include="Description-DesignPattern.txt" />
   </ItemGroup>
 
   <ItemGroup>

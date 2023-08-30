@@ -31,9 +31,11 @@ namespace Conceptual1
 
             //******************** BLOCK 2 **************************************************
             //Generic delegates
+            //Note - Previous delegates that we have implemented in "DelegateTesting1" file was Custom Delegates
 
             //Func <with input as double, output as double>
-            //- It will take an input and produce and output (it might not have any input)
+            //- It will take an input and produce and output (it might not have any input but always an output)
+            // Ex - Func<int> represents it returns int type and takes no input
             Func<double,double> cptr1 = r => 3.14 * r * r;
             double area4 = cptr1(50);
             Console.WriteLine(area4);
