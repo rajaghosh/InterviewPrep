@@ -1,4 +1,9 @@
-﻿
+﻿Azure Active Directory
+Graph API
+OpenIAM
+RadisCache
+SQL
+--------------------------------------------------------------------------------------------------------------------------
 
 What is service principle in Azure? Purpose
 

@@ -1,0 +1,598 @@
+﻿Azure Resource Scope Inheritence Order -
+
+Management group > Subscription > Resource group > Resource. 
+Scopes are structured in a parent-child relationship. 
+Each level of hierarchy makes the scope more specific.
+
+-------------------------------------------------------------------------------------------------------------
+
+Message Broker - 
+	A message broker is a software or service that acts as an intermediary between different applications or components 
+	within a distributed system, facilitating the exchange of messages or data between them. Message brokers play a crucial
+	role in enabling asynchronous communication and decoupling the producers and consumers of messages, which can enhance
+	the scalability, flexibility, and reliability of an application architecture. Here are some key characteristics and 
+	functions of a message broker:
+
+	* Message Routing: Message brokers receive messages from producers and route them to one or more consumers based 
+	on predefined rules or criteria. This routing can be based on message content, destination, or other attributes.
+
+	* Publish-Subscribe: Message brokers often support a publish-subscribe (pub-sub) model, where producers publish 
+	messages to specific topics or channels, and multiple consumers subscribe to those topics to receive relevant messages.
+
+	* Point-to-Point Messaging: In addition to pub-sub, message brokers typically support point-to-point messaging, 
+	where a message is sent from one producer to a specific consumer or queue.
+
+	* Message Transformation: Message brokers can perform message transformation, including data format conversion, 
+	enrichment, or validation, before delivering messages to consumers.
+
+	* Message Persistence: Messages are often persisted in the message broker to ensure durability and reliability, 
+	even if consumers are temporarily unavailable. This can be crucial for preventing message loss.
+
+	* Message Prioritization: Some message brokers allow for the prioritization of messages, ensuring that high-priority 
+	messages are processed before lower-priority ones.
+
+	* Dead Letter Queues: Message brokers often include dead letter queues or mechanisms for handling failed messages, 
+	allowing developers to investigate and handle problematic messages.
+
+	* Load Balancing: Message brokers can distribute messages evenly among multiple consumers to achieve load balancing 
+	and ensure efficient processing.
+
+	* Message Acknowledgment: Consumers typically acknowledge the successful processing of messages to the message broker,
+	allowing the broker to remove them from the queue or topic.
+
+	* Security: Message brokers provide security features such as authentication, authorization, and encryption to protect
+	the messages being transmitted.
+
+	* Scalability: Message brokers are designed for scalability, allowing them to handle a large volume of messages and adapt 
+	to changing workloads.
+
+	* Monitoring and Management: Message brokers often offer monitoring and management tools to track message flow, 
+	diagnose issues, and configure broker settings.
+
+	Some popular message brokers and messaging services include Apache Kafka, RabbitMQ, Apache ActiveMQ, AWS SQS (Simple Queue Service),
+	Azure Service Bus, and Google Cloud Pub/Sub. The choice of a message broker depends on the specific requirements of your 
+	application and the cloud platform or infrastructure you are using.
+
+
+-------------------------------------------------------------------------------------------------------------
+Azure Messaging Services
+	Under Azure Messaging Services we have multiple services out of these the most important are:
+	1. Azure Service Bus
+	2. Event Hub
+	3. Event Grid
+
+------------------------------------------------------------
+Azure Service Bus 
+	It is a fully managed enterprise Message Broker with message queueing and publish subcribe topics.
+	It is used to fully DECOUPLE applications and services and provide reliable message queueing and topic subscription models. 
+	Messaging capabilities includes :
+	* Queues	(1 sender : 1 receiver system)
+	* Topic and Subscription	(1 sender : N receiver system) with Rules and actions
+
+
+	You can use the following protocols with Azure Service Bus to send and receive messages:
+		-> Advanced Message Queuing Protocol 1.0 (AMQP)
+		-> Hypertext Transfer Protocol 1.1 with TLS (HTTPS)
+
+
+
+Service Bus Namespace - Container for all the messaging services - Queues and Topics
+
+//IGNORE
+	In Azure Service Bus, you can create both queues and topics with the same name within a Service Bus namespace. 
+	However, you cannot have a trigger (such as an Azure Function trigger) with the same name as a queue or topic 
+	within the same Service Bus namespace. Here's why:
+
+	* Queues and Topics: Queues and topics are the primary messaging entities in Azure Service Bus. 
+	They are used for sending and receiving messages. You can create multiple queues and topics within 
+	a Service Bus namespace, and each can have a unique name.
+
+	* Triggers: Triggers, on the other hand, are typically associated with serverless compute resources 
+	like Azure Functions or Logic Apps. When you create a trigger in Azure Functions, it listens to a specific queue
+	or topic for incoming messages. You configure the trigger with the name of the queue or topic it should listen to.
+
+	For example, you can create an Azure Function with a Queue Trigger and specify the name of a queue (e.g., "myqueue")
+	that the function should respond to.
+
+	Similarly, you can create an Azure Function with a Service Bus Topic Trigger and specify the name of a topic (e.g., "mytopic") 
+	and a subscription within that topic.
+
+	Because triggers are associated with specific messaging entities (queues or topics), it's important to choose unique names 
+	for your triggers to avoid naming conflicts with existing queues or topics within the same Service Bus namespace.
+
+	In summary, you can have queues, topics, and triggers within the same Azure Service Bus namespace, but the names 
+	of queues/topics
+	and triggers must be distinct to prevent naming conflicts and ensure that messages are routed correctly to the intended triggers.
+
+
+------------------------------------
+ 
+ SERVICE BUS QUEUE
+
+ We can create a Queue with data fed for
+	* Max Queue size
+	* Max delivery count - ??
+	* Message time to live
+
+	Click on the Shared Access Policies -> Get the Key
+
+	To code 
+
+	Step 1 : Include Nuget Package
+	
+		Azure.Messaging.ServiceBus
+
+	Step 2 : Add the code to send the service bus 
+	
+	[HttpPost]
+	public async Task MyServiceMethod(Object myObject)
+	{
+		var client = new ServiceBusClient(<ConnectionStringOfServiceBus>);
+		var sender = client.CreateSender("MY_QUEUE_NAME"); //Depending upon use we can use queue to topic name
+
+		var bodyMsg = JsonConvert.SeriablizeObject(myObject);
+		var message = new ServiceBusMessage(bodyMsg);
+
+		//If the msgContain certain keyword then the msg will be push to queue with 15sec delay
+		if(bodyMsg.Contains("MY_KEYWORD"))
+			message.ScheduledEnqueueTime = DateTimeOffset.UtcNow.AddSeconds(15);
+
+		//If the msg contains TTL then the msg if it stays in queue without getting pulled 
+		//by Azure functions more than 20secs. 
+		//Then the message will be removed from the queue and deleted (not dead-letter)
+		if(bodyMsg.Contains("ttl"))
+			message.TimeToLive = TimeSpan.FromSeconds(20);
+
+		await sender.SendMessageAsync(message);		//Also we have SendMessagesAsync for multiple messages
+	}
+
+	In the portal we go to Service Bus
+	-> Click on Service Bus Explorer
+	Here we would get 3 options
+	- Send : To Resend the data
+	- Receive : To check + delete the content
+	- Peek :  To check message from Queue + Deadletter
+
+	Note - DeadLetter is a sub-queue to keep data which were not processed from the queue
+
+	-------------------------------------------------
+
+	Step 3 : 
+	Use the queue message - We use Azure function. To run Azure Functions locally we need Azure Core Tools
+
+	To use Azure Function let us use .net code functions
+	1. Azure web job storage - Select as Storage Emulator
+	
+	Azure Function Code
+
+	public static class MyFunction
+	{
+		[FunctionName("MyFunction")]
+		public static void Run
+		(	[ServiceBusTrigger("MY_QUEUE_NAME", Connection = "ConnString")] string myQueueItem
+			, ILogger log)
+			{
+				//Here if we get the exception we throw - Now the msg will remain in the queue with DELIVERY COUNT = DELIVERY COUNT + 1
+				//Once the DELIVERY COUNT reaches the max delivery count limit of the queue then it will be pushed to DEAD LETTER queue 
+				//Ex : If queue has delivery count = 10, our msg once completes 10 iteration from Queue <-> functions will be pushed to 
+				//Dead Letter with delivery count = 11
+
+				if(myQueueItem.Contains("KEYWORD"))
+					throw new Exception();
+
+				//DO SOME WORK
+			}
+		}
+	}
+
+	Here 
+	myQueueItem - object that holds the data JSON serialized to string data
+
+	----------------------------------------
+	Service Bus Queue Properties 
+
+	1. Service Bus Queues can be of Sizes between 1GB and 80GB
+	2. Max message size between 256KB to 100MB
+	3. TTL = TimeSpan.MaxValue
+	4. Max No. Of Queues = 10000 (per service namespace)
+	5. Max No. of Concurrent Clients = 5000
+
+	Service Bus Queue tree -> ServiceBus NameSpace/ServiceBus Queue
+
+	- Azure Service Bus queue message removed after TTL then it will be deleted 
+	- We cannot have Queue and Topic with same name in a Service Bus namespace.
+
+------------------------------------------------------------------------------------------------------------------------------
+
+SERVICE BUS TOPICS
+
+Concept -> Sender -> Service Bus Topic -> N Subscriber (Pub-Sub Model)
+	Service Bus Topic tree -> ServiceBus NameSpace/ServiceBus Topic/TopicSubscriber
+
+To code 
+
+	Step 1 : Create a Topic
+	This TOPIC will store the message sent from Code. And later will be consumed by a SUBSCRIBER
+
+	Step 2 : Include Nuget Package
+	
+		Azure.Messaging.ServiceBus
+
+	Step 3 : 
+
+	[HttpPost]
+	public async Task Post(WeatherForecast obj)
+	{
+		var client = new ServiceBusClient("CONNECTION_STRING");
+		var sender = client.CreateSender("MY_BUS");
+
+		var msgBody = JsonConvert.SerializeObject(obj);
+		var sbMessage = new ServiceBusMessage(msgBody);
+	
+		await sender.SendMessageAsync(sbMessage);	//Also we have SendMessagesAsync for multiple messages
+	}
+
+	Step 4 : To receive the message we need to create a SUBSCRIPTION
+	In the portal -> Topic -> LHS Menu click on SUBSCRIPTION
+
+	Add Name, Max Delivery Count, Auto Delete after idle for, Time to live, Message lock duration
+
+	Note: For a Topic we can have many Subscriber. Any Subscriber created now will not be able to 
+	access the content previous data of topic.
+
+	Step 5 : Create a Azure Function
+	We would create a Service Bus Topic Trigger
+
+	//Subscription 1 is used by "MyFunction"
+	[FunctionName("MyFunction"]
+	public void Run
+		([ServiceBusTrigger("MY_TOPIC", "SUBSCRIPTION1", Connection="MyConnection"), Disable("MY_DISABLE_KEY")] string mySbMsg, ILogger logger)
+	{
+		//For any exception the delivery count concept will be same as the
+		//Queue but the delivery count will be impacted at the subscription
+		//And the message will be sent to DEAD LETTER of the subscription
+				
+		//Do some work
+	}
+
+	//Here "MY_DISABLE_KEY" can be implemented in almost all type of functions once if it is true then though triggering element is present 
+	//FunctionApp wont be triggered
+
+	//Subscription 2 is used by "SendEmail"
+	[FunctionName("SendEmail"]
+	public void Run
+		([ServiceBusTrigger("MY_TOPIC", "SUBSCRIPTION2", Connection="MyConnection")] string mySbMsg, ILogger logger)
+	{
+		//Send Email
+				
+		//Do some work
+	}
+
+
+	----------------------------------------------------------------------------
+	
+	For a subscription we can create a Filter
+		Step -> Go to Subscription + click on OVERVIEW -> At bottom we can find Filter 
+		Add a filter - Here we are using SQL filter. Let us have the filter logic from portal
+	
+		Month = 'January'
+	
+		or we can write like
+
+		Month LIKE 'Jan%'
+
+		Let this filter be added to "Subscription2" for "SendEmail"
+
+	----------------------------------------------------------------------------
+
+	From the service the data we are pushing we add a 
+	Property -> Month with data
+	We send the data to TOPIC
+
+	As we have added the filter to "Subscription2" so "SendEmail" will be invoked only in the message the Month Property has value 
+	"January"
+
+	The other functions with no Filter will be invoked as Topic receives message.
+
+	Filters can be SQL filter, Boolean Filter, Correlational Filter. We would discuss about Sql filters
+
+	----------------------------------------------------------------------------
+
+	From the code also we can set the Filters.
+
+	[HttpPost]
+	public async Task SetRule()
+	{
+		var client = new ServiceBusClient("CONNECTION_STRING");
+
+		// Create a SQL filter with color set to red
+		// Action is defined to set the quantity to half if the color is red
+		await client.CreateRuleAsync("MY_TOPIC", "MY_SUBSCRIPTION", 
+				new CreateRuleOptions 
+				{ 
+					Name = "RedOrdersWithAction",
+					Filter = new SqlRuleFilter("user.color='red'"),
+					Action = new SqlRuleAction("SET quantity = quantity / 2;")
+				}
+	}
+
+	This will create a rule. Filters with Actions is called Rules.
+	Here for Topic = My_Topic
+	Subscription = My_Subscription
+	We created a rule with Filter if the data passed to topic has color = red then "My_Subcription" will be invoked and 
+	Quantity will be divided by 2. 
+
+
+
+	Service Bus Properties 
+	* Number of subscriptions per topic	Entity	2,000 per-topic for the Standard tier and Premium tier.
+	* Number of SQL filters per topic	Entity	2,000
+	* Number of correlation filters per topic	Entity	100,000
+
+	Rest of the conditions are same as below (previosly mentioned)
+		1. Service Bus Queues can be of Sizes between 1GB and 80GB
+		2. Max message size between 256KB to 100MB
+		3. TTL = TimeSpan.MaxValue
+		4. Max No. Of Queues = 10000 (per service namespace)
+		5. Max No. of Concurrent Clients = 5000
+
+--------------------------------------------------------------
+
+Azure Messaging Services Comparison
+
+AZURE EVENT GRID
+	- Serverless event bus for Azure service to service communication
+	- Atleast once delivery of message
+	- Low cost
+
+AZURE EVENT HUB (typically will be used for Big Data)
+	- Streaming data service
+	- Low latency
+	- Can receive and process millions of events per seconds
+	- Comparatively expensive
+
+AZURE SERVICE BUS
+	- Queue or Pub/Sub for web application
+	- Polling or checking at regular interval
+
+
+----------------------------------------------------------
+
+Azure event Grid
+
+It is used for Serverless events. Azure Event Grid is a highly scalable, fully managed Pub Sub message distribution service 
+that offers flexible message consumption patterns using the MQTT and HTTP protocols. 
+
+Event grid can accept any information from any of the Azure Services and respond back to any other azure services.
+The purpose of the event grid is to receive an event(event grid message) and relay to downstram service to perform certain actions.
+
+
+
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+
+AZURE STORAGE SERVICES -
+
+This will have different storage mechanism -
+	- Azure files - Sharing of files between multiple VMs. It basically provides the file explorer structure for the VMs
+	- Azure blob storage SAS token - It is a scalable object store for text and binary data (for unstructured data).
+	- Azure queues - Messaging Store for messaging between applications
+	- Azure tables (no sql) - NoSQL store for non-relation data.
+
+--------------------------------------------------------------------------------------------------
+
+
+Stored Access Policy Vs Shared Access Signature
+	
+	Stored Access Policy is the policy of the Azure Storage account which determine how access to storage account resources
+	will be configured.
+
+	Shared access signature token (SAS Token) which provides a temporary token accessilble for limited time which can be shared
+	to access a particular resource.
+
+
+---------------------------------------------------------------------------------
+
+AZURE QUEUE STORAGE
+
+This is a queueing solution for handling "large volume" of data. It allows asynchoronous communication between applications
+This allows to decouple components, build resilience and also scale traffic.
+
+It is a service to store large volume of data.
+
+	A queue message can be upto 64KB in size.
+
+	Typically the address format is https://<MY_AZURE_STORAGE_ACCOUNT>.queue.core.windows.net/<MY_QUEUE>
+
+
+
+Let us implement
+
+	Step 1 : Now create a Azure Storage Account + Azure Storage Queue
+	
+	When we push a message to queue it will have insertion time, deletion time (by default it will be 7 days).
+
+	Step 2 : Use nuget package
+		Azure.Storage.Queues
+
+	Step 3 : Create a service which deals with long running task. So we will use backgraound process to run them.
+
+	[HttpPost]
+	public async Task Post([FromBody] Weatherforecast data)
+	{
+		var queueName = "MY_STORAGE_QUEUE";
+		var queueClient = new QueueClient("CONN_STR", queueName);
+
+		var message = JsonConvert.SerializeObject(data);
+
+		//Visibility timeout - After how much time after push the messasge appears in the queue
+		var visibilityTimeOut = TimeSpan.FromSeconds(10);	
+		
+		//Expiration time
+		//Here as visibility timeout is 10secs and expiration timeout if it was 10secs then
+		//the message will never appear in the queue. So we must have higher value. Now it is 20secs
+		//As such the message stays in the queue for 20-10 = 10secs
+		//Now if we want the message to never expire we can set the value TimeSpan.FromSeconds(-1);
+		var expirationTime = TimeSpan.FromSeconds(20);		
+		
+		await queueClient.SendMessageAsync(message, visibilityTimeOut, expirationTime);		//Also we have SendMessagesAsync for multiple messages
+	}
+
+	Step 4 : Create a task for with backgound running task.
+
+	public class WeatherDataService : BackgroundService
+	{
+		private readonly ILogger<WeatherDataService> _logger;
+		public WeatherDataService(ILogger<WeatherDataService> logger)
+		{
+			_logger = logger;
+		}
+
+		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+		{
+			var queueName = "MY_STORAGE_QUEUE";
+			var queueClient = new QueueClient("CONN_STR", queueName);
+
+			//Till the application keeps running IsCancellationRequested will be false
+			while(!stoppingToken.IsCancellationRequested)
+			{
+				//When we read the message from the queue it will be temporarily disappear from the queue for certain period.
+				//The default visibiltiyTimeout for the ReceiveMessageAsync() is 30 secs. That is when read this message will
+				//be hidden from the queue for 30secs.
+				var queueMsg = await queueClient.ReceiveMessageAsync();	//Also we have ReceiveMessagesAsync
+
+				if(queueMsg.Value != null)
+				{	
+					//Data received in Json Format
+					var weatherData = JsonConvert.DeserializeObject<Weatherforecast>(queueMsg.Value.MessageText);
+
+					//Do some task
+
+					//This deletion is essential else message will not be deleted from the queue
+					//If it is a long running process or thrown an exception, as such the delete command is not hit
+					//so the message will appear in the Queue for other application to process.
+					await queueClient.DeleteMessageAsync(queueMsg.Value.MessageId, queueMsg.Value.PopRecipt);
+				}
+
+				//This becomes a background service will polls queue message every 10 secs
+				await Task.Delay(TimeSpan.FromSeconds(10));
+			}
+		
+		}
+	}
+	
+	In the Startup.cs we need to add references
+
+	ConfigureServices(IServiceCollection services)
+	{
+		services.AddHostedService<WeatherDataService>();
+	}
+
+	------------------------------------------------------------------------
+
+	We can also use it as Queue Trigger
+	//Please note the function name must be unique for a function namespace
+	
+	[FunctionName("ProcessWeatherData")]
+	public static void Run
+	([QueueTrigger("MY_QUEUE", Connection = "CONN_STR")] string myQueueItem, ILogger logger)
+	{
+		if(myQueueItem.Contains("EXCEPTION_STR")) throw new Exception();
+
+		//Do some work
+	}
+	
+	Here let the string has the content "EXCEPTION_STR" now our message is not getting processed, as such in the queue
+	the DEQUEUE Count will increase. Once the queue content reaches threshold DEQUEUE COUNT this content will be pushed 
+	to a new queue MY_QUEUE-poison, here "-poison" will be added to our queue name and will be send in such scenario.
+	Please note for now there is no poison queue so the message will not be accessible.
+
+	As for previous scenario poison queue is now created but the last message is not accessible. Now once created a similar
+	error condition will throw the message in the newly created poison queue and we will be able to access it.
+
+	For the Dequeue count it will be say at initiation 5 so in the poison queue it will be 0 (5-1-1-1-1-1 -> 0)
+
+	While reading the message from functions to Azure Queue Storage we can configure the max dequeue count in the 
+	host.json file - this file has all the configurations related to metadata of the functions 
+	
+	
+
+
+
+
+Azure Queue Storage vs Azure Service Bus Queue
+
+	-> Queue Storage - A simple message queue service to store large number of messages.
+	 SB Queue - Broader messaging service that supports queing, pub-sub approach.
+
+	-> QS 
+		- Can handle million of messages, no order gaurantee.
+		- Atleast once delivery
+		- 500TB max queue size
+		- 64KB message size
+		- Unlimited queues
+		- Unlimited concurrent clients
+		- Leased based access mode 30 sec to 7 days
+	SBQ 
+		- Offers FIFO ordering
+		- Atleast Once or Atmost once delivery
+		- 1GB to 80GB max queue size
+		- 256KB to 1MB message size
+		- 10000 max queues
+		- 5000 concurrent clients
+		- Lock based access mode (by default 60 secs)
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+We are going to implement AZURE BLOB STORAGE CONTAINER BASED EVENT GRID TRIGGER
+
+
+	Let us create a Storage account -> Select Blob or Container.
+	Now let us create a Event Grid Trigger for Azure Functions in the same Storage account
+
+	[FunctionName("EventGridTriggerDemo")]
+        public static void Run([EventGridTrigger] EventGridEvent eventGridEvent, ILogger log)
+        {
+            log.LogInformation(eventGridEvent.Data.ToString());
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

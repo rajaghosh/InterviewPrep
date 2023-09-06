@@ -1,0 +1,322 @@
+﻿AZURE 
+
+SAAS ( 
+	PASS (
+		IAAS
+	)
+)
+
+SAAS - (Sits on top of paas) Azure Devops  
+PAAS - AppService, Function App (serverless paas) , Logic App (serverless paas) 
+IAAS - Virtual Desktop, Azure Disk Storage
+
+
+----------------------------------------------------------------------------------------------------------
+Serverless technology - 
+	Serverless tech enables us to deploy code without thinking of the configuration needed to work. So basically 
+	we are focussed on the task and not on the configuration. 
+	Basically in serverless tech there is a platform where we deploy the code i.e platform (infra is already ready).
+	Once deployed we will mainly focussed on the IP and OP. Rest of the infra is handled by the cloud.
+
+	Ex - Suppose we deploy our codes in AppService. For AppService we need to setup environment then deploy the code.
+	So it is a web hosting platform. But FunctionApp is build on top of AppService. Function App will have a code
+	deployed (no infra setup needed) which works on some events and do some work. Function App can call other services
+	that are either hosted in some other domains or the AppService.
+
+	So for Function App it is just we deploy event driven code which takes some input and internally if complex code 
+	needed it can call other services, and do the work and return some response.
+
+Azure Function Apps Vs Logic Apps
+
+1. Azure Function Apps is a serverless compute service whereas 
+	Azure Logic Apps is a serverless workflow integration platform
+
+2. Azure functions typically work as an event driven work flow. Multiple events can work on this Queue trigger, Timer trigger, Http trigger
+
+
+	Advantage of Serverless technology
+	1. Reduced Devops
+	2. Reduce time to market
+	3. Per action billing
+
+
+------------------------------------------------------------------------------------------------------------------
+
+Azure functions
+
+Common triggers - 
+
+	1. HTTP Trigger: This trigger allows you to expose your function as an HTTP endpoint. When an HTTP request is made 
+	to the specified URL, the function is triggered, and you can handle the request.
+
+	2. Timer Trigger: A timer trigger allows you to run a function on a predefined schedule. You can specify the schedule
+	using a CRON expression or simple intervals like every 5 minutes.
+
+	3. Blob Trigger: This trigger is activated when a new or updated blob is added to an Azure Blob Storage container. 
+	You can use it to process files or data as they are uploaded.
+
+	4. Queue Trigger: A queue trigger is used to process messages from an Azure Queue Storage queue. When a new message 
+	arrives in the queue, the function is triggered to process that message.
+
+	5. Event Hub Trigger: This trigger listens for new events in an Azure Event Hub. It's commonly used for processing
+	streaming data or event-driven workloads.
+
+	6. Service Bus Queue/Topic Trigger: Service Bus triggers react to messages arriving in Service Bus queues or topics. 
+	You can use this for building asynchronous messaging systems.
+
+	7. Durable Task Trigger: Durable Functions allow you to create workflows and stateful orchestration. The Durable Task 
+	Trigger can start an orchestration in response to an event.
+
+	8. GitHub/Webhook Trigger: You can trigger a function whenever a specific event occurs in a GitHub repository, such as
+	a code push or a new issue.
+
+	9. IoT Hub Trigger: This trigger is used to process messages from Azure IoT Hub. It's commonly used in IoT scenarios for 
+	processing device telemetry data.
+
+	10. Azure Logic App Trigger: You can use Azure Logic Apps to create complex workflows that include Azure Functions. The 
+	Logic App trigger can initiate your function as part of a Logic App workflow.
+	
+	11.Manual Trigger: While not an event-based trigger, you can also manually trigger functions for testing and debugging 
+	purposes using tools like the Azure portal or Azure CLI.
+
+
+The Azure function can be created in the Portal as well as from the code.
+
+NOTE - We have already written codes for Service Bus Queue, Topic and Queue Storage in the Azure Messaging file.
+
+We will show the code for HttpTrigger, and TimerTrigger
+
+-------------------------------------------------
+
+HttpTrigger & Timer Trigger
+
+	public class Function1
+	{
+		private readonly ILogger _logger;
+		public Function1(ILogger<Function1> logger)
+		{
+			_logger = logger;
+		}
+
+		[FunctionName("HttpTriggerFunc")]
+		public HttpResponseData Run
+		([HttpTrigger
+			(AuthorizationLevel.Anonymous, 
+			"get", "post",
+			Route = "MY_ROUTE"		//Only invoked to a particular route
+			)]HttpRequestData req)
+		{
+			var response = req.CreateResponse(HttpStatusCode.OK);
+
+			response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+			
+			response.WriteString("Welcome");
+
+			return response;
+
+		}
+
+		[FunctionName("TimerTriggerFunc")]
+		public static void Run([TimerTrigger("0 */5 * * * *", RunOnStartup = "False")] MyInfo Timer)
+		{
+			//Do some work
+		}
+
+		Here RunOnStartup = False that is when deployed and the function is started it will not be invoked once. It will be invoked as per the CRON statement
+
+	}
+
+
+	CRON STATEMENT
+	
+	A typical CRON statement is 0 */5 * * * * 
+	The fields are <second, minute, hour, day, month, and weekday>
+
+	Pattern - SEND ME to HIMACHAL DEHRADUN for MY WORK
+
+
+--------------------------------------------------------------------------------------------------------
+
+Stateless Functions - Typically the function app is stateless they dont hold the state of the action. That is they get the trigger
+					and perform an action. Typically to hold the state they will store data in some storage like Queue.
+
+Stateful functions - They hold the state of the action supported by the function app.
+
+
+Durable functions - 
+
+Durable Functions is an extension of Azure Functions that lets you write stateful functions in a serverless compute environment. 
+
+The primary use case for Durable Functions is simplifying complex, stateful coordination requirements in serverless applications.
+The following sections describe typical application patterns that can benefit from Durable Functions:
+	Function Chaining
+	Fan-out/Fan-in
+
+	* Function Chaining - In the function chaining pattern, a sequence of functions executes in a specific order. In this pattern, 
+	the output of one function is applied to the input of another function. The use of queues between each function ensures that 
+	the system stays durable and scalable, even though there is a flow of control from one function to the next.
+
+	* Fan-out/Fan-in - In the fan out/fan in pattern, you execute multiple functions in parallel and then wait for all functions to finish. 
+	The results of these functions can be passed to another function.
+
+
+WebHooks - It is a mode of communication which can trigger the Azure Function.
+	So for any application which support WebHook we will create a HttpTrigger and share the link of the httpTrigger to that application.
+	Typically WebHook will inform the Azure function for some activity. So when an activity occurs this will invoke the httpTrigger.
+	That is HttpTrigger Azure function will not poll (peeking whether the source is available) but the Source will invoke the HttpTrigger.
+
+
+-------------------------------------------------------------------------------------------------------
+
+Web Job vs Azure function
+
+	Azure WebJob
+
+	Azure WebJobs are a feature of Azure App Service that enable you to run background tasks or scheduled jobs alongside your web application.
+	WebJobs provide a way to execute code in the background, which can be useful for tasks like processing queues, sending emails, or performing
+	data cleanup.
+	There can be :
+	- Continuous web jobs - Working at a certain time interval
+	- Triggered web jobs - Work due to some events
+
+	Azure Function
+
+	They are serverless so better in terms of any triggered application.
+
+
+
+
+-------------------------------------------------------------------------------------------------------
+
+Azure LogicApps
+
+It is cloud-based platform for creating and running automated workflows that integrate apps, data, service
+and systems. With this platform you can quickly develop hightly scalable integration solutions for 
+enterprise b2b scenarios.
+
+Pay per use mode.
+
+
+Logic Apps Components 
+	
+	1. Triggers - They initiate a workflow and create a new instance of the workflow. A trigger 
+	can be arrival of a file or receiving of an email etc
+	
+		There are main 2 categories type of triggers -
+		a. Poll triggers - Checks the service endpoint at regular endpoint
+		b. Push triggers - Creates subscription to an endpoint and provide a callback url so endpont notify the 
+			trigger when specified event occurs or data is available
+	
+		Trigger types :
+		
+		Built-in - 
+			* HTTP - Checks or polls any endpoint. This endpoint must conform to a specific trigger contract either 
+			by using a 202 asynchronous pattern or by returning an array.
+			
+			* HTTPWebHook - Creates a callable endpoint for your logic app but calls the specified URL to register 
+			or unregister.
+			
+			* Recurrance - Fires based on a defined schedule. You can set a future date and time for firing this trigger. 
+			Based on the frequency, you can also specify times and days for running your workflow.
+			
+			* Request - Creates a callable endpoint for your logic app and is also known as a "manual" trigger. 
+
+		Managed Api trigger -
+			* ApiConnection - Checks or polls an endpoint by using Microsoft-managed APIs or "connectors".
+
+			* ApiConnectionWebHook - Creates a callable endpoint for your logic app workflow by calling Microsoft-managed 
+			APIs or "connectors" to subscribe and unsubscribe.
+
+
+	2. Actions - An action represents a step in the workflow. That is it can invoke an operation on your api.
+	Each action usually maps to an operation that's defined by a managed connector, custom API or custom connector.
+		Ex - Condition, Scope, Switch, Terminate, Until
+
+	3. Workflow - Used to define different steps of a business process.
+	
+	4. Managed Connectors - They are used to connect diff data sources and services.
+		They are categorized as
+		- Managed API connectors- This includes Azure Blob Storage, Office 365 etc. Available in Azure subscription.
+		- On-Premise Connectors - This includes SQL server, Share-Pont Server (Dedicated servers).
+		- Integration Account Connectors - Available when we create and pay for an integration account. Typically will be for 
+			any ETL transformation task and process B2B messages with AS2,EDIFACT and X12 protocols. 
+		- Enterprise Connectors - Provide access to enterprise systems such as SAP and IBM MQ for additional cost.
+
+		We will mainly discuss managed API connectors
+
+We create a Logic App Namespace. Within the logic app namespace we can have multiple Workflows.
+Each workflow will have (Trigger -> Connector to actions -> Final Action/Actions)
+
+Workflow type -
+1. Stateless - Optimized for low latency, ideal for req-response and processing of IOT events. 
+
+2. Stateful - Good for business transactional data. Optimized for high reliability.              
+
+
+-------------------------------------------------------------------
+
+
+
+Type - It is a platform as a service offering (PAAS).
+
+Purpose - Workflow in the cloud.
+
+Every logic app works on 2 things Triggers and actions
+
+Use Case - Whenever we receive an email we should respond to it.
+
+Max no of logic apps ??
+
+Step 1. Create a azure logic apps.
+		-> Go to the logic app
+		-> Create new "Workflow"
+
+
+Step 2. Create a trigger. Recurrance trigger works by starting every N mins it will check.
+		Or We can have a mail box trigger. That is a particular email if received this will be triggered.
+
+		Once the trigger is in place we get a button "Add a Step". Click it new Action will come up.
+		-> Create a workflow to connect to SQL server (Need to configure) + We can also
+		have filters like which data will be passed to next action.
+		-> Another workflow to Trigger Email (Need to configure)
+	
+
+Note - For Http triggers we can simply call the end point and logic apps will work
+
+---------------------------------------------------------------------------
+
+For Interview purpose 
+
+We will deal with Http Trigger for a Logic app. So logic app gets invoked when an URL is called.
+
+
+---------------------------------------------------------------------------
+
+Let us create an example with Azure Function and Azure Logic Apps
+
+Step 1 : Create an Event Grid
+
+Step 2 : Create an Azure functions.
+	-> HttpTrigger + Authentical Level = Post 
+	-> Event Grid Reference Creation with Event Grid Message push to it
+
+Step 3 : Create an Azure logic app.
+	-> Create an event grid listener / trigger -> Select "Azure Event Grid" in the trigger
+	Add subscription 
+	Resource Type - Event Grid Topics
+	Resource Name - Used event grid name
+	-> Add other Actions
+
+----------------------------------------------------------------------------
+
+We can also design logic apps from Visual Studio.
+Open VS and select template for logic apps
+
+	-> On the LogicApp.json -> Select for the Visual Designer
+
+--------------------------------------------------------------------------
+
+Logic App Calling function App
+
+
+

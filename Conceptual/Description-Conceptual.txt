@@ -822,13 +822,8 @@ of this record type and access their properties in the same way we do with class
 
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------
+
+
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------
 
@@ -841,5 +836,344 @@ array clean
 
 array to list
 
+---------------------------------------------------------------------------------------------------------
 
-https://www.guru99.com/stack-vs-heap.html
+Task.Delay() and Thread.Sleep() 
+
+Both are used to introduce a delay or pause in the execution of code, but they have different use cases and behaviors, 
+especially in asynchronous programming scenarios.
+
+Task.Delay():
+
+	Asynchronous: Task.Delay() is an asynchronous operation that is commonly used in asynchronous programming. 
+	It returns a Task that represents a delay.
+	
+	Non-Blocking: When you use Task.Delay() in an asynchronous method, it allows the calling thread to continue executing other 
+	tasks while waiting for the delay to complete. This is especially useful in scenarios where you want to avoid 
+	blocking the main (UI) thread or consuming server resources unnecessarily.
+
+	Cancellation Support: Task.Delay() supports cancellation through a CancellationToken. You can cancel the delay if needed.
+	Recommended for Asynchronous Code: It's generally recommended for asynchronous code, such as in async/await patterns.
+
+	Example in C#:
+
+		async Task MyAsyncMethod()
+		{
+			// Do something before the delay
+			await Task.Delay(1000); // Delay for 1 second (non-blocking)
+			// Do something after the delay
+		}
+------------------------
+
+Thread.Sleep():
+
+	Synchronous: Thread.Sleep() is a synchronous method that causes the current thread to pause for a specified amount of time.
+	It blocks the execution of the current thread.
+	
+	Blocking: While Thread.Sleep() is useful for introducing delays, it's important to note that it blocks the thread 
+	on which it is called. This can lead to unresponsiveness in GUI applications and inefficient resource utilization 
+	in server applications.
+	
+	No Cancellation: Thread.Sleep() does not support cancellation. Once it starts sleeping, it will continue for the specified duration.
+	Historically Used: Thread.Sleep() has been used in traditional multi-threaded applications but is less suitable for modern 
+	asynchronous and non-blocking programming.
+
+	Example in C#:
+
+	void MyMethod()
+	{
+		// Do something before the sleep
+		Thread.Sleep(1000); // Sleep for 1 second (blocking)
+		// Do something after the sleep
+	}
+
+	In summary, the choice between Task.Delay() and Thread.Sleep() depends on your specific use case:
+
+	Use Task.Delay() in asynchronous code when you want to introduce a non-blocking delay, especially in async/await scenarios.
+	
+	Use Thread.Sleep() when you need a synchronous delay, but be cautious about using it in situations where blocking the current 
+	thread may have negative impacts on responsiveness or resource utilization.
+
+---------------------------------------------------------------------------------
+
+Brief of .net background process
+
+	Background task are those which run in the background without interfaring the primary process. They run as hosted service
+
+	Hosted Service - In .NET Core (and later, .NET 5 and .NET 6), a Hosted Service is a long-running background service that 
+	can be hosted within your application. Hosted Services are typically used for running tasks that need to run independently
+	of HTTP requests, such as background processing, periodic tasks, or services that need to run continuously. 
+
+	Status Code-
+	 102 - Processing (for long running process)
+	 200 - OK
+	 201 - Created 
+	 202 - Accepted
+	 400 - Bad Request (Expression not matching)
+	 401 - Unauthorized
+	 403 - Forbidden
+	 404 - Not found
+	 500 - Intenal Server Error
+	 501 - Not Implemented
+	 502 - Bad Gateway
+	 503 - Sevice Unavailable
+	 504 - Gateway Timeout
+
+--------------------------------------------------------------------------------
+
+VERACODE (Security Vulnarability Testing)
+	Veracode is a widely used application security testing (AST) tool that provides various scanning and analysis capabilities to 
+	identify and mitigate security vulnerabilities in software applications. Veracode performs static analysis, dynamic analysis, 
+	and software composition analysis to assess the security of applications, including web applications, mobile apps, 
+	and desktop applications. 
+
+	- Static Analysis (SAST):
+		- Static analysis is also known as Static Application Security Testing (SAST).
+		- Veracode scans the source code or binary code of an application without executing it.
+
+	- Dynamic Analysis (DAST):
+		- Dynamic analysis is also known as Dynamic Application Security Testing (DAST).
+		- Veracode simulates real-world attacks by interacting with the running application.
+	
+	- Software Composition Analysis (SCA):
+		- Software Composition Analysis focuses on identifying security vulnerabilities and outdated dependencies in third-party
+		libraries and components.
+		- Veracode scans the application's dependencies to check for known vulnerabilities or license compliance issues.
+
+	Process we build the code and publish and then take the artifact and push it to Veracode Portal and scan. We get the scan report
+	and do the fix.
+
+---------------------------------------------------------------------------------
+
+SONARCUBE (Code Quality Review)
+	SonarQube, often referred to as SonarCube (although the correct name is SonarQube), is an open-source platform for continuous code
+	quality and static code analysis. It is widely used by software development teams to analyze and improve the quality of their codebase.
+	SonarQube provides a range of tools and features for code quality assessment, code review, and reporting.
+
+---------------------------------------------------------------------------------
+
+SCRUM CEREMONIES
+
+	1. Backlog refinement meeting - The product owner, scrum master and the development team work together to discuss and prioritize backlog items.
+	
+	2. Sprint planning meeting - The team determines how much work they can take on from the prioritized backlog for the next sprint.
+	This is based on the estimates of the item, and velocity of the team. The selected items from the product backlog become the sprint backlog 
+	and goal of the sprint.
+	
+	3. The Daily Scrum - This is 15-min daily meeting sometimes called the "stand-up" meeting. The team has 3 question to discuss.
+		- What has been accomplished since last daily scrum?
+		- What will I accomplish before next daily scrum?
+		- Is there anything blocking my work?
+	
+	4. Scrum of Scrums - For larger projects leads from each scrum meet and discuss about goals achievement.
+	
+	5. Sprint Review - At the end of each sprint, the development team demonstrate the work they have accomplished for the product owner, the scrum
+	master and other key stakeholders. This is the opportunity to see, feel and touch the necessary features and get any feedback necessary before 
+	signing off.
+	
+	6. Sprint Retro-spective - After the sprint ends and before the next sprint the development team meets and discuss and answer:
+		- What worked well
+		- What needs improvement
+		- What did we learn
+		- What still puzzles us
+	This will be used for future planning
+
+------------------------------------------------------------------------------
+
+MOQ Testing
+
+Create a project and create the MsTestCase project
+
+	//Use of package
+	using Microsoft.VisualStudio.TestTools.UnitTesting; 
+
+	[TestClass]
+	public class MyTestClass
+	{
+		[TestMethod]
+		public void TestGetSum()
+		{
+			int a=9, b=7;
+			var result = GetSum(a,b);
+
+			//Positive scenario
+			Assert.AreEqual(a+b, result);
+			
+			//Negetive Scenario
+			Assert.AreNotEqual(a-b, result);
+		}
+	
+		[TestMethod]
+		public void TestGetFullName()
+		{
+			string firstName = "Raja";
+			string lastName = "Ghosh";
+			var result = GetFullNname(firstName, lastName);
+
+			Assert.AreEqual(string.Concat(firstName, '', lastName), result);
+			Assert.IsNotNull(result);		
+		}
+	
+	}
+
+	---------------------------------------------------------------------------------------
+
+	Open test explorer to test
+	We will get our TestClass coded above. Here we can either Run or Debug. 
+	
+	Once started we have the exclaimation sign in the test explorer infront of the test case.
+	Once test is passed we have a check sign in front of the test case. 
+
+	Inside each test method, you have three sections: Arrange, Act, and Assert.
+		- Arrange: In this section, you set up the test environment, including preparing the test data and objects.
+		- Act: This is where you execute the code you want to test.
+		- Assert: Here, you verify that the actual result matches the expected result using assertion methods like Assert.AreEqual.
+
+
+	using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+	[TestClass]
+	public class MyTestClass
+	{
+		[TestMethod]
+		public void TestAddition()
+		{
+			// Arrange
+
+			// Prepare the test data and objects
+			int a = 5;
+			int b = 3;
+
+			// Expected result
+			int expectedSum = 8;
+
+			// You can also set up any necessary context or objects here, e.g., initializing a database connection or creating objects to test
+
+			// Act
+
+			// Perform the actual operation to be tested
+			int actualSum = MyMath.Add(a, b);
+
+			// Assert
+
+			// Verify that the operation produced the expected result
+			Assert.AreEqual(expectedSum, actualSum, "Sum operation is incorrect.");
+		}
+	}
+
+	------------------------------------------------------------------------------------------
+	To test any service we will be using the Moq package
+
+	Let us test a service class
+
+	public interface IEmployee
+	{
+		Employee GetEmployeeById(int id);
+	}
+
+	The method is implemented in Employee Service + Controller Calls this service
+
+	----------------------------------------------------------
+
+	//New package added 
+	using Moq; 
+
+	[TestClass]
+	public class MyTestClass
+	{
+		[TestMethod]
+		public void TestGetEmployeeById()
+		{
+			var employee = new EmployeeModel()
+			{
+				Id = 1,
+				Name = "ABC"
+			};
+
+			//Here we have IEmployee interface for the service
+			//Using Mock we will create employee repo instance to be passed to the controller which we want to test.
+			var employeeRepo = new Mock<IEmployee>();
+			employeeRepo.Setup(p => p.GetEmployeeById(It.IsAny<int>())).Returns(employee);
+
+			//The controller takes the injection of IEmployee
+			var controller = new EmployeeController(employeeRepo.Object);
+
+			var getEmployeeById = controller.GetEmployeeById(1);
+			Assert.IsNotNull(getEmployeeById);
+
+		}
+
+
+
+		[TestMethod]
+		public void TestGetSum()
+		{
+			int a=9, b=7;
+			var result = GetSum(a,b);
+
+			//Positive scenario
+			Assert.AreEqual(a+b, result);
+			
+			//Negetive Scenario
+			Assert.AreNotEqual(a-b, result);
+		}
+	
+		[TestMethod]
+		public void TestGetFullName()
+		{
+			string firstName = "Raja";
+			string lastName = "Ghosh";
+			var result = GetFullNname(firstName, lastName);
+
+			Assert.AreEqual(string.Concat(firstName, '', lastName), result);
+			Assert.IsNotNull(result);		
+		}
+	
+	}
+
+------------------------------------------------------------------------------------------------------------------------------
+
+
+IAM stands for "Identity and Access Management." It is a framework of policies and technologies that organizations use to ensure that
+the right individuals or systems have the appropriate level of access to resources and data within their computing environment. IAM is
+crucial for maintaining security, compliance, and efficient operations in modern IT infrastructures.
+
+Key components and concepts of IAM typically include:
+
+	1. Identity Management: This involves creating and managing user identities, which can be individuals, devices, or applications. 
+	Each identity is associated with specific attributes and permissions.
+
+	2. Authentication: IAM systems use authentication methods to verify the identity of users or systems trying to access resources. 
+	This can include passwords, multi-factor authentication (MFA), biometrics, and more.
+
+	3. Authorization: After authentication, IAM systems determine what actions and resources an authenticated identity is allowed to access. 
+	This is often done through role-based access control (RBAC) or permissions based on policies.
+
+	4. Access Control: IAM systems enforce access control policies, ensuring that only authorized identities can access specific resources. 
+	Access can be granted or denied based on predefined rules and conditions.
+
+	5. Audit and Logging: IAM systems often include auditing and logging capabilities to track and record access attempts and actions 
+	taken by users and systems. This helps with security monitoring and compliance reporting.
+
+	6. Single Sign-On (SSO): SSO is a feature of IAM that allows users to log in once and access multiple systems or applications 
+	without needing to re-enter their credentials each time. It enhances user convenience and security.
+
+	7. Provisioning and De-provisioning: IAM systems facilitate the automated creation, modification, and removal of user accounts and
+	permissions. This helps streamline administrative tasks and ensure that access is granted and revoked appropriately.
+
+	8. Identity Federation: Identity federation allows organizations to extend authentication and authorization across different systems 
+	or domains. It enables seamless access for users across multiple organizations or applications.
+
+	9. Password Management: IAM systems often include password policies and self-service password reset capabilities to enhance security 
+	and user convenience.
+
+	10. Compliance and Governance: IAM plays a critical role in helping organizations meet regulatory compliance requirements by ensuring
+	that access controls and audit trails are in place.
+
+	IAM solutions are widely used in various industries and are especially important in cloud computing environments, where managing access 
+	to cloud resources and services is essential. Popular IAM providers include AWS Identity and Access Management (IAM),
+	Azure Active Directory, and Google Cloud Identity and Access Management, among others.
+
+	It primarily deals with Authorization, Authentication, User management & Credential Management
+
+

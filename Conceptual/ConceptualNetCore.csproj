@@ -7,25 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Description - AzureActiveDirectory (TBD).txt" />
-    <None Remove="Description - AzureLogicApp(TBD).txt" />
-    <None Remove="Description - GraphApi (TBD).txt" />
-    <None Remove="Description - OpenIAM (TBD).txt" />
-    <None Remove="Description - RadisCache (TBD).txt" />
-    <None Remove="Description - SQL (TBD)-Later.txt" />
-    <None Remove="Description-AzureAppInsight.txt" />
+    <None Remove="Description-AzureAppInsightAKV.txt" />
+    <None Remove="Description-AzureFuncAppLogicApp.txt" />
+    <None Remove="Description-AzureMessaging.txt" />
     <None Remove="Description-EFCore.txt" />
+    <None Remove="Description-SQL.txt" />
+    <None Remove="Description-TBD.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Description - RadisCache %28TBD%29.txt" />
-    <Content Include="Description - OpenIAM %28TBD%29.txt" />
-    <Content Include="Description - AzureLogicApp%28TBD%29.txt" />
-    <Content Include="Description-AzureAppInsight.txt" />
-    <Content Include="Description - AzureActiveDirectory %28TBD%29.txt" />
+    <Content Include="Description-AzureMessaging.txt" />
+    <Content Include="Description-AzureFuncAppLogicApp.txt" />
+    <Content Include="Description-AzureAppInsightAKV.txt" />
+    <Content Include="Description-TBD.txt" />
     <Content Include="Description-EFCore.txt" />
-    <Content Include="Description - GraphApi %28TBD%29.txt" />
-    <Content Include="Description - SQL %28TBD%29-Later.txt" />
+    <Content Include="Description-SQL.txt" />
   </ItemGroup>
 
   <ItemGroup>

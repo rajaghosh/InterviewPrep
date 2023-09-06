@@ -146,7 +146,7 @@ Middleware is a chain to pass the request to the next component or not and also 
 
 **************************************************************************************************************************
 
-Creating a Custom Middleware -
+Creating a Custom Middleware - (Conventional Way)
 
 	We can have multiple ways to create custom middlewares. We are writing the simple version here. 
 	The middleware will be used to put custom logic on httpRequest
@@ -174,7 +174,226 @@ Creating a Custom Middleware -
 	2. In the startup.cs class
 	After all the middleware executed in Configure()
 	
-	app.UseMiddleware<CustomMiddleware>();
+	Configure()
+	{
+		app.UseMiddleware<CustomMiddleware>();
+	}
+
+-----------------------------------------------------------------------------------------------------------------------
+
+How to handle exception in .net core GLOBALLY?
+
+Ans -> We can create a exception handling middleware.  (Using IMiddleware)
+
+	Concept goes if anything happens in the next method upcoming call we need to handle it from here.
+
+	Step 1:
+
+	Create exception handling class
+	----------------------------
+
+	public abstract class DomainException: System.Exception
+	{
+		public DomainException(string message) : base(message)
+		{
+		}
+	}
+
+	public class DomainNotFoundException : DomainException
+	{
+		public DomainNotFoundException(string message):base(message)
+		{
+		}
+	}
+
+	public class DomainValidationExeption : DomainException
+	{
+		public DomainValidationExeption(string message) : base(message)
+		{
+		}
+	}
+
+
+
+	----------------------------
+	public class ExceptionHandlingMiddleware : IMiddleware
+	{
+		public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+		{
+			try
+			{
+				await next(context);
+			}
+			catch(DomainNotFoundExeption e)
+			{
+				context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+				await context.Response.WriteAsync(e.Message);
+			}
+			catch(DomainValidationException e)
+			{
+				context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+				await context.Response.WriteAsync(e.Message);
+			}
+			catch(Exception e)
+			{
+				context.Response.Status = 500;
+				await context.Response.WriteAsync(e.Message);
+			}
+		}
+	}
+
+	Step 2: Startup.cs
+
+	public void ConfigureServices(IServiceCollection services)
+	{
+		services.AddTransient<ExceptionHandlingMiddleware>();
+	}
+
+	public void Configure(IApplicationBuilder app)
+	{
+		//After app.UseRouting();
+		app.UseMiddleware<ExceptionHandlingMiddleware>();
+	}
+
+
+	Step 3 :
+	Method(){
+		throw new DomainValidationException("Message");
+	}
+
+	Call flow -> As exception thrown from method 
+							-> Middleware will be checked based upon that exception 
+											-> Before using the exception we need to declare those exeptions
+
+
+Note - Middleware is a stack of code blocks which can be run one after another.
+
+----------------------------------------------------------------------------------------------------------------------
+
+Custom Middleware Implementation
+
+Approaches 
+
+Conventional with params
+
+Step 1 : Create middleware class
+
+	public class CustomMiddlewareParams
+	{
+		private readonly RequestDelegate _next;
+		private readonly string _paramValue;
+
+		public CustomMiddlewareParams(RequestDelegate next, string paramValue)
+		{
+			_next = next ?? throw new ArgumentNullException(nameof(next));
+			_paramValue = paramValue ?? throw new ArgumentNullException(nameof(paramValue));
+		}
+
+		public async Task InvokeAsync(HttpContext context)
+		{
+			// Middleware logic here that uses _paramValue
+			await context.Response.WriteAsync($"Parameter value: {_paramValue}");
+			await _next(context);
+		}
+	}
+
+Step 2 : Create Extension Methods
+
+	public static class CustomMiddlewareParamsExtensions
+	{
+		public static IApplicationBuilder UseCustomMiddlewareParams(
+			this IApplicationBuilder builder, string paramValue)
+		{
+			return builder.UseMiddleware<CustomMiddlewareParams>(paramValue);
+		}
+	}
+
+Step 3 :
+	
+	Register in the startup.cs class
+
+	public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+	{
+		// Other middleware and configuration
+
+		app.UseCustomMiddlewareParams("Hello from param!");
+
+		// Other middleware and configuration
+	}
+
+
+-----------------------------------------------------------
+Using IMiddleware 
+
+
+Step 1 : Create custom middleware with IMiddleware Interface
+	public class CustomMiddleware : IMiddleware
+	{
+		private readonly string _paramValue;
+
+		public CustomMiddleware(string paramValue)
+		{
+			_paramValue = paramValue;
+		}
+
+		public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+		{
+			// Middleware logic here that uses _paramValue
+			await context.Response.WriteAsync($"Parameter value: {_paramValue}");
+			await next(context);
+		}
+	}
+
+Step 2 : Register the middleware in startup.cs
+
+	public void ConfigureServices(IServiceCollection services)
+	{
+		// Other service registrations
+
+		// Register your middleware with the required parameter
+		services.AddScoped<IMiddleware>(provider =>
+		{
+			// You can resolve other dependencies here if needed
+			var paramValue = "Hello from param!";
+			return new CustomMiddleware(paramValue);
+		});
+
+		// Other service registrations
+	}
+
+	public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+	{
+		// Other middleware and configuration
+
+		app.UseMiddleware<CustomMiddleware>();
+
+		// Other middleware and configuration
+	}
+
+When to use Conventional vs IMiddleware approach?
+
+Using IMiddleware Interface:
+	The IMiddleware interface is a convenient way to create reusable middleware components. 
+	When you implement the IMiddleware interface, you define a single method called InvokeAsync that performs 
+	the middleware's functionality. The middleware is automatically instantiated by the dependency injection 
+	system, making it easy to manage its dependencies.
+
+	Use IMiddleware when:
+
+	* You want to encapsulate the middleware logic in a reusable component.
+	* You prefer a more structured approach to dependency injection for middleware. (DI in the startup.cs)
+
+
+Using Func<HttpContext, Func<Task>, Task> Delegate:
+	This approach involves using a delegate to create middleware functions. This is a simpler and more flexible 
+	way to create middleware since you directly work with delegate functions that take HttpContext and a 
+	continuation delegate (representing the next middleware in the pipeline).
+
+	Use the delegate approach when:
+
+	* You need more control over the construction and instantiation of the middleware.
+	* You want to keep the middleware logic concise and avoid creating full-blown classes.
+
 
 ************************************************************************************************************************
 
@@ -253,6 +472,8 @@ Ex.
 [ProducesResponseType(typeof(FileContentResult), (int)HttpStatusCode.OK)]
 [ProducesResponseType(typeof(FileContentResult), (int)HttpStatusCode.NotFound)]
 
+[Produces("application/json")]
+
 This resembles the API can return 2 types of responses
 
 4b. [Produces(MediaTypeNames.Application.Json)]
@@ -263,7 +484,7 @@ the request query string.
 7. [FromBody][Bind("Property1","Property2")] - From all the property take only specific property of the DTO
 8. [FromBody][MaxLength(50)]
 9. [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Client, NoStore = false)] -
-
+10.[Required(ErrorMessage="")]
 
 
 
@@ -448,6 +669,215 @@ Changes in code in step 1 we also inherit from Attribute
 	}
  }
 
+ -------------------------------------- MULTIPLE FILTERS CHAINING (SIMILAR FILTER)
+ Now suppose we are using all these filters used above
+ 1. That is GlobalLevelCustom Filter
+ 2. Controller Level Async Filter Attribute
+ 3. Action Level Async Filter Attribute
+
+ Output - We have wrapping of the first filter then the next level filter
+
+ Before Executing Global
+ Before Executing Controller
+ Before Executing Action
+ After Execution Action
+ After Execution Controller
+ After Execution Global
+
+ Now we can change this default order. Let us add ordering for the GlobalFilter
+
+ Please note we have changed the GlobalVersion as Attribute - So Global version depends on the implementation
+
+	public class MyCustomActionFilterAttribute : Attribute, IActionFilter, IOrderFilter
+	{
+		private readonly string _name;
+		public MyCustomActionFilterAttribute(string name, int order = 0)	//Default order=0
+		{
+			_name = name;
+		}
+
+		public void OnActionExecuting(ActionExecutingContext context)
+		{
+			Console.WriteLine($"On Action Executing - {_name}");
+		}
+	
+		public void OnActionExecuted(ActionExecutedContext context)
+		{
+			Console.WriteLine($"On Action Executed - {_name}");
+		}
+
+		public int Order {get; set;}	//This will provide the ordering - fetched from IOrderFilter
+	
+	}
+
+ Step 2 : To integrate this custom filter into .net Request Pipeline
+ In the Startup.cs 
+
+	public void ConfigureServices(IServiceCollection services){
+	
+		//We will use AddController Method has a overloaded version we will use that
+		services.AddControllers( options =>
+		{
+			options.Filters.Add(new MyCustomActionFilterAttribute("GLOBAL", 1)); 
+			//Here we have used 1 for order so higher the value lower the call preference, 
+			//so if we have -1 then this will get higher preference 
+			//So for each filter call we can set the order of chaining
+		});
+	}
+
+	O/p 1 -
+	So we have a call at the Global with Order 1
+	Same call of Filter for Controller with default 0
+	Same call of Filter for Method with default 0
+	
+	Here the order is 
+ 
+	 Before Executing Controller
+	 Before Executing Action
+	 Before Executing Global
+	 After Execution Global
+	 After Execution Action
+	 After Execution Controller
+
+
+-----------------------------------------------------------------------------------------------------------------------
+
+Flow is 
+
+Authorization Filter-----------------	^
+	|								____|
+	!								|
+Resource Filter---------------------|-
+	|								|___
+	!									|
+Model Binding (Process)--------------	|
+	|									|
+	!									|
+Action Filter (Action Execution)-----	|
+	|									|
+	!									|
+Exception Filter---------------------	|
+	|									|
+	!									|
+Result Filter------------------------	|
+	|							 ^------
+	!							 |
+Execution------------------------|
+
+
+
+
+Authorization filter -
+1. First filter
+2. Have a before method and no after method
+
+Sample :
+
+If we use [Authorize] that simply indicates whether we have logged in
+
+
+Resource Filter -
+
+	Sample : 
+
+	Class Level
+
+	public class MyCustomResourceFilterAttribute : Attribute, IResourceFilter
+	{
+		private readonly string _name;
+
+		public MyCustomResourceFilterAttribute(string name)
+		{
+			_name = name;
+		}
+
+		public void OnResourceExecuting(ResourceExecutingContext context)
+		{
+			Console.WriteLine($"Resource Filter Before - {_name}");
+		}
+
+		public void OnResourceExecuted(ResourceExecutedContext context)
+		{
+			Console.WriteLine($"Resource Filter After - {_name}");
+		}
+
+	}
+
+
+	Startup.cs
+
+	services.AddControllers(option =>
+	{
+		options.Filters.Add(new MyCustomActionFilterAttribute("Global"));
+		options.Filters.Add(new MyCustomResourceFilterAttribute("Global"));
+	});
+
+	Here if this runs O/p
+
+	Resource Filter Before - Global
+	Action Filter Before - Global
+	Action Filter After - Global
+	Resource Filter After - Global
+
+	Here for DIFFERENT FILTER CHAINING we will see output as per filter ordering
+
+	This is also true for 
+
+	Resource Filter Before - Global
+	Resource Filter Before - Action
+	Action Filter Before - Global
+	Action Filter Before - Action
+	Action Filter After - Action
+	Action Filter After - Global
+	Resource Filter After - Action
+	Resource Filter After - Global
+
+Exception Filters - Typically we will use Custom Exception Middleware rather than exception middleware
+
+Result Filters
+
+Sample - 
+
+ public class MyCustomResultFilterAttribute : Attribute, IResultFilter
+ {
+	private readonly ILogger<MyCustomResultFilterAttribute> _logger;
+	public MyCustomResultFilterAttribute(ILogger<MyCustomResultFilterAttribute> logger)
+	{
+		_logger = logger;
+	}
+
+	public void OnResultExecuting(ResultExecutingContext context){
+		_logger.LogInformation($"Result Filter Before");
+	}
+
+	public void OnResultExecuted(ResultExecutedContext context){
+		_logger.LogInformation($"Result Filter After");
+	}
+
+ }
+
+ //IGNORE
+ In Startup.cs
+
+	public void ConfigureServices(IServiceCollection services){
+
+		services.AddTransient<MyCustomResultAttribute>();	
+		services.AddControllers(options => 
+		{
+			options.Filters.Add(new MyCustomActionFilterAttribute("Global"));
+			options.Filters.Add(new MyCustomResourceFilterAttribute("Global"));
+			options.Filters.AddServices<MyCustomResultFilterAttribute>();
+		});
+	}
+
+ //IGNORE
+  At Controller
+
+		[HttpGet]
+		[MyCustomActionFilter("Action")]
+		[MyCustomResourceFilter("Action")]
+		[MyCustomResultFilter]
+
 
 
 -----------------------------------------------------------------------------------------------------------------------
@@ -498,11 +928,291 @@ Windows, and Linux.
 
 -----------------------------------------------------------------------------------------------------------------------
 
+How to minify the solution?
+Solution -> We can use buildbundle.minifier package
+
+-----------------------------------------------------------------------------------------------------------------------
+
 What is RateLimiting ?
 
+If we are creating an API it will be used by many clients. For some clients they will frequently call the api thus creating 
+more traffic from a particular user. We can limit consumption of API for a particular client within a particular time 
+frame by using Rate Limiting.
+
+Rate Limiting is the process of controlling no. of requests for a resource within a specific time window.
+
+Purpose 
+1. To regulate traffic
+2. To Prevent against DOS (Denial of Service) attack.
+
+Implementation
+1. Use of Custom Middleware
+2. Use of Package AspNetCoreRateLimit package
+
+//IGNORE
+Step 1 : Add config in the appSettings.json
+
+	"IpRateLimiting": {
+		"EnableEndpointRateLimiting": true,
+		"StackBlockedRequests": false,
+		"RealIPHeader": "X-Real-IP",
+		"ClientIdHeader": "X-ClientId",
+		"HttpStatusCode": 429,
+		"GeneralRules": [{
+			"Endpoint": "GET:/students",
+			"Period": "5s",
+			"Limit": 2
+		}],
+		"EndpointWhitelist": [
+			"get:/api/test1",
+			"*:/api/statuc"
+		],
+		"ClientWhitelist":[
+			"ip1",
+			"ip2"
+		]
+	}
+	
+
+What is throtlling ?
+
+Throttling is a technique that ensures that the flow of data being sent at the target machine cann be digested at an acceptable rate.
+
+-----------------------------------------------------------------------------------------------------------------------
+
+Background Task - 
+
+Suppose we want to have a long running task - like sending email, doing IO operations
+
+Step 1:
+
+	Create a class
+
+	public class MyLongRunningClass : BackgroundService
+	{
+		protected override Task ExecuteAsync(CancellationToken stoppingToken)
+		{
+			while(!stoppingToken.IsCancellationRequested)
+			{
+				Console.WriteLine($"Current Date {DateTime.Now.Date}");
+			}
+		}
+	
+	}
+
+Step 2:
+
+	in Startup.cs
+
+	services.AddHostedService<MyLongRunningClass>();
+
+-----------------------------------------------------------------------------------------------------------------------
+
+.net API versioning
+
+Typical versioning format
+
+Numeric Versioning (Major.Minor.Patch):
+This is one of the most common versioning formats, known as Semantic Versioning (SemVer). 
+It uses three numeric components to indicate the scope and impact of changes:
+
+Major: Increments when there are incompatible changes.
+Minor: Increments for backward-compatible new features.
+Patch: Increments for backward-compatible bug fixes.
+
+Use Package -> 
+
+In Startup.cs -> ConfigureServices()
+
+	services.AddApiVersioning(options =>
+	{
+		options.AssumeDefaultVersionWhenUnspecified = true;
+		options.DefaultApiVersion = new ApiVersion(1,1);	//Represents version 1.1
+		//options.ApiVersionReader = now MediaTypeApiVersionReader("version");	//To be used to call via header
+	});
+
+	Test : Once we have added we call our API as follows:
+
+	APIURL?api-version=1.0 //by default it will be version 1.0
+	or
+	APIURL
+
+In Controller
+
+	[ApiController]
+	[Route("api/products")]
+	[ApiVersion("1.0")]
+	[ApiVersion("2.0")]
+	public class ProductController : ControllerBase
+	{
+		[HttpGet("{productId}")]
+		public IActionResult GetProductV1([FromRoute] Guid productId){
+		}
+
+		[HttpGet("{productId}")]
+		[MapToApiVersion("2.0")]
+		public IActionResult GetProductV2([FromRoute] Guid productId){
+		
+		}
+	}
+
+	Api Call -
+
+	By default call- (Version1.0)
+	<ApiCall>/{id}
+
+	Call to Version 2 -
+	<ApiCall>/{id}?api-version=2.0
+
+	Note - Other way to implement is to keep apis in different route
+	i.e <url>/v1/Api1
+		<url>/v2/Api2
+
+	When we added the statement,
+
+	options.ApiVersionReader = now MediaTypeApiVersionReader("version");
+
+	Here in the call we can use the header "Accept" = "application/json; version=2.0"
+
+	If: options.ApiVersionReader = now MediaTypeApiVersionReader("MyHeader");
+	Call using header "MyHeader" = "2.0"
+
+-----------------------------------------------------------------------------------------------------------------------
+
+.Net Core how to check for the environment?
+
+Ans -> 
+
+In the Startup.cs in the Confugure()
+
+Configure(IApplicationBuilder app, IWebHostEnvironment){
+	
+	if(env.IsDevelopment()){
+		app.DeveloperExceptionPage();
+	
+	}
+	
+
+}
+
+---------------------------------------------------------------------------------------------------------------------
+
+* Call external links using HttpClient
+
+---------------------------------------------------------------------------------------------------------------------
+
+API retry mechanism
+
+let us have an service which calls another endpoint
+
+public class WeatherService : IWeatherService
+{
+	private HttpClient _httpClient;
+
+	public WeatherService(HttpClient httpClient){
+		_httpClient = httpClient;
+	} 
+
+	public async Task<string> Get(string cityName){
+		var apiKey = "1231343242425434534";
+
+		string apiUrl = $"?key={apikey}&q={cityName}";
+
+		var response = await _httpClient.GetAsync(apiUrl);
+		return await response.Content.ReadAsStringAsync();
+	
+	}
+}
+
+This talks to weather API registered in the Startup.cs
+
+ConfigureServices()
+{
+	services.AddHttpClient<IWeatherService, WeatherService>(c => {
+		c.BaseAddress = new Uri("<weatherserviceurl>");
+	});
+}
 
 
+Now there is a network connectivity issue
 
+So we are going to use POLLY library - It is a .net resilience and transient fault handling library such as retry etc.
+
+We will install package - Microsoft.Extensions.Http.Polly
+
+Step 1 : Update the ConfigureServices()
+
+ConfigureServices()
+{
+	services.AddHttpClient<IWeatherService, WeatherService>(c => {
+		c.BaseAddress = new Uri("<weatherserviceurl>");
+	}).AddTransientHttpErrorPolicy(p => p.WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(2))) //Retry 3 times by waiting 2 seconds in between
+	  .AddTransientHttpErrorPolicy(p => p.CircuitBreakerAsync(5, _ => TimeSpan.FromSeconds(5))); //Break the constant call of 5 sec
+}		
+
+Here on call fail we will retry 3 times (Original + 3 retry) . Then again another call here once we have 1 calls i.e (3+1) + 1 = 5 calls the 
+circuit breaker policy kicks in and we need to wait for 5 seconds before we call again. If we try to call the api in between internally it 
+will be restricted.
+
+---------------------------------------------------------------------------------------------------------------------
+
+How to read config data from config file
+
+---------------------------------------------------------------------------------------------------------------------
+
+.Net Core Cache 
+
+	Why Cache?
+
+	Caching adds some complexity to an application and as developers we must always be cautious when making 
+	our applications more complex so why bother with caching at all? A few reasons spring to mind:
+		- It saves you money (bandwidth costs, fewer servers required)
+		- It provides a better experience for your customers
+
+	What to Cache?
+
+	Choosing what to cache is highly dependent on application. Generally speaking, to maximize performance, we want to cache
+	at the highest level we can get away with.
+
+	For assets such as CSS, JS and images, we should be aggressively caching at the browser level and a cache duration 
+	of a year or more is fairly standard.
+
+	We can cache in two high-level choices to consider. Do you:
+		- Maintain a discrete cache on every server
+		- Use a centralised cache that each server accesses
+
+	The first option, although slightly faster, has too many negatives to be recommended as a general solution:
+		- Discrepancies between caches can cause major headaches
+		- It is difficult to invalidate cache entries
+		- Wasted RAM filled with duplicated data
+
+	-------------------------------------------------------------------
+
+	Caching data with IMemoryCache and IDistributedCache
+	
+	The lowest level of caching in ASP.NET Core that we are going to discuss is the caching of data using IMemoryCache and IDistributedCache. 
+	These interfaces are the standard, in-built mechanisms for caching data in .NET Core.
+	
+	- You can register IMemoryCache in ConfigureServices using - services.AddMemoryCache();
+	- The local in-memory version of IDistributedCache using - services.AddDistributedMemoryCache();
+
+	In ASP.NET Core, you can use memory caching to temporarily store data in memory to improve the performance and responsiveness of your application.
+
+	- Use services.AddMemoryCache() when you want to cache data in-memory within a single application instance.
+	This cache is local to the instance and is suitable for caching data that doesn't need to be shared across multiple instances.
+
+	- Use services.AddDistributedMemoryCache() when you need to cache data in a distributed, shared in-memory cache that can be accessed
+	by multiple instances of your application. This is useful for scenarios where you need data consistency across all instances or 
+	when you are using a load-balanced environment.
+
+	------------------------------------------------------------------
+
+
+	The built-in response caching middleware will not cache the page if any of the following are true:
+	- The response code is not 200
+	- The request method is not GET or HEAD
+	- An Authorization header is present
+	- A Set-Cookie header is present
 
 
 ************************************************************************************************************************
