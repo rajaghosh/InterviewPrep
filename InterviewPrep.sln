@@ -7,11 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConceptualNetCore", "Concep
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcurrencyParallelismDotNet", "ConceptualFramework\ConcurrencyParallelismDotNet.csproj", "{A256A7A3-F174-48ED-A721-FF9DBC24AC28}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JWTAuthentication", "JWTAuthentication\JWTAuthentication.csproj", "{8DE6DF0F-930F-4FEF-BDF0-59935EE93F67}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesignPatterns", "DesignPatterns\DesignPatterns.csproj", "{506798B0-BBB0-42FA-9350-7766E93EC4B3}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesignPatternsRepositoryPattern(NetCore)", "DesignPatternsRepositoryPattern\DesignPatternsRepositoryPattern(NetCore).csproj", "{507786B5-12CC-4C93-BD2D-7C917271F425}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCoreAnalysis(InterviewRelated)", "NetCoreAnalysis\NetCoreAnalysis(InterviewRelated).csproj", "{98AF3B16-1AD7-48FC-8CE6-0C91CBF8CEF4}"
 EndProject
@@ -33,18 +29,10 @@ Global
 		{A256A7A3-F174-48ED-A721-FF9DBC24AC28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A256A7A3-F174-48ED-A721-FF9DBC24AC28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A256A7A3-F174-48ED-A721-FF9DBC24AC28}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8DE6DF0F-930F-4FEF-BDF0-59935EE93F67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8DE6DF0F-930F-4FEF-BDF0-59935EE93F67}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8DE6DF0F-930F-4FEF-BDF0-59935EE93F67}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8DE6DF0F-930F-4FEF-BDF0-59935EE93F67}.Release|Any CPU.Build.0 = Release|Any CPU
 		{506798B0-BBB0-42FA-9350-7766E93EC4B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{506798B0-BBB0-42FA-9350-7766E93EC4B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{506798B0-BBB0-42FA-9350-7766E93EC4B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{506798B0-BBB0-42FA-9350-7766E93EC4B3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{507786B5-12CC-4C93-BD2D-7C917271F425}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{507786B5-12CC-4C93-BD2D-7C917271F425}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{507786B5-12CC-4C93-BD2D-7C917271F425}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{507786B5-12CC-4C93-BD2D-7C917271F425}.Release|Any CPU.Build.0 = Release|Any CPU
 		{98AF3B16-1AD7-48FC-8CE6-0C91CBF8CEF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{98AF3B16-1AD7-48FC-8CE6-0C91CBF8CEF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98AF3B16-1AD7-48FC-8CE6-0C91CBF8CEF4}.Release|Any CPU.ActiveCfg = Release|Any CPU

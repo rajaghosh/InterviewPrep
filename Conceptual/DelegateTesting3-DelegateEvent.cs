@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 
 namespace Conceptual1
@@ -67,7 +65,8 @@ namespace Conceptual1
 
 /*
     Event - It encapsulates delegates. That is it works on it. 
-    It modifies the multicast model of delegates to Producer - Subscriber model.
+    It modifies the multicast model of delegates to Producer - Subscriber model (or Pub-Sub Model).
 
+    Use - Events enable a class or object to notify other classes or objects when something of interest occurs. 
  
  */

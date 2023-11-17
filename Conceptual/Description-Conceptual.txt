@@ -132,10 +132,9 @@ that don't involve instance-specific behavior.
 ------------------------------------------------------------------------------------------------------
 
 
-CLR and CLI - 
-(Already open in the last tab. To be Updated)
+CLR and CTS - 
 
-CLR - Common Language Runtime (CLR) for Managed Code
+CLR - Common Language Runtime (CLR) - A runtime environment for Managed Code
 
 .Net Framework provides "runtime environment" called Common Language Runtime (CLR). It provides an environment 
 to run all the .Net Programs. The code which runs under the CLR is called as Managed Code. Programmers need
@@ -193,7 +192,7 @@ called a statement Terminator, but in VB.NET each statement should not end with 
 
 ------------------------------------------------------------------------------------------------------
 
-Reflection - It is inspection of an Assembly and checking what are the usable members the assembly contains.
+Reflection - It is inspection of an Assembly at runtime and checking what are the usable members the assembly contains.
 
 Reflection in C# is a powerful feature that allows you to inspect and interact with the metadata of types,
 objects, and assemblies at runtime. It provides the ability to examine and manipulate the structure and 
@@ -201,6 +200,8 @@ behavior of your code dynamically. Reflection is commonly used for tasks like cr
 invoking methods, accessing properties2, and more, without knowing the details at compile time.
 
 Ex - Type type = typeof(MyClass);
+	int i = 10;
+	Type type2 = i.GetType(); 
 
 You can use reflection to obtain information about a type, such as its name, methods, properties, 
 fields, and attributes.
@@ -229,7 +230,7 @@ Var vs Dynamic
 
  Value type - A data type which holds a data value within its own memory space. That is they directly contains value. 
  So when used with functions whenever we pass the value in the parameter, the parameter will create its own memory space.
- Holds value in Stack.
+ Holds value in Stack.	
  Ex - All basic/primitive data types (except string) + Struct + enum
 
  Reference type - A reference type does not hold the value directly rather it will hold the value of the address 
@@ -277,6 +278,25 @@ Var vs Dynamic
 
  ------------------------------------------------------------------------------------------------------
 
+ Delegate VS Events (Both are used to implement the observer pattern)
+
+ Delegate - It is a safe pointer to a function. It can refer to more than one method of same return type and parameter.
+	So delegates depends on functions.
+	It will be used for callbacks.
+
+ Event - It is a notification mechanism that depends on delegates. Events depends on functions. Event is a wrapper over 
+	delegate. It will be used to create notifications.
+
+ ---------------------------------------------------------------------------------------------------
+
+ IS vs AS keywords
+
+ IS keyword - Will be used to check. Ex - If(abc is string)
+ AS keyword - Will be used to convert. Ex - string x = abc as string;
+
+
+ ---------------------------------------------------------------------------------------------------
+
  Stacks and Heaps	
 
  1) Primitive data type will be stored in Stacks. Stack has faster access
@@ -293,7 +313,7 @@ Var vs Dynamic
  In stack recursion calls fills it up quickly 
  for heap recursion calls fills it up slowly
 
- Stack - We get stackOverflow when memory is exhausted, local variables get wiped off once they loose scope.
+ Stack - We get stackOverflow when memory is exhausted. By default primitive variables get wiped off once they loose scope.
  Heap - GC - It is a special thread created by .NET runtime to monitor allocations of heap space.
  It only collects heap memory since objects are only created in heap
 
@@ -308,7 +328,7 @@ Var vs Dynamic
 	 Managed resources are those which are pure .net objects and these objects are controlled by .net CLR. They are cleaned by GC.
 	 Unmanaged resources are those which are not managed by .net CLR like Files,Conn objects (for DB) etc. They are not cleaned by GC.
 
-	 Note - Total Memory of .net application = Managed Memory + Unmaneged Memory + Stack memory
+	 Note - Total Memory of .net application = Managed Memory + Unmanaged Memory + Stack memory
 
 	 GC generations - They are logical buckets and each bucket defines how old the objects are. They are GC0, GC1, and GC2
 	 So,
@@ -318,7 +338,8 @@ Var vs Dynamic
 	 Purpose - Having generations have good performance effect. So objects in GC0 will be visited by GC more than the objects in GC2.
 
 
-	Note - Managed code will be cleaned by GC. And for unmanaged code () we need to explicitly clean them by using Destructors or related processes.
+	Note - Managed code will be cleaned by GC. And for unmanaged code () we need to explicitly clean them by using Destructors 
+	or related processes.
 
 	"Destructor" -> ~Constructor() Name -
 	Here the unmanaged code gets cleaned. The Destructor is called implicitly by the .NET Framework’s Garbage collector 
@@ -332,7 +353,7 @@ Var vs Dynamic
 	So if we have a destructor then GC will give priority to cleaning based upon the destructor first, then it will clean rest of the 
 	references not specified in destructor.
 
-	So, having an empty destructor is bad as it may push unused references of GC0 in destructor to GC1 and so on.
+	So, having an empty destructor is bad as it may push unused references of GC0 to GC1 and so on.
 
 	"Finalize" - It is same as destructor internally Destructor calls Finalize.
 
@@ -366,7 +387,7 @@ Var vs Dynamic
 	managed objects as without waiting for the Destructor.
 
 	******************************************
-	Here we have an important Concept - Why do use using statement for using unmanaged code such as network connections?
+	Here we have an important Concept - Why do use "using" statement for using unmanaged code such as network connections?
 
 	Because implementing "using()" will define a scope, once the flow goes outside this scope then objects will be disposed automatically.
 
@@ -386,7 +407,7 @@ Var vs Dynamic
 	Q. Can we force Garbage Collector to run?
 	Yes by calling GC.Collect();
 
-	Note - GC.Collect() can be placed anywhere in the code as required but it is a good practice if we have a Dispose() method '
+	Note - GC.Collect() can be placed anywhere in the code as required but it is a good practice if we have a Dispose() method 
 	then call GC.Collect() after the Dispose();
 
 	Also GC.Collect() - Simple call
@@ -412,7 +433,7 @@ Var vs Dynamic
 	We can still have memory leaks for unmanaged codes as GC does not work explicitly on unmanaged code.
 
 	Q. Explain Strong references vs Weak references?
-	Concept - Object created -> Object Not needed -> After some time GC runs. So there is some Delta before the GC actually collects.
+	Concept - Object created -> Object Removed -> After some time GC runs. So there is some Delta before the GC actually collects.
 
 	"Strong reference" - It is a normal object. i.e once its reference is not needed it will be claimed by GC. 
 	Here even if there is some time (Delta) before the next GC run the object is not accessible during this delta.
@@ -487,8 +508,8 @@ Ref : https://www.youtube.com/watch?v=DUq84e3cZyo
 
 Yield (Keyword) - https://www.youtube.com/watch?v=4fju3xcm21M&t=2s
 Is used for stateful iteration.
-So if we have 2 methods 
 
+So if we have 2 methods 
 
 static method1()
 {
@@ -499,11 +520,12 @@ static method1()
 }
 
 static ValFunc(){
-	int cnt = 0
+	int cnt = 0;
 	foreach(var i in listVal) //listVal(1 to 10))
 	{
 		cnt += i;
-		yield return (cnt);	//Here for yield the state will be maintained that is for each iteration listval position val will be remembered in mem
+		yield return (cnt);	//Here for yield the state will be maintained that is 
+							//for each iteration listval position i will be remembered in mem
 	}
 }
 
@@ -573,7 +595,7 @@ Aggregation vs Composition vs Association
 
 	Please note on the vocabularies
 
-	1. Composition Relation - Co 
+	1. Composition Relation -
 
 	That is the internal members of the class must have the same lifetime as of the class.
 
@@ -608,7 +630,7 @@ IEnumerable
 4. IEnumerable doesn't support lazy loading. Hence not suitable for paging like scenarios.
 
 IQueryable 
-1. It exists in System. Linq Namespace.
+1. It exists in System.Linq Namespace.
 2. IQueryable is best for querying data from out-memory (like remote Database, service) collections.
 3. IQueryable is suitable for LINQ to SQL queries.
 4. IQueryable support lazy loading. Hence it is suitable for paging like scenarios.
@@ -617,7 +639,7 @@ IQueryable
 
 C# Copying objects -
 
-Shallow Copy
+Shallow Copy (Reference Copy)
 
 	A Shallow Copy is about copying an object's value type fields into the target object and the object's reference types 
 	are copied as references into the target object but not the referenced object itself. 
@@ -626,7 +648,7 @@ Shallow Copy
 	Class1 obj1 = new Class1();
 	Class1 obj2 = obj1;
 
-Deep Copy (New Copy with new references)
+Deep Copy (New Pure Copy with new references)
 
 	Deep Copy is used to make a complete deep copy of the internal reference types, for this we need to configure the object 
 	returned by MemberwiseClone().
@@ -634,7 +656,10 @@ Deep Copy (New Copy with new references)
 	Class1 : IClonable
 	{
 		public object Clone(){
-			Class1 obj = (Class1)this.MemberwiseClone();
+			//Class1 obj = (Class1)this.MemberwiseClone();
+			//return obj;
+
+			return (Class1)this.Memberwise.Clone();
 		}
 	}
 
@@ -654,8 +679,8 @@ then it has to be declared as virtual in its base class.
 
 ------------------------------------------------------------------------------------------------------
 
-Serialize - Object to JSON/XML or Stream
-Deserialize - JSON/XML/Stram to object
+Serialize - Object to JSON/XML or Stream/string
+Deserialize - JSON/XML/Stream to object
 
 ------------------------------------------------------------------------------------------------------
 
@@ -666,7 +691,7 @@ require features like inheritance, polymorphism, and encapsulation. They can hav
 
 Structs - are value types that store data directly on the stack. They are suitable for efficiently storing small and 
 simple data types, making them a good choice when performance is a priority. They only have public methods.
-They do not have default constructor. But can have parameterised constructor.
+They do not have default constructor. But can have parameterised constructor. Also no inheritance.
 
 Records - like classes, are reference types that store data on the heap. However, records are specifically designed to 
 represent immutable data structures. Immutable means that it cannot be changed once the data is set. Records provide 
@@ -736,7 +761,7 @@ Let’s consider an example of struct in C#:
 using System;
 
 public struct Point
-{
+{				
     public int X { get; set; }
     public int Y { get; set; }
 
@@ -790,7 +815,7 @@ Point 2: X=8, Y=10
 In this example, the record keyword is used to defines a data structure called “Point,” which acts similarly to a struct. It has two properties, 
 X and Y, representing coordinates.
 
-When we want to make changes to a property, we use the with keyword to create a new instance of the record with the updated value. 
+When we want to make changes to a property, we use the "with" keyword to create a new instance of the record with the updated value. 
 It shows that the record is immutable, meaning it cannot be changed directly; instead, a new instance is created with the modified property.
 
 Example 2: Using “record” like a class
@@ -833,12 +858,15 @@ Can we call static from non static methods? Yes we can
 Object copy
 
 array clean
+- Array.Clear(myArray, 0, myArray.Length); //For reference type
 
 array to list
 
 ---------------------------------------------------------------------------------------------------------
 
 Task.Delay() and Thread.Sleep() 
+
+- Task is a wrapper over thread.
 
 Both are used to introduce a delay or pause in the execution of code, but they have different use cases and behaviors, 
 especially in asynchronous programming scenarios.
@@ -1091,7 +1119,12 @@ Create a project and create the MsTestCase project
 			};
 
 			//Here we have IEmployee interface for the service
-			//Using Mock we will create employee repo instance to be passed to the controller which we want to test.
+			//Using Mock we will create employee repo instance to be 
+			//passed to the controller which we want to test.
+			//Step 1 : Use new Mock<Interface> - To Activate
+			//Step 2 : Use Setup() - To setup the method
+			//Step 3 : Assert - Use asset to verify
+		
 			var employeeRepo = new Mock<IEmployee>();
 			employeeRepo.Setup(p => p.GetEmployeeById(It.IsAny<int>())).Returns(employee);
 
@@ -1175,5 +1208,66 @@ Key components and concepts of IAM typically include:
 	Azure Active Directory, and Google Cloud Identity and Access Management, among others.
 
 	It primarily deals with Authorization, Authentication, User management & Credential Management
+
+----------------------------------------------------------------------------------------------------
+
+Throw Vs Throw ex Vs Throw New 
+
+throw : If we use "throw" statement, it preserve original error stack information. 
+In exception handling "throw" with empty parameter is also called re-throwing the last exception.
+
+throw ex : If we use "throw ex" statement, stack trace of exception will be replaced with a stack 
+trace starting at the re-throw point. It is used to intentionally hide stack trace information.
+
+throw new Exception(ex.Message); is even worse. It creates a brand new Exception instance, 
+losing the original stack trace of the exception.
+
+-------------------------------------------------------------------------------------------------
+
+STATIC CONSTRUCTOR
+
+C# supports two types of constructors, a class constructor (static constructor) and an instance constructor (non-static constructor).
+
+Static constructor is used to initialize static data members as soon as the class is referenced the first time, whereas an instance
+constructor is used to create an instance of that class with the <new> keyword. A static constructor does not take access modifiers 
+or have parameters and can't access any non-static data member of a class.
+
+Since static constructor is a class constructor, it is guaranteed to be called as soon as we refer to that class or by creating 
+an instance of that class.
+
+You may say, why not initialize static data members where we declare them in the code? Like this,
+
+	private static int id = 10;
+	private static string name = "jack";
+
+Static data members can certainly be initialized at the time of their declaration but there are times when value of one static member 
+may depend upon the value of another static member. In such cases we definitely need some mechanism to handle conditional initialization 
+of static members. To handle such a situation, C# provides static constructor.
+
+
+	using System;
+	namespace Constructor {
+
+		class Test {
+			//Declaration and initialization of static data member
+			private static int id = 5;
+			public static int Id {
+				get {
+					return id;
+				}
+			}
+			public static void print() {
+				Console.WriteLine("Test.id = " + id);
+			}
+			static void Main(string[] args) {
+				//Print the value of id
+				Test.print();
+			}
+		}
+	}
+
+
+
+
 
 

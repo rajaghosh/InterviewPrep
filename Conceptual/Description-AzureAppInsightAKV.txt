@@ -196,7 +196,8 @@ Properties
 
 1. Azure Key Vault manages and stores data securely like passwords, certificates, and other credentials.
 2. It provides centralized storage in which we can manage our all credentials.
-3. There are many scenarios in which we store our sensitive information like database connection strings and passwords inside our codebase but that may cause in the future because sometimes wrong people can access it.
+3. There are many scenarios in which we store our sensitive information like database connection strings and passwords inside our codebase
+but that may cause in the future because sometimes wrong people can access it.
 4. Key Vault provides centralized storage and also, and we can monitor and keep track of access and usage of our secrets.
 
 Flow 
@@ -208,6 +209,7 @@ Flow
 Steps to Implement -
 
 1. Use the Nuget Package - Microsoft.Extensions.Configuration.AzureKeyVault
+
 2. Add environment variable in AppSettings.Json
 	
 	    {
@@ -218,9 +220,11 @@ Steps to Implement -
                 "ClientSecret": ""
             }
         }
+
 3. Create IKayVaultService and KeyVaultService. 
     Provide lifetime in StartUp.cs under configureServices as Services.AddTransient()
     Or builder.services.AddTransient<>
+
 4. In the KeyVaultService  class
     a. Get the data
         KeyVaultEndPoint, 
@@ -249,6 +253,17 @@ Steps to Implement -
             return secret.Value.Value;
         }
 
+
+
+Cryptographic keys: Supports multiple key types and algorithms, and enables the use of software-protected and HSM-protected keys. 
+For more information, see About keys.
+
+Secrets: Provides secure storage of secrets, such as passwords and database connection strings. For more information, see About secrets.
+
+Certificates: Supports certificates, which are built on top of keys and secrets and add an automated renewal feature. Keep in mind when a 
+certificate is created, an addressable key and secret are also created with the same name. For more information, see About certificates.
+Azure Storage account keys: Can manage keys of an Azure Storage account for you. Internally, Key Vault can list (sync) keys with an Azure 
+Storage Account, and regenerate (rotate) the keys periodically. For more information, see Manage storage account keys with Key Vault.
 
 ----------------------------------------------------------------------------------------------------
 

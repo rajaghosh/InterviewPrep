@@ -14,8 +14,4 @@
     <Content Include="Description-DesignPattern.txt" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\DesignPatternsRepositoryPattern\DesignPatternsRepositoryPattern(NetCore).csproj" />
-  </ItemGroup>
-
 </Project>

@@ -15,7 +15,7 @@ Here we have 2 appraches to communicate between Domain Classes and DB
 
 2. DB-First Approach
 	-> We need to make sure DB connection is proper.
-	-> Create DB object in the DB (No by code)
+	-> Create DB object in the DB (Not by code)
 	-> Now if we already have DB classes we can run scaffold command pull DB objects into classes
 	Scaffold-DBContext "<DBConnection>" Microsoft.EntityFrameworkCore.SqlServer -OutputDir EFModels
 	This will create Model Classes in EFModels Folder
@@ -32,7 +32,7 @@ DBContext Class -
 It is the main co-ordinator between the services and DB.
 1. Managing DB Connection.
 2. Configuring entries and the reln between them
-3. CRUB Operations. (Here method of Repo will use the references)
+3. CRUD Operations. (Here method of Repo will use the references)
 4. Transaction Management Support
 
 public class MyContext : DbContext
@@ -55,6 +55,17 @@ the gateway to perform database operations against an entity.
 
 Fluent API - By using the fluent API we can override the default conventions in 
 Entity Framework Core. This will provide more configuration options.
+
+--------------------------------------------------------------
+
+EF Core Migration File Methods
+
+The Up() method consists of commands that will be executed when we apply this migration. 
+As an opposite action, the Down() method will execute commands when we remove this migration 
+
+
+
+
 
 
 Advantage

@@ -112,16 +112,16 @@ namespace Conceptual2
         //--------------------------------AUTOMATIC RESET-------------------------------------------
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
-        //private static AutoResetEvent _are = new AutoResetEvent(true);
+        private static AutoResetEvent _are = new AutoResetEvent(true);
 
-        //public static void Method1()
-        //{
-        //    Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} starting...");
-        //    _are.WaitOne();
-        //    Thread.Sleep(2000);
-        //    Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} completed...");
-        //    _are.Set();
-        //}
+        public static void Method1()
+        {
+            Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} starting...");
+            _are.WaitOne();
+            Thread.Sleep(2000);
+            Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} completed...");
+            _are.Set();
+        }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------

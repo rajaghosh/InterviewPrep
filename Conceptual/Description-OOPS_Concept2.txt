@@ -48,6 +48,38 @@ Static Modifier - The static modifier on a class means that the class cannot be 
 and that all of its members are static. 
 A static member has one version regardless of how many instances of its enclosing type are created.
 
+    static class Author {
+ 
+        // Static data members of Author
+        public static string A_name = "Ankita";
+        public static string L_name = "CSharp";
+        public static int T_no = 84;
+ 
+        // Static method of Author
+        public static void details()
+        {
+            Console.WriteLine("The details of Author is:");
+        }
+    }
+ 
+    // Driver Class
+    public class GFG {
+ 
+        // Main Method
+        static public void Main()
+        {
+ 
+            // Calling static method of Author
+            Author.details();
+ 
+            // Accessing the static data members of Author
+            Console.WriteLine("Author name : {0} ", Author.A_name);
+            Console.WriteLine("Language : {0} ", Author.L_name);
+            Console.WriteLine("Total number of articles : {0} ", Author.T_no);
+        }
+    }
+
+
 Sealed classes - They are used to restrict the inheritance feature of object oriented programming. 
 Once a class is defined as a sealed class, this class cannot be inherited. 
 In C#, the sealed modifier is used to declare a class as sealed. In Visual Basic .NET, NotInheritable keyword serves the purpose of sealed. 
@@ -430,14 +462,16 @@ For out we can simply assign value to it without initializing with data.
 
 Serialize vs Deserialize
 
-Serialize - Copy data from object to file. Ex - List Data to JSON data.
-Deserialize - Copy file data to object. Ex - JSON data to List Data.
+Serialize - Copy data from object to file. Object to stream. Ex - JSON to string 
+Deserialize - Copy file data to object. Stream to object. Ex - string to JSON.
 
 ************************************************************************
 
 What is the difference between Array and Arraylist?
 In an array, we can have items of the same type only. The size of the array is fixed when compared. 
-To an arraylist is similar to an array, but it doesn’t have a fixed size.
+To an arraylist is similar to an array, but it doesn’t have a fixed size and can take any data.
+
+Array is fast and arraylist is slow due to boxing-unboxing.
 
 Array - 
 
@@ -525,3 +559,65 @@ Interface Segregation - Larger "interfaces" must be broken down into smaller int
 
 Dependency Inversion - It says high level module should not be dependent on any other module. 
         Rather they should be dependent on an interface.
+
+------------------------------------------------------------------------------
+
+    SINGLE RESPONSIBILITY PRINCIPLE - (Ex - Create a class for achieving a particular task)
+    A class should have only reason to change, meaning it should have one responsibility or job. This principle encourages
+    creation of small focused classes that are easy to maintain and understand.
+
+    OPEN CLOSED PRINCIPLE - (Ex - Create a abstract class/interface and for each implementation we will have a child class
+    with its own implementation)
+    A class must be open for extension but closed for modification. This means we can add new functionality to a module 
+    without changing its existing code.
+    Ex - Let us have called Shapes and each shape can have its area.
+    Its better to use an abstract class for shape with virtual method for Aree().
+    So each shape can have its own implemention by overriding.
+
+    LISKOV SUBSTITUTION PRINCIPLE -
+    Subtypes must be substituable for their base types. 
+    In other words, if you have a base class any derived class should be able to replace the base class without causing issues.
+
+    Let us have a base class with virtual methods and in the derived class we have overriden methods. As such in both parent child
+    classes we have same methods. So we can have same methods in derived as in base class. So derived class can replace the base
+    class.
+
+    INTERFACE SEGREGATION PRINCIPLE
+    Classes should not be forced to impement interface they do not need.
+
+    Larger "interfaces" must be broken down into smaller interface such that impementing class 
+    should only implement those methods which are needed.
+    Else unnecessary methods has to be implemnted in the classes which it might not need.
+
+    DEPENDENCY INJECTION
+    As we will be inverting the control we somehow need to hook the CALLED CLASS to the CALLER CLASS. This hooking
+    will be done by DEPENDENCY INJECTION. That is creating an abstract class point in the CALLER CLASS which will be invoked
+    only when needed. As it is an abstract class so the CALLER CLASS do not need to have any knowledge of the CALLED CLASS.
+    But this is forms a dependency so we call it DEPENDENCY INJECTION or a Dependency is hooked.
+
+    Dependency injection is the most popular method of implementing IOC. There are mainly three types of dependency injection:
+    Property Injection
+    Constructor Injection
+    Method Injection
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

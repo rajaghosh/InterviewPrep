@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 
 namespace Conceptual2
@@ -67,8 +65,11 @@ namespace Conceptual2
  * Threading - Parallel code execution.
 
 We have forground and background threads.
-Foreground Threads - Threads which keep on running even if main application exits. By default when a thread is created it is a foreground thread.
-Background Threads - Threads which will quit if main application quits. Note - Even if any foreground thread is running it will keep on running. 
+Foreground Threads - Threads which keep on running even if main application exits. 
+By default when a thread is created it is a foreground thread.
+
+Background Threads - Threads which will quit if main application quits. 
+Note - Even if any foreground thread is running it will keep on running. 
 So to test simply test a single background thread.
 
 

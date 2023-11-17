@@ -11,6 +11,7 @@ namespace Conceptual1
         {
             int i = 42;
             Type type = i.GetType();
+            Type type2 = typeof(int);
             Console.WriteLine(type);
 
             Assembly info = typeof(int).Assembly;

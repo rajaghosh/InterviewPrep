@@ -177,11 +177,14 @@ What is Rest API?
 
 Rest API Architecture
 It is an architectural design that outlines guidelines for developing Web Services. 
-In a client-server connection, REST recommends creating an object of the data requested by the client and sending the object's values back to the user.
+In a client-server connection, REST recommends creating an object of the data requested by the client and sending 
+the object's values back to the user.
 
 
 How does the Rest API work?
-REST APIs employ HTTP requests to communicate to do routine tasks like creating, reading, updating, and deleting entries (also known as CRUD) within a resource. 
+REST APIs employ HTTP requests to communicate to do routine tasks like creating, reading, updating, and deleting 
+
+entries (also known as CRUD) within a resource. 
 
 -------------------------------------------------------------------------
 
@@ -364,7 +367,7 @@ https://thecodeblogger.com/2021/05/29/conventional-vs-attribute-routing-in-asp-n
 Check - Basic routing, Areas, Attribute Routing, Verb Routing
 
 ---------------------------------------------------------------------------------------------------------------------------------
-
+//Ignore
 Long Running Process
 
 Handling long-running processes in a .NET API involves managing the execution of time-consuming tasks without blocking 
@@ -398,6 +401,20 @@ What is the advantage of RestApi
 ---------------------------------------------------------------------------------------------------------------------------------
 
 Custom Response for WebApi
+
+	public class ApiResponseModel<T>
+    {
+        public T Data { get; set; }
+        public ApiError Error { get; set; }
+    }
+
+    public class ApiError
+    {
+        public string ErrorCode { get; set; }
+        public string ErrorMessage { get; set; }
+    }
+
+
 How to manipulate timeout so that a lengthy operation can happen.
 Request Validations
 How to write logs to trace requests from WebApi from multiple sources.

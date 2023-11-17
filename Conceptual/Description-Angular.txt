@@ -1,0 +1,965 @@
+﻿-------------------------------------------------------------------------------------------------------------------------------
+
+Directive 
+
+	In Angular, directives are special markers in the HTML that tell the Angular framework to do something with a DOM element. 
+	They are used to extend the behavior of HTML elements or create new reusable custom elements in your Angular applications. 
+	Angular provides several built-in directives, and you can also create your custom directives when needed.
+
+	There are three types of directives in Angular:
+
+	* Component Directives: Components are directives with templates. They encapsulate the presentation logic and have their own
+	templates, styles, and behavior. They are essentially directives with a view. Ex - @Component Decorator is used for Component.
+
+	* Attribute Directives: Attribute directives modify the appearance or behavior of an existing DOM element. They are applied
+	to HTML elements as attributes. Common examples include ngClass, ngStyle.
+		
+		ngClass: This directive allows you to conditionally apply CSS classes to an element based on an expression.
+			<div [ngClass]="{'active': isActive, 'error': hasError}">Apply classes conditionally</div>
+
+		ngStyle: This directive lets you dynamically set the style properties of an element based on an object or expression.
+			<div [ngStyle]="{'color': textColor, 'font-size.px': fontSize}">Apply styles dynamically</div>
+
+	* Structural Directives: Structural directives modify the structure of the DOM by adding or removing elements. They are 
+	typically used with an asterisk (*) syntax in the HTML to indicate their application. Examples include *ngFor and *ngIf.
+
+	
+	Here's a brief overview of how to use Angular directives:
+
+	1. Built-in Directives:
+
+	Angular provides several built-in directives that you can use in your templates. For example, the ngIf directive is used to 
+	conditionally render elements based on a certain condition:
+
+	<div *ngIf="showElement">This element is shown if showElement is true.</div>
+
+	The ngFor directive is used for iterating over arrays or lists:
+
+	<ul>
+	  <li *ngFor="let item of items">{{ item }}</li>
+	</ul>
+
+	2. Creating Custom Directives:
+
+	You can create your custom directives in Angular when you need to encapsulate specific behavior. To create a custom directive,
+	you typically use the @Directive decorator. Here's a simplified example of creating a custom directive that changes the 
+	background color of an element when it's hovered:
+
+	import { Directive, ElementRef, HostListener, Renderer2 } from '@angular/core';
+
+	@Directive({
+	  selector: '[appHighlight]'
+	})
+	export class HighlightDirective {
+	  constructor(private el: ElementRef, private renderer: Renderer2) {}
+
+	  @HostListener('mouseenter') onMouseEnter() {
+		this.renderer.setStyle(this.el.nativeElement, 'background-color', 'yellow');
+	  }
+
+	  @HostListener('mouseleave') onMouseLeave() {
+		this.renderer.removeStyle(this.el.nativeElement, 'background-color');
+	  }
+	}
+
+	In this example, the HighlightDirective is created and applied to elements using the appHighlight selector. 
+	It listens for the mouseenter and mouseleave events and changes the background color accordingly.
+	To use this custom directive in your HTML:
+
+	<p appHighlight>Hover over me to highlight!</p>
+
+------------------------------------------------------------------------
+
+Q. How to update from one angular version to another
+
+	Ng update <optional params like cli version> 
+	Ng update <optional params like cli version> –force
+
+------------------------------------------------------------------------
+
+Angular RxJs Library
+
+In Angular, the RxJS library (Reactive Extensions for JavaScript) is an essential and integral part of the framework. 
+Its purpose is to handle "asynchronous" data streams easily. (Async - Data coming out in small interval but not fixed interval gap).
+It could be anything like httpresponse etc.
+
+RxJS is a library for composing "asynchronous" and "event-based" programs using observable sequences and is widely used in 
+Angular applications for managing asynchronous operations, handling events, and working with data streams.
+
+Here are some key concepts and functionalities of RxJS in the context of Angular:
+
+	* Observables: Observables are a fundamental part of RxJS. They represent a source of data or events that can be observed 
+	over time. In Angular, many built-in objects, such as HTTP requests and form inputs, return observables.
+
+		- An Observable is an object or data structure that represents a stream of data or events over time.
+		- It can emit multiple values asynchronously, including zero, one, or many values.
+		- Observables are lazy, meaning they do not start emitting data until someone subscribes to them.
+		- Observables can represent various sources of data, such as user input, HTTP responses, timers, or custom data sources.
+
+		Ex - 
+		import { Observable } from 'rxjs';
+
+		const observable = new Observable(observer => {
+		  observer.next(1);
+		  observer.next(2);
+		  observer.complete();
+		});
+
+	* Observer:	An Observer is an object or function that watches or listens to the values emitted by an Observable. It defines a set 
+	of callback functions that are executed when specific events occur in the Observable's lifecycle. Observer typically consists of 
+	three callback functions:
+	
+		- next(value): Called when the Observable emits a new value.
+		- error(error): Called when an error occurs in the Observable (optional).
+		- complete(): Called when the Observable has completed emitting values (optional).
+
+		Ex - 
+		const observer = {
+		  next: value => console.log(`Next: ${value}`),
+		  error: error => console.error(`Error: ${error}`),
+		  complete: () => console.log('Complete'),
+		};
+
+
+	* Subscribing: Subscribing is the process of connecting an Observer to an Observable. It initiates the execution of the Observable 
+	and allows the Observer to receive values from it. When you subscribe to an Observable, you provide an Observer to handle the emitted 
+	values. Subscribing returns a Subscription, which represents the ongoing connection between the Observer and the Observable.
+		
+		const subscription = observable.subscribe(observer);
+
+		Later, you can unsubscribe to release the resources and stop receiving values:
+
+		subscription.unsubscribe();
+
+
+	* Operators: RxJS provides a rich set of operators that allow you to transform, filter, merge, and manipulate observables.
+	Common operators include map, filter, mergeMap (formerly flatMap), switchMap, debounceTime, and many more.
+
+	Ex -> Linq Select -> Map
+		  Linq Where -> Filter
+		  Linq OrderBy -> Sort
+		  Linq FirstOrDefault -> Find
+
+
+	* Async Pipe: The async pipe is a built-in Angular feature that simplifies working with observables in templates. 
+	It automatically subscribes to an observable and unwraps the data, making it available for rendering in the template.
+	This helps avoid manual subscription management.
+
+	Ex - 
+	  ngOnInit() {
+		this.subscription = this.http.get<any[]>('https://api.example.com/items')
+		  .subscribe(data => {
+			this.items = data;
+		  });
+	  }
+
+
+	In the ngOnInit lifecycle hook, we make an HTTP request and subscribe to the Observable returned by http.get. We assign 
+	the data to the items property.
+
+----------------------
+	
+	
+	* What are observables and observers?
+	Ans -> So we have a http stream and a listener. To listen to this stream we need to convert it to observable object
+	So observable is a Rxjs object which emits some data stream. And the listener has to converted to an observer object to communicate.
+
+	So observable and observer are both Rxjs object which will communicate with each other.
+	Here observable is the asynchronous data stream and observer will subscribe to this data stream to communicate.
+
+	We can subscribe using subscribe() and unsubscribe using unsubscribe() methods.
+
+-------------------------------------------------------------------------------------------
+
+Observable vs Promise
+
+	1. Multiple Values vs. Single Value:
+		- Observable: Observables can emit multiple values over time. They represent a stream of data or events, and you can 
+		subscribe to them to receive multiple updates or notifications.
+		- Promise: Promises resolve with a single value, which can be either a success value or an error value. Once resolved, 
+		a Promise cannot change its state or emit additional values.
+
+	2. Lazy vs. Eager:
+		- Observable: Observables are lazy by nature. They won't execute until you subscribe to them. This allows you to set up 
+		complex data transformation pipelines before actually triggering the operation.
+		- Promise: Promises are eager, meaning they start executing as soon as they are created. This can be limiting if you want
+		to compose multiple asynchronous operations.
+
+	3. Cancellation vs. Non-cancellation:
+		- Observable: Observables can be canceled by unsubscribing from them. This is useful for stopping ongoing operations and 
+		preventing memory leaks.
+		- Promise: Promises cannot be canceled once they are initiated. They will continue to execute until they resolve or reject,
+		even if you no longer need the result.
+
+	4. Use Cases:
+		- Observable: Observables are well-suited for scenarios involving continuous data streams, real-time updates, user interactions,
+		and scenarios where you need to handle multiple asynchronous events over time.
+		- Promise: Promises are often used for one-time asynchronous operations, such as making HTTP requests, where you expect a single
+		result or an error.
+
+	5. Observables can be chained together, while promises cannot.
+
+------------------------------------------------------------------------------------------
+
+Angular Life Cycle hooks
+
+	Constructor 
+	ngOnChanges
+	ngOnInit
+	ngDoCheck 
+		-> ngAfterContentInit 
+		-> ngAfterContentChecked
+		-> ngAfterViewInit
+		-> ngAfterViewChecked
+	ngOnDestroy
+
+	1. Constructor - This is invoked when Angular creates a component or directive 
+	
+	2. ngOnChanges - Invoked every time there is a change in one of the input() properties of the component. That is for 
+	parent-child call only.
+	
+	3. ngOnInit - This hook is called once, immediately after the component is initialized and all input properties are set.
+	Gets called only once when the component is initialized.
+	
+	4. ngDoCheck - Invoked when the change detector of the given component is invoked. It allows us to implement our own 
+	change detection algorithm for the given component. It's useful when you need fine-grained control over change detection, 
+	but it should be used sparingly due to potential performance implications.
+	
+		NOTE - 
+		ngDoCheck - Called for every change detection.
+		ngOnChange - Will be called once there is call from parent to child using @input decorator.
+
+	5. ngOnDestroy - This method will be invoked just before Angular destroys the component. Use this hook to unsubscribe 
+	observables and detach event handlers to avoid memory leaks.
+
+	Hooks for the Component’s Children - These hooks are only called for components and not directives.
+
+		* ngAfterContentInit - Invoked after Angular performs any content projection into the component’s view.
+		* ngAfterContentChecked - This hook is called after Angular checks the projected content for changes (after initialized).
+		* ngAfterViewInit - This hook is called after the component's view and child views have been initialized.
+		* ngAfterViewChecked - This hook is called after Angular checks the component's view and child views for changes (after initialized).
+
+------------------------------------------------------------------------------------------
+
+Property binding vs Event binding vs Two way binding
+
+	[] -> Property binding - One-way from data source (ts) to view target (html). eg {{expression}}
+		[target]="expression"
+
+		bind-target="expression"
+
+		Note -We can use bind-target instead of []
+
+	() -> Event Binding - One-way from view target (html) to data source (ts)
+		(target)="statement"
+		on-target="statement"
+
+		We can use on- instead of ()
+
+	[()]- Two way Binding - Banana in a box
+		[(target)]="expression"
+		bindon-target="expression"
+
+		We can use bindon- instead of [()]
+
+
+------------------------------------------------------------------------------------------
+
+Inter-Component Communication
+
+	1. Parent-Child Component Communication - We will do it using the @Input decorator
+
+		Step 1:
+		
+		html -
+
+		In parent component HTML call child component and show the parent value using property binding
+		<child [uNameChild]="userNameParent"></child>
+				
+		Step 2 :
+
+		In the ts file of the parent 
+			var userNameParent : string = "Hello world"
+			
+		In the ts file of the child 
+			@Input //Need to use this decorator and this will be the connector
+			uNameChild:string
+
+	2. Child-Parent Component Communication - We will do it using the @Output decorator + EventEmitter
+		
+		Step 1:
+
+		In the Child Html 
+
+			<button (click)="GetVal()">Get Val</button>
+
+		In the ts file of the child 
+			@Output
+			notifyObj:EventEmitter<sting> = new EventEmitter<string>();
+
+			//This event will be listened by parent
+			GetVal(){
+				this.notifyObj.emit("THIS IS A MESSAGE");
+			}
+
+		Step 2:
+		
+		In the Parent Html
+		Child component call
+			<!-- CHILD DATA -->
+			{{childData}}
+
+			<!-- THIS WILL INVOKE THE CHILD FROM PARENT AND THIS WILL USE THE EVENT EMITTER TO GET THE CHILD DATA IN PARENT -->
+			<child (notifyObj)="parentMethod($event)"></child>
+
+		In the Parent ts
+		    childData : string;
+			parentMethod(data)
+			{
+				this.childData = data;
+			}
+
+	3. Sibling Component Communication -
+
+		Using a shared service.
+
+------------------------------------------------------------------------------------------
+
+Angular decorator
+
+	In Angular, decorators are a key feature used to enhance and configure classes. 
+	They are functions that provide metadata about classes, class properties, methods, or even function arguments. 
+	Decorators are commonly used throughout Angular to define and configure various aspects of an application, 
+	including components, services, modules, and more.
+
+	Angular decorators are typically imported from the @angular/core module and are used with the @ symbol as part of TypeScript syntax.
+	Here are some commonly used Angular decorators:
+
+	1. @Component: Used to decorate a class as an Angular component. Provides metadata about the component, including its template, 
+	styles, selector, and more.
+
+		import { Component } from '@angular/core';
+
+		@Component({
+		  selector: 'app-example',
+		  template: '<p>This is an example component</p>',
+		})
+		export class ExampleComponent {}
+
+	2. @Directive: Used to create custom directives in Angular. Provides metadata about the directive, including its selector and
+	the associated behavior.
+
+		import { Directive, ElementRef } from '@angular/core';
+
+		@Directive({
+		  selector: '[appHighlight]',
+		})
+		export class HighlightDirective {
+		  constructor(private el: ElementRef) {
+			this.el.nativeElement.style.backgroundColor = 'yellow';
+		  }
+		}
+	
+	3. @Injectable: Used to decorate a service class, making it injectable through Angular's dependency injection system.
+	It ensures that Angular can create instances of the service when needed.
+
+		import { Injectable } from '@angular/core';
+
+		@Injectable({
+		  providedIn: 'root',
+		})
+		export class ExampleService {
+		  // Service logic here
+		}
+	
+	4. @NgModule: Used to decorate a class as an Angular module. Provides metadata about the module, including its declarations,
+	imports, providers, and bootstrap components.
+
+		import { NgModule } from '@angular/core';
+		import { BrowserModule } from '@angular/platform-browser';
+
+		@NgModule({
+		  declarations: [AppComponent, ExampleComponent],
+		  imports: [BrowserModule],
+		  providers: [ExampleService],
+		  bootstrap: [AppComponent],
+		})
+		export class AppModule {}
+
+	5. @Input and @Output: Used to define input and output properties for components and directives. @Input is used to receive data
+	from a parent component, while @Output is used to emit events to a parent component.
+
+		@Component({
+		  selector: 'app-child',
+		  template: '<p>{{ childData }}</p>',
+		})
+		export class ChildComponent {
+		  @Input() childData: string;
+		  @Output() childEvent = new EventEmitter<string>();
+		}
+
+	6. @ViewChild and @ViewChildren: Used to query and access child elements or components within a parent component's template.
+
+		@Component({
+		  selector: 'app-parent',
+		  template: '<app-child></app-child>',
+		})
+		export class ParentComponent {
+		  @ViewChild(ChildComponent) childComponent: ChildComponent;
+		}
+
+-------------------------------------------------------------------------------------------
+
+@ViewChild and @ViewChildren
+
+	In Angular, @ViewChild and @ViewChildren are decorators used to access and interact with child components, directives, or DOM 
+	elements within a parent component's template. They provide a way to query and reference elements or components defined in the
+	template for further manipulation or communication between parent and child components.
+
+	@ViewChild:
+		@ViewChild is used to access a single child element or component from the parent component's template. 
+		It allows you to query the template for the first occurrence of a child element or component that matches the specified selector.
+		You can access the child element or component as a property of the parent component.
+		Here's an example of how to use @ViewChild to access a child component:
+
+		-----------------------------------------
+		import { Component, ViewChild } from '@angular/core';
+		import { ChildComponent } from './child.component';
+
+		@Component({
+		  selector: 'app-parent',
+		  template: '<app-child></app-child>',
+		})
+		export class ParentComponent {
+		  @ViewChild(ChildComponent) childComponent: ChildComponent;
+
+		  ngAfterViewInit() {
+			// Access and interact with the child component here
+			this.childComponent.someMethod();
+		  }
+		}
+
+	@ViewChildren:
+		@ViewChildren is used to access multiple child elements or components from the parent component's template.
+		It allows you to query the template for all occurrences of child elements or components that match the specified selector.
+		The result is an array or a QueryList (which can be converted to an array) of the matched child elements or components.
+		Here's an example of how to use @ViewChildren to access multiple child elements:
+
+		-----------------------------------------
+		import { Component, ViewChildren, QueryList } from '@angular/core';
+		import { ChildItemComponent } from './child-item.component';
+
+		@Component({
+		  selector: 'app-parent',
+		  template: `
+			<app-child-item></app-child-item>
+			<app-child-item></app-child-item>
+		  `,
+		})
+		export class ParentComponent {
+		  @ViewChildren(ChildItemComponent) childItems: QueryList<ChildItemComponent>;
+
+		  ngAfterViewInit() {
+			// Access and interact with the child components here
+			this.childItems.forEach(child => {
+			  child.someMethod();
+			});
+		  }
+		}
+
+	In both cases, it's important to note that the access to child elements or components occurs after the parent component's view 
+	has been initialized, typically in the ngAfterViewInit lifecycle hook. This ensures that the child components or elements are 
+	available for manipulation.
+
+-------------------------------------------------------------------------------
+
+Template reference variable
+
+	In Angular, a template reference variable (or simply "ref variable") is a way to get a reference to a DOM element or an Angular
+	component within a template. Template reference variables are denoted by a # symbol followed by a name and can be used to access,
+	manipulate, or communicate with elements or components in the template.
+
+	Creating a Template Reference Variable:
+		To create a template reference variable, add a # symbol followed by a name to an HTML element or an Angular 
+		component in the template.
+
+		<input #myInput>
+		<button (click)="logInputValue(myInput.value)">Log Input Value</button>
+
+		In this example, we've created a template reference variable named myInput for the <input> element.
+
+------------------------------------------------------------------------------
+
+Pipes
+
+	Pipes in angular are used to alter the output representation of the variables/values on the template. Ex. for variable name
+	NAMEVAL = “raja” can be shown in titlecase using {{ NAMEVAL | titlecase}} will show “Raja”.
+
+	It supports chaining i.e use one Pipe after another
+	
+	Different types of pipes
+		* Date
+		* TitleCase | lowercase | uppercase
+		* Currency
+		* Json - Will convert object into json format.
+				In Angular, you can use the built-in JsonPipe to format JavaScript objects as JSON strings for display 
+				in your templates. The JsonPipe is one of Angular's built-in pipes, and it's used to convert objects to
+				JSON strings, making it easier to display JSON data in your templates.
+
+				Here's how you can use the JsonPipe in an Angular template:
+
+					import { Component } from '@angular/core';
+					import { JsonPipe } from '@angular/common';
+
+					@Component({
+					  selector: 'app-json-pipe',
+					  template: `
+						<h2>JSON Pipe Example</h2>
+						<p>Original Object:</p>
+						<pre>{{ myObject }}</pre>
+						<p>JSON String:</p>
+						<pre>{{ myObject | json }}</pre>
+					  `,
+					})
+					export class JsonPipeComponent {
+					  myObject = { name: 'John', age: 30 };
+					}
+
+				In the Html
+
+					<pre>{{ myObject | json }}</pre>
+				
+				When you use the json pipe in the template, it automatically converts the myObject JavaScript object into a 
+				formatted JSON string for display. The json pipe is especially useful for debugging and displaying JSON data 
+				in a readable format.
+
+
+
+	We can also have Custom Pipes.
+
+--------------------------------------------------------------
+
+Custom Pipes
+
+	In Angular, you can create custom pipes to transform or format data in your templates. 
+	Custom pipes allow you to encapsulate reusable data transformation logic in a way that promotes 
+	maintainability and reusability across your application.
+
+	Step 1 :
+		
+		Create a Pipe Class:
+
+		Start by creating a class for your custom pipe. The class should be decorated with the @Pipe decorator, and it should 
+		implement the PipeTransform interface, which requires you to implement the transform method. The transform method is 
+		where you define the logic for your custom pipe.
+
+			import { Pipe, PipeTransform } from '@angular/core';
+
+			@Pipe({
+			  name: 'custom'
+			})
+			export class CustomPipe implements PipeTransform {
+			  transform(value: any, ...args: any[]): any {
+				// Your transformation logic here
+				return transformedValue;
+			  }
+			}
+
+	Step 2 : 
+
+		Register in the Module. By default it will be register in the module. If not we need to manually add it.
+
+	Step 3 :
+
+		Use:
+
+		You can now use your custom pipe in your Angular templates. To use it, you simply pipe your data through the custom pipe
+		in the template using the | symbol.
+
+		html
+		Copy code
+		<p>{{ 'World' | custom:'Hello' }}</p>
+
+--------------------------------------------------------------------
+
+Compilation AOT vs JIT
+
+ng build –prod OR ng build
+	
+	AOT Ahead of Time Compilation
+	
+	* The Angular Ahead-of-Time (AOT) compiler converts your Angular HTML and TypeScript code into efficient JavaScript code 
+	during the build phase before the browser downloads and runs that code.
+
+	Advantages of AOT:
+	- Highlights the compilation error, runtime error and exception before running on the browser 
+	hence the name Ahead Of Time (AOT).
+	
+	- If you use ng build in your projects to build your application if you notice the file size of vendor.bundle.js 
+	and vendor.bundle.js.map files in your build directory it will be in MBS which get downloaded to the Browsers 
+	and make our application too loaded.
+
+	But on the other hand, if you use the flag ng build –prod you will notice an excessive decrease of this files 
+	to 200 KBS means 100 or more times lesser in size.
+	Therefore I recommend you to use the AOT in the building of Angular Application by using --prod flag.
+
+---------------------------------------------
+	
+	--prod- apply uglify and minify to reduce the bundle as well make angular work in production mode which
+	reduces runtime warnings given by angular compiler as well increase performance.
+	
+	--aot- generally when we serve angular project all the angular files are downloaded on browser and it will 
+	compile and execute the application on the browser but in aot entire application delivered to the browser 
+	is precompiled hence improves the performance
+
+	Command -> ng build --aot --prod --output-path=dist/my-app
+
+
+	build- will bundle files and put it in dist folder so that we can use those for deployment on servers.
+	serve- will run the application on lite server
+----------------------------------------------
+
+	Summary -
+
+		- In JIT the bundle size is larger, in AOT bundle size is small.
+	
+	Just-in-Time (JIT) Compilation:
+
+	- Timing: In JIT compilation, the Angular code is compiled and generated in the browser at runtime, 
+	i.e., "just-in-time" when the application loads.
+
+	- Development Mode: JIT is the default mode during development because it allows for rapid development 
+	and debugging. It compiles your TypeScript code into JavaScript on-the-fly, and it also includes 
+	development-friendly features like detailed error messages and the ability to update code and see changes 
+	without recompilation.
+
+	- Bundle Size: JIT compilation can result in larger bundle sizes because it includes the Angular compiler 
+	and compiler-specific code.
+
+	- Performance: In JIT mode, the application may have a slightly slower startup time compared to AOT, as it 
+	involves compilation in the browser. However, once running, the performance is generally acceptable for most
+	applications.
+
+	Ahead-of-Time (AOT) Compilation:
+
+	- Timing: AOT compilation happens ahead of time, typically during the build process before deploying the application.
+
+	- Production Mode: AOT is commonly used in production because it offers several benefits in terms of performance and security.
+
+	- Bundle Size: AOT produces smaller bundle sizes since it eliminates the need to ship the Angular compiler to the client.
+	This results in faster loading times.
+
+	- Performance: AOT-compiled code often has faster startup times and improved runtime performance because it eliminates 
+	the need for in-browser compilation.
+
+-----------------------------------------------------------------------
+Is ng build --prod and ng build --aot same?
+
+	No, the --prod flag in Angular CLI does not enable Ahead-of-Time (AOT) compilation. The --prod flag is used to build 
+	an Angular application in production mode, which applies various optimizations to the build output, but it doesn't change
+	the compilation mode.
+
+	By default, when you use the ng build command without specifying the --aot flag, Angular CLI uses Just-in-Time (JIT)
+	compilation, which compiles your TypeScript code into JavaScript and performs the compilation in the browser at runtime 
+	during development.
+
+	To explicitly enable Ahead-of-Time (AOT) compilation, you should use the --aot flag in the ng build command, like this:
+		ng build --aot
+		The --aot flag tells Angular CLI to perform AOT compilation, which compiles your Angular templates and components 
+		ahead of time, resulting in optimized production-ready code.
+
+	So, to summarize:
+
+	* ng build without any additional flags performs JIT compilation.
+	* ng build --prod builds the application in production mode with various optimizations but does not enable AOT compilation.
+	* ng build --aot explicitly enables AOT compilation, which is recommended for production builds to achieve the best performance 
+	and smaller bundle sizes.
+
+----------------------------------------------------------------
+
+Is npm start internally call ng serve?
+
+	Yes when we run npm start, it will execute the ng serve command under the hood, starting the Angular development server, 
+	watching for code changes, and providing a live-reloading development environment.
+
+----------------------------------------------------------------
+
+Purpose of Angular? 
+Angular is a popular open-source web application framework maintained by Google and a community of developers. It is designed to
+simplify and streamline the process of building dynamic, single-page web applications (SPAs).
+
+----------------------------------------------------------------
+
+Angular Routing
+Ans - Routing in Angular refers to the mechanism by which you can navigate between different views or components within a 
+single-page web application. Angular provides a powerful and flexible routing system that allows you to define routes, 
+handle navigation, and load components dynamically based on the URL. Here's a basic overview of how routing works in Angular:
+
+	1. Command to create new app with routing enabled
+
+	ng new my-app --routing
+
+	2. Configure Routes
+
+	In your Angular application, you define routes in the app-routing.module.ts file. This file is generated when you create 
+	a new project with routing enabled. You can configure routes using the RouterModule from @angular/router.
+
+	// app-routing.module.ts
+	import { NgModule } from '@angular/core';
+	import { RouterModule, Routes } from '@angular/router';
+	import { HomeComponent } from './home.component';
+	import { AboutComponent } from './about.component';
+
+	const routes: Routes = [
+	  { path: '', component: HomeComponent },
+	  { path: 'about', component: AboutComponent },
+	];
+
+	@NgModule({
+	  imports: [RouterModule.forRoot(routes)],
+	  exports: [RouterModule],
+	})
+	export class AppRoutingModule {}
+
+	3. Create Route Links:
+
+	In your templates, you can create links to navigate to different routes using the routerLink directive. For example:
+
+	<!-- app.component.html -->
+	<nav>
+	  <a routerLink="/">Home</a>
+	  <a routerLink="/about">About</a>
+	</nav>
+	<router-outlet></router-outlet>
+
+	The <router-outlet></router-outlet> tag is where the routed components will be displayed.
+
+	You can use route guards to control access to specific routes based on conditions like authentication or user roles.
+
+----------------------------------------------------------------
+Lazy Loading in Angular
+
+	It means loading on demand. Loading only the necessary HTML, CSS, JS so that we have better performance.
+	In order to implement Lazy Loading we have 3 steps:
+
+	1. Divide project into different modules
+	2. Use "loadChildren" for loading the modules lazily in the main module route file.
+	3. Use "forRoot" (in main module route) to load the routes of the main module and 
+	"forChild" to laod the child modules (in child module route).
+
+----------------------------------------------------------------------------------
+
+Constructor vs ngOnInit
+
+In the context of Angular, "constructor" and "ngOnInit" are two different methods used in Angular components to perform 
+initialization tasks, but they serve distinct purposes and are called at different times during the component's lifecycle.
+
+Constructor:
+
+	The constructor is a standard TypeScript method that is automatically invoked when an instance of a class is created.
+	It is part of the component's class and is not specific to Angular. It's a fundamental part of object-oriented programming.
+	The constructor is typically used to perform basic setup tasks for the component, such as initializing properties or injecting dependencies (using constructor parameters).
+	It is executed before Angular has fully initialized the component, which means that certain Angular features may not be available or fully configured within the constructor.
+	Example:
+
+	typescript
+	Copy code
+	constructor(private myService: MyService) {
+		// This is where you can inject dependencies and perform basic setup.
+	}
+
+ngOnInit:
+
+	ngOnInit is a lifecycle hook specific to Angular components.
+	It is part of the OnInit interface in Angular and is used to perform initialization tasks that require access to Angular-specific features.
+	ngOnInit is called after the constructor and after Angular has initialized the component and its input properties.
+	It is a good place to start asynchronous operations, fetch data from a server, or perform any other initialization that relies on Angular's infrastructure.
+	Example:
+
+	typescript
+	Copy code
+	ngOnInit(): void {
+		// This is where you can perform Angular-specific initialization tasks.
+		this.myService.getData().subscribe(data => {
+			// Process data after it's fetched asynchronously.
+		});
+	}
+In summary, the constructor is a standard TypeScript method used for basic setup and dependency injection, while ngOnInit is an Angular-specific lifecycle hook used for Angular-specific initialization tasks. You should use them appropriately based on your component's needs, keeping in mind that ngOnInit is more suitable for tasks that depend on Angular's lifecycle and features.
+
+
+----------------------------------------------------------------------------------
+
+Angular Guards  and Interceptors (Access with Authorization and Authentication)
+	
+	Angular Guards
+
+	Also called Angular Route Guards. It is interface provided by Angular which when implemented allows us to control the accessibility
+	of a route based upon the conditions provided.
+
+	Step 1: Create let us create a file auth-guard.service.ts
+		Need to use @injectible to represent a service class
+
+		export class AuthGuardService implements CanActivate
+		{
+			canActivate():boolean
+			{
+				//Our custom logic 
+				if(true based on our logic)
+					return true;
+				else
+					return false;
+			}
+		}
+
+	Step 2: Go to route.module file
+		
+		In the routes we need to add property canActivate	
+
+		const routes: Routes = 
+		[
+			{
+				path : "MY_CUSTOM_PATH",
+				component: "MY_COMPONENT",
+				canActivate: [AuthGuardService]
+			}
+		]
+
+	Here depending upon the boolean response from AuthGuard service we will either show or hide the route
+
+	Interceptor 
+
+	Before sending a http request the interceptor will be used first. It is also a Service class.
+
+	Ex - We can add common header in the interceptor definition and this will be used in all the req.
+
+	file : auth-interceptor.service.ts
+
+	Step 1 : Define interceptor
+	export class AuthInterceptorService implements HttpInterceptor
+	{
+		intertercept(req : HttpRequest<any>, next: HttpHandler)
+		{
+			//Our custom logic
+			let authReq = req;
+			authReq = this.AddTokenHeader(req, "JWT_TOKEN OR NULL");
+
+			return next.handle(authReq).pipe(
+			  if(errorData == null)
+			  {
+				//Set token in localStorage
+				//Set role in localStorage
+			  }
+			  catchError(errordata => {
+				console.log(errordata);
+
+				//This will be another service call
+				if (errordata.status == 401) {
+				  //Remove localStorage data for the user
+				}
+				return throwError(errordata);
+			  })
+			);
+
+		}
+	
+		//Custom method to add tokens
+		AddTokenHeader(request: HttpRequest<any>, token: string) 
+		{
+			return request.clone(
+				{
+					headers: request.headers
+					.set('Authorization', 'Bearer ' + token)
+				});
+			}
+		}
+	}
+	Step 2: Register interceptors in module
+		providers : 
+		[
+			{
+				provide : HTTP_ITNERCEPTORS,
+				useClass: AuthInterceptorService,
+				multi: true //If there are other interceptors then this will not overwrite those interceptors if True
+			}
+		
+		]
+
+
+
+	Link of Interceptors with Guards -> How Authorization and Authentication works in Angular
+
+	So in the above example when we get proper token data we store in the localStorage and get the roles from the claim of JWT and also store
+	that. Else we remove the localStorage data.
+	When we try to access a route then canActivate property for that route will be checked and the AuthGuard canActivate will be invoked.
+	If we find proper data then it will return true and that route can be activated else on return false that route will not be activated.
+	One more thing we can modify our route logic also on basis of the roles from JWT token claims.
+
+
+
+----------------------------------------------------------------------------------
+
+Router vs Activated Router
+
+Angular Router is a service that presents a particular component view for a given URL. The Router interprets the URL in
+the browser and handles navigation to the configured component. After the end of each successful navigation lifecycle,
+the router builds a tree of ActivatedRoute objects that make up the current state of the router.
+
+AcivatedRoute in an injectable service that provides access to information about a route associated with a component such
+as the route path and URL parameters in the component.
+
+----------------------------------------------------------------------------------
+Services (to share common logic)and DI in angular using Providers
+
+How do we use HTTP in angular for POST call?
+
+RxJs - Observer, Observable, Stream
+
+Rxjs vs Promise
+
+https://www.youtube.com/watch?v=ocE5zB3SJH8
+
+Spread operator
+
+local storage and Caching
+
+let vs var
+
+pure vs impure pipe
+
+Interpolation vs property binding
+
+What is subscribing -> next, error, complete
+
+Multicasting
+
+Detect route change
+
+Angular material
+
+Security best practice
+
+Sanitization
+
+Interceptor
+
+Array in angular
+
+Precedence of pipe and ternary operator
+
+How to you provide singleton service
+purpose of form builder
+
+Content projection
+Stand alone component
+
+How to detect mobile in angular
+
+How to check roles using Authgaurd in angular
+
+CSS position
+
+Bread Crumb menu vs hamburger menu
+@media query
+
+
+-------------------------------------

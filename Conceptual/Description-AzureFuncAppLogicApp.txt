@@ -33,7 +33,6 @@ Azure Function Apps Vs Logic Apps
 
 2. Azure functions typically work as an event driven work flow. Multiple events can work on this Queue trigger, Timer trigger, Http trigger
 
-
 	Advantage of Serverless technology
 	1. Reduced Devops
 	2. Reduce time to market

@@ -14,7 +14,7 @@ namespace Conceptual1
             //DelegateTesting2 dt2 = new DelegateTesting2();
             //DelegateTesting3 dt3 = new DelegateTesting3();
 
-            OutVsRef outVsRef = new OutVsRef();
+            //OutVsRef outVsRef = new OutVsRef();
 
             //SerializeVsDeserialize svd1 = new SerializeVsDeserialize(); 
 
@@ -22,7 +22,7 @@ namespace Conceptual1
 
             //Reflection r1 = new Reflection();
 
-            //ToStringOverride tso1 = new ToStringOverride();
+            ToStringOverride tso1 = new ToStringOverride();
 
             //StringEqualsVsEqualequal sevee1 = new StringEqualsVsEqualequal();
 

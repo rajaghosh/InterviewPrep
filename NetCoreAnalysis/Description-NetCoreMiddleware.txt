@@ -53,7 +53,7 @@ App.Run() -
 App.Use() -
 	ex:
 
-		app.Use(aync(context, next) => {
+		app.Use(async(context, next) => {
 			Console.WriteLine("1-Before Request");
 			await next();
 			Console.WriteLine("3-After Request");
@@ -61,7 +61,7 @@ App.Use() -
 
 		app.Run(aync context => {
 			Console.WriteLine("2-In app.Run");
-			await contest.Response.WriteAsync("Hello World!");
+			await context.Response.WriteAsync("Hello World!");
 		});
 
 
@@ -73,7 +73,7 @@ App.Use() -
 		3-After Request
 
 	So we can find middleware chaining here.
-	Note - x`Here next() and next.Invoke() and next(context) and next.Invoke(context) are same.
+	Note - Here next() and next.Invoke() and next(context) and next.Invoke(context) are same.
 
 	So we can think of 1st middleware is adding to next middleware. 
 
@@ -83,11 +83,19 @@ App.Use() -
 Definition for Interview purpose -
 
 Q. What is a request delegate?
-Request delegate are used to build the request pipeline. So a httpRequest is coming inside the configure() and then it is visiting
-middleware1 -> middleware2 -> last middleware and response -> middleware2 -> middleware1
+Request delegate is a delegate which handles httprequest and is used to build the request pipeline. 
+So a httpRequest is coming inside the configure() and then it is visiting
+middleware1 -> middleware2 -> last middleware and response -> middleware2 -> middleware1a
 This flow forms the request pipeline.
 
-Now request delegate handle request ppipeline using the extension methods Use(), Run(), and Map()
+Ex - The Run method is an extension method on IApplicationBuilder and accepts a parameter of RequestDelegate. 
+	The RequestDelegate is a delegate method which handles the request. The following is a RequestDelegate signature.
+
+	Method Signature:
+	public delegate Task RequestDelegate(HttpContext context);
+
+
+Now request delegate handle request pipeline using the extension methods Use(), Run(), and Map()
 
 
 In .net core middleware we have delegate(run, use, and map) assembled into an application pipeline to handle requests and responses. 
@@ -163,7 +171,7 @@ Creating a Custom Middleware - (Conventional Way)
 		}
 
 		//Standard format (Important to keep it like this)
-		public Task Invoke(httpContext context)
+		public Invoke(httpContext context)
 		{
 			//Do our task
 
@@ -236,7 +244,7 @@ Ans -> We can create a exception handling middleware.  (Using IMiddleware)
 			}
 			catch(Exception e)
 			{
-				context.Response.Status = 500;
+				context.Response.StatusCode = 500;
 				await context.Response.WriteAsync(e.Message);
 			}
 		}
@@ -268,11 +276,16 @@ Ans -> We can create a exception handling middleware.  (Using IMiddleware)
 
 Note - Middleware is a stack of code blocks which can be run one after another.
 
+
+
 ----------------------------------------------------------------------------------------------------------------------
 
 Custom Middleware Implementation
 
 Approaches 
+
+Advantage : Conventional Middleware has Singleton service lifetime,
+		    IMiddleware implementation gives us way to have scoped or transient lifetime.
 
 Conventional with params
 
@@ -409,6 +422,7 @@ Singleton:
 Services registered with a singleton lifetime are only instantiated once during the lifetime of the application. 
 This means that any injection of the service during the lifetime of the application will be done with the same
 instance of the service. In other words, only one service instance is created and shared across all requests.
+Ex - logger Service
 
 Scoped:
 
@@ -416,11 +430,13 @@ Services registered with a scoped lifetime will be maintained and used during th
 (or HTTP request) they have been created in. So for one same request, the instance of an object injected 
 in different classes will be the same. In simple words, one service instance is created for each request 
 and reused throughout the request.
+Ex - DBRepo Service
 
 Transient:
 
 Instances of services registered with a transient lifetime are created every time that their injection 
 into a class is required even though it is the same request.
+Ex - normal service
 
 Here are some general guidelines:
 
@@ -430,10 +446,11 @@ and maintain state that is consistent throughout the application's lifetime.
 Scoped: Use in scenarios like web applications, where you want to ensure that data is isolated within 
 the scope of a single request. Scoped services are often used to manage per-request database connections 
 or user-specific data.
+Ex - For any service which will maintain a state for a HttpRequest.
 
 Transient: Use for stateless, short-lived services that don't need to maintain any long-term state. 
 Transient services are created each time they're requested, which can be suitable for lightweight processing.
-
+Ex - For any service which will be invoked multiple times for different purposes.
 
 
 
@@ -614,7 +631,7 @@ Changes in code in step 1 we also inherit from Attribute
 	
 	}
 
- Step 2 : No need to add integration to sevices.AddControllers
+ Step 2 : No need to add integration to sevices.AddControllers (As not GLOBAL)
 
  Step 3 : Find the specific controller
 
@@ -719,6 +736,7 @@ Changes in code in step 1 we also inherit from Attribute
 		services.AddControllers( options =>
 		{
 			options.Filters.Add(new MyCustomActionFilterAttribute("GLOBAL", 1)); 
+
 			//Here we have used 1 for order so higher the value lower the call preference, 
 			//so if we have -1 then this will get higher preference 
 			//So for each filter call we can set the order of chaining
@@ -1021,6 +1039,7 @@ Minor: Increments for backward-compatible new features.
 Patch: Increments for backward-compatible bug fixes.
 
 Use Package -> 
+	Microsoft.AspNetCore.Mvc.Versioning
 
 In Startup.cs -> ConfigureServices()
 
@@ -1085,7 +1104,7 @@ Ans ->
 
 In the Startup.cs in the Confugure()
 
-Configure(IApplicationBuilder app, IWebHostEnvironment){
+Configure(IApplicationBuilder app, IWebHostEnvironment env){
 	
 	if(env.IsDevelopment()){
 		app.DeveloperExceptionPage();

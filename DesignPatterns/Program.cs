@@ -1,6 +1,4 @@
-﻿using DesignPatternsRepositoryPattern.Models;
-using System;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace DesignPatterns
 {

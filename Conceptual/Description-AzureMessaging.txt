@@ -207,7 +207,7 @@ Service Bus Namespace - Container for all the messaging services - Queues and To
 SERVICE BUS TOPICS
 
 Concept -> Sender -> Service Bus Topic -> N Subscriber (Pub-Sub Model)
-	Service Bus Topic tree -> ServiceBus NameSpace/ServiceBus Topic/TopicSubscriber
+	Service Bus Topic tree -> ServiceBus NameSpace/ServiceBusTopic/TopicSubscriber
 
 To code 
 
@@ -436,7 +436,7 @@ Let us implement
 		//the message will never appear in the queue. So we must have higher value. Now it is 20secs
 		//As such the message stays in the queue for 20-10 = 10secs
 		//Now if we want the message to never expire we can set the value TimeSpan.FromSeconds(-1);
-		var expirationTime = TimeSpan.FromSeconds(20);		
+		var expirationTime = TimeSpan.FromSeconds(-1);		
 		
 		await queueClient.SendMessageAsync(message, visibilityTimeOut, expirationTime);		//Also we have SendMessagesAsync for multiple messages
 	}
@@ -559,7 +559,44 @@ We are going to implement AZURE BLOB STORAGE CONTAINER BASED EVENT GRID TRIGGER
             log.LogInformation(eventGridEvent.Data.ToString());
         }
 
+-----------------------------------------------------------------------------------------------------------------
 
+Azure Blob Storage is a cloud-based object storage service provided by Microsoft Azure. It is designed to store and manage 
+unstructured data, such as documents, images, videos, backups, and logs. Azure Blob Storage offers three different access 
+tiers to optimize the cost and performance of storing your data, each tailored for specific use cases:
+
+Hot Access Tier:
+
+The Hot Access Tier is designed for data that is frequently accessed and requires low-latency access times.
+It offers the highest storage costs but provides the fastest data retrieval performance.
+Use cases include frequently accessed data, serving content to users, and data that needs to be readily available for immediate access.
+
+Cool Access Tier:
+
+The Cool Access Tier is optimized for data that is less frequently accessed but still requires relatively fast access times.
+It offers lower storage costs compared to the Hot tier but with slightly higher data retrieval costs.
+Use cases include data archiving, backup, and infrequently accessed logs.
+
+Archive Access Tier:
+
+The Archive Access Tier is the most cost-effective option for data that is rarely accessed and can tolerate longer retrieval times.
+It has the lowest storage costs but higher data retrieval costs and longer retrieval times (retrieval times can take hours).
+Use cases include long-term archival storage, compliance, and data that is rarely accessed but needs to be retained.
+When choosing the appropriate access tier for your data in Azure Blob Storage, consider factors such as data access patterns, access frequency, and the cost sensitivity of your application. Here's a general guideline:
+
+Use the Hot Access Tier for data that requires fast and frequent access.
+Use the Cool Access Tier for data that is accessed less frequently but still needs relatively quick retrieval times.
+Use the Archive Access Tier for data that is rarely accessed and can tolerate longer retrieval times, with a primary focus on cost optimization.
+Azure Blob Storage allows you to transition data between these access tiers as your requirements change. This tiering capability enables you to optimize storage costs while ensuring that your data remains accessible when needed. Keep in mind that transitioning data between tiers may involve certain rules and costs, so it's essential to plan your data storage strategy carefully.
+
+-----------------------------------------------------------------------------------
+
+Azure SQL server -
+
+1. Managed  by cloud
+2. Pay as you use
+3. Higher availability
+4. PAAS offering
 
 
 
