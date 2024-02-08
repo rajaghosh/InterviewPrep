@@ -589,7 +589,7 @@ Dependency Inversion - It says high level module should not be dependent on any 
     should only implement those methods which are needed.
     Else unnecessary methods has to be implemnted in the classes which it might not need.
 
-    DEPENDENCY INJECTION
+    DEPENDENCY INVERSION PRINCIPLE
     As we will be inverting the control we somehow need to hook the CALLED CLASS to the CALLER CLASS. This hooking
     will be done by DEPENDENCY INJECTION. That is creating an abstract class point in the CALLER CLASS which will be invoked
     only when needed. As it is an abstract class so the CALLER CLASS do not need to have any knowledge of the CALLED CLASS.

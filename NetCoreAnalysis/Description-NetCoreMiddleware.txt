@@ -191,7 +191,7 @@ Creating a Custom Middleware - (Conventional Way)
 
 How to handle exception in .net core GLOBALLY?
 
-Ans -> We can create a exception handling middleware.  (Using IMiddleware)
+Ans -> We can create an exception handling middleware.  (Using IMiddleware)
 
 	Concept goes if anything happens in the next method upcoming call we need to handle it from here.
 
@@ -967,8 +967,9 @@ Implementation
 1. Use of Custom Middleware
 2. Use of Package AspNetCoreRateLimit package
 
-//IGNORE
-Step 1 : Add config in the appSettings.json
+Step 1 : using AspNetCoreRateLimit; -> Status when rate expired - 429
+
+Step 2 : Add config in the appSettings.json
 
 	"IpRateLimiting": {
 		"EnableEndpointRateLimiting": true,
@@ -1178,6 +1179,9 @@ will be restricted.
 How to read config data from config file
 
 ---------------------------------------------------------------------------------------------------------------------
+
+.net core cache details - https://learn.microsoft.com/en-us/aspnet/core/performance/caching/overview?view=aspnetcore-8.0
+
 
 .Net Core Cache 
 

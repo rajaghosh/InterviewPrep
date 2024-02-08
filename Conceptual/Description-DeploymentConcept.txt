@@ -1,0 +1,337 @@
+﻿----------------------------------------------------------------------------------------------
+
+Deployment Patterns 
+
+	Deployment patterns are automated methods of introducing new application features to your users. 
+	Your ability to cut downtime depends on the deployment style you use. Some patterns also let you roll out extra functionality.
+
+	Deployment is a crucial part of this process. It is not just about hitting a "launch" button; it's an art that requires
+	strategic planning and precision. 🎯
+
+	That’s where deployment patterns come in. These are strategies that ensure the software's safe transition from the development
+	environment to your devices.
+
+	Here are some common deployment patterns in software engineering:
+	Link for details - https://www.harness.io/blog/blue-green-canary-deployment-strategies
+
+
+
+	Classical Deployment Pattern
+
+		DEV -> TEST -> STAGING -> PRODUCTION
+
+	Modern Deployment Pattern
+		
+		We can have different deployment strategies
+
+		1. Canary Release - 
+
+			A canary release is a method of spotting possible issues before they affect all consumers. 
+			Before making a new feature available to everyone, the plan is only to show it to a select group of users. 
+			We monitor what transpires after the feature is available in a canary release. 
+			If there are issues with the release, we fix them. We transfer the canary release to the actual production
+			environment once its stability has been established.
+
+			Canary releases represent one of the main enablers of continuous deployments.
+
+		2. Blue/green deployments - 
+
+			Here we have run two similar environments simultaneously, lowering risk and downtime. These surroundings are referred to 
+			be blue and green. Only one of the environments is active at any given moment. A router or load balancer that aids
+			in traffic control is used in a blue-green implementation. The blue/green deployment also provides a quick means
+			of performing a rollback. We switch the router back to the blue environment if anything goes wrong in the green environment.
+
+			Another variant of blue/green deployments is red/black deployments. The red version is live in production. 
+			We deploy the black version to one or more servers. When a Black version is operational, you switch the router
+			to move all traffic to it. If there is an error, you revert it. What is the difference with blue/green deployments 
+			is while in blue/green deployments, both versions may be getting requests at the same time temporarily, in red/black, 
+			only one of the versions is getting traffic at any time.
+
+			Red/black deployments is a newer term than blue/green, used by different companies nowadays, and could be used as a synonym.
+
+		3. Feature toggles -
+
+			Here we can turn a switch on/off with feature toggles at runtime. We may roll out new software without exposing our 
+			users to any other brand-new or modified functionality. When we build new functionality, we can use feature toggles to	
+			enable continuous deployments by splitting releases from deployments.
+
+		4. A/B testing -
+
+			Two versions of an app are compared using A/B testing to see which one performs better. An experiment is like A/B testing.
+			In A/B testing, we randomly present users with two or more page versions. Then, we use statistical analysis to determine
+			which variant is more effective in achieving our objectives.
+
+		5. Dark launches
+
+			In a "dark launch," we introduce a new feature to a select group of users rather than the general public. These users must 
+			be aware that they are helping us test the functionality. We need to point out the new functionality to them. 
+			It is nicknamed a "dark launch" for this reason. Users are introduced to the program to get feedback and test its effectiveness.
+
+
+	--------------------------------
+	Sumamry 
+
+	A. Canary Release - You release it to a small group first, monitor performance, and if all's well, roll it out to everyone.
+
+	B. 𝗕𝗹𝘂𝗲/𝗚𝗿𝗲𝗲𝗻 𝗗𝗲𝗽𝗹𝗼𝘆𝗺𝗲𝗻𝘁: Picture having two production environments, as identical as twin peas in a pod. One serves live (Blue),
+	while you deploy and test in the other (Green). Once ready, just flip the switch! Seamless transitions with near-zero downtime. 
+
+	C. 𝗙𝗲𝗮𝘁𝘂𝗿𝗲 𝗧𝗼𝗴𝗴𝗹𝗲𝘀: Also known as feature flags, this strategy is like having a superhero's dual identity! It allows developers 
+	to turn features on/off, enabling flexible releases and testing.
+
+	D. 𝗔/𝗕 𝗧𝗲𝘀𝘁𝗶𝗻𝗴: Ever wished you could read your user's mind? A/B Testing comes close. It helps understand user preferences 
+	by comparing two versions (A and B) of a feature. Testing different versions of a feature or design simultaneously. Allows data-driven 
+	decision making on user behaviour and preferences.
+
+	E. 𝗗𝗮𝗿𝗸 𝗟𝗮𝘂𝗻𝗰𝗵𝗲𝘀: Features are quietly released to a subset of users to gather data and rectify issues before the actual launch. 
+	It is a technique where new features are silently released to a subset of users. Enabling testing and validation of new 
+	features while minimizing user impact and risk.
+
+	Common deployment preferred -
+	Blue/Green deployment
+
+----------------------------------------------------------------------------------------------
+
+	Branching Strategy
+
+	Our code branching strategy determines how and when developers branch and merge. There are several models including 
+	mainline, trunk-based development, task/feature branching, and more. When deciding on a method it is important to evaluate 
+	what makes sense for your team and product. Most version control systems will let you adopt any of these strategies.
+
+	How developers branch code and where/when it gets merged in the CI/CD pipeline are closely related. 
+	Branching determines how developers work. CI/CD branches decide how code is built, tested, evaluated, and eventually released.
+
+	A basic workflow starts with code being checked out. When the work in the branch is committed, CI/CD processes are triggered.
+	This can be done with a merge or pull request. Then the CI/CD pipeline kicks into high gear.
+	The goal of CI/CD is to continuously integrate changes to find errors earlier in the process (a.k.a. “shift left”). 
+	This increases a project’s velocity by avoiding late stage defects and delays. It creates an environment where code is always 
+	ready for a release. Set up your projects and teams for success, with the right CI/CD branching strategy.
+
+	One major purpose of a version control system is to enable a collaborative development environment without overlapping or 
+	affecting the codebase. There, each team member modifying the same source code will inevitably be making conflicting 
+	code changes. However, we can avoid such conflicts with a version control system by using branches when writing 
+	and merging code to a master branch to create the end product.
+
+	a. Why you need a branching strategy in DevOps?
+	
+		A branching strategy helps define how the delivery team functions and how each feature, improvement, or bug fix is handled. 
+		It also reduces the complexity of the delivery pipeline by allowing developers to focus on developments and deployments 
+		only on the relevant branches—without affecting the entire product.
+
+	b. How to Set Up Your CI/CD Branching Strategy ?
+
+		A code branching strategy is the foundation for your team. Your CI/CD strategy determines what actions in a branch trigger 
+		a build, test, and/or code review. It also determines how code moves through the DevOps pipeline.
+
+	c. When figuring out your CI/CD strategy, review:
+		It depends on the requirements like:
+		
+		-How many commits are done on an average day by developers?
+		-How is the build run for each commit?
+		-Upon success, where does the developers commit go — mainline or master, shared dev code line?
+		-When should you run a full build? For example, should you implement a nightly build?
+		-What is the testing strategy? How much code coverage do you need? Server-side testing? Static code analysis?
+		-What are your desired metrics for success/failure?
+		-What are your desired time limits for feedback to the developer?
+		-These questions will determine how you want to structure your branching CI/CD strategy.
+
+	d. Branching Strategies Options
+		
+		Release Branching Strategy
+			With release branching, all the code that is meant to be deployed together lives on the same branch. 
+			This makes it easy to do isolated testing of new behavior, separate from the rest of the codebase 
+			or other in-progress work.
+			When working at a custom software consulting company, release branching can also be useful because 
+			it clearly defines what’s live on Production. This approach helps clients understand when it’s ‘go time’
+			for new features because deployments are pre-planned and concrete.
+		
+		Feature Branching Strategy
+			Feature branching is similar to release branching, except instead of organizing the branches around 
+			a release of several features, you create one branch for each individual feature. For example, imagine 
+			your team needs to implement the following feature: 
+			“As a user, I can log in to the website with my username and password.” Depending on team structure 
+			and workflow, that might encompass several tickets or tasks on your project board.
+		
+		Story or Task Branching
+			Though feature branching is closer to ‘continuous’ than release branching, it still can lead to similar 
+			problems with long-running branches, since a feature might take a long time to code to completion. 
+			That also means it has similar potential for merge conflicts.
+		
+		Trunk-Based Development
+			Finally, the strategy that is truest to the core purpose of CI/CD: trunk-based development. 
+			This is honestly the scariest thing I’ve ever written: with trunk-based development, 
+			everyone commits and pushes to the main branch (the core codebase! without any side branches!), 
+			and those commits are deployed automatically! So scary!
+			The Trunk Based Development strategy involves developers integrating their changes directly into a shared 
+			trunk (master) at least once a day. This shared trunk is always in a releasable state. 
+			Developers can pull from this trunk, create a local repository, and then push the code to the shared trunk.
+
+			This regular integration enables developers to view each other’s changes quickly and immediately react 
+			if there are any conflicts.
+
+	e. BRANCHING STRATEGY AS PER GIT PLATFORMS
+		i.	Git
+		ii.	GitHub
+		iii.GitLab
+
+		i. Git Flow
+			Git Flow is the most widely known branching strategy that takes a multi-branch approach to manage the source code. 
+			This approach consists of two main branches that live throughout the development lifecycle.
+			
+			Primary Branches
+				-master. - The primary branch where all the production code is stored. Once the code in the “develop” 
+				branch is ready to be released, the changes are merged to the master branch and used in the deployment.
+				
+				-develop.- This is where all the actual development happens. All the pre-production code is stored here, 
+				and the completed code of all the supporting branches is merged directly to the develop branch.
+
+			Support Branches
+				During the development, developers create different branches for specific use cases using the develop 
+				branch as the base. The following are some branches created like that:
+
+				-feature-* feature branches are used to develop new features and branches off exclusively from the develop branch.
+
+				-hotfix-* This is to deal with production issues where quick fixes are required. They can branch off from the master
+				itself, but need to be merged to both master and develop branches.
+
+				-release-* This branch is used to aggregate fixes and improvements and prepare for the production release.
+				It will be branched from the develop branch and merged to both develop and master.
+
+		ii.	GitHub
+			As the name suggests, this strategy was introduced by GitHub, aiming to provide a simple and lightweight approach 
+			to manage the development. It adheres to the following guidelines when managing the source control with a single
+			primary branch.
+
+			-master. The primary branch where code is branched off from and merged to. Anything in the master branch is deployable.
+
+			-Any change (feature/bug) is made in a new branch derived from the master with a descriptive 
+			branch name describing the development.
+			-Commit to the development branch locally and regularly push to the branch.
+			-Create a pull request once the development is done so that the code can be reviewed.
+			-Once the code is reviewed and approved, it must be tested in the branch before merging 
+			to the master branch.
+			-From this point, users can immediately deploy the master branch with the new changes.
+
+		iii.GitLab
+			The GitLab strategy combines feature-driven development and feature branches with issue tracking. 
+			This strategy is similar to GitHub flow yet includes environmental branches such as development, pre-production, and production.
+
+			In GitLab Flow, development happens in one of these environmental branches, and verified and
+			tested code is merged to other branches until they reach the production branch. Let’s assume that we have 
+			the three environmental branches mentioned above. In that case, the development workflow will be:
+
+			-development. This is where all the development happens. Developers will create separate branches for 
+			the feature/bug-fix they are working on and merge them to this branch. Then, it will get reviewed and tested.
+
+			-pre-production. Once the developed features and fixes are ready to be released, the source code up to 
+			that point will be merged to a pre-production branch. Then this code will go through additional testing 
+			and finally be merged with the production branch to be deployed.
+
+			-production. Once the production-ready code is merged, this branch can be directly deployed in the production 
+			environment. This environment branch will only contain production-ready code.
+
+
+----------------------------------------------------------------------------------------------
+
+Code Review Best Practices
+
+	A code review checklist is a predetermined set of questions and rules your team will follow during the code review process,
+	giving you the benefit of a structured approach to necessary quality checks before you approve code into the codebase. 
+	Your checklist may include: 
+
+	-Readability: Are there any redundant comments in the code?
+	-Security: Does the code expose the system to a cyber attack?
+	-Test coverage: Is there a need to test more cases?
+	-Architecture: Does the code use encapsulation and modularization to achieve separation of concerns?
+	-Reusability: Does the code use reusable components, functions, and services?
+
+----------------------------------------------------------------------------------------------
+
+Best practices for creating pull requests
+	When creating a pull request, follow a few best practices for a smoother review process. 
+	For information on creating a pull request, see "Creating a pull request."
+
+	-Write small PRs
+	Aim to create small, focused pull requests that fulfill a single purpose. Smaller pull requests are easier and 
+	faster to review and merge, leave less room to introduce bugs, and provide a clearer history of changes.
+
+	-Review your own pull request first
+	Review, build, and test your own pull request before submitting it. This will allow you to catch errors or typos 
+	that you may have missed, before others start reviewing.
+	Also check the branch name.
+
+	-Provide context and guidance
+	Write clear titles and descriptions for your pull requests so that reviewers can quickly understand what the pull
+	request does. In the pull request body, include:
+		-the purpose of the pull request
+		-an overview of what changed
+		-links to any additional context such as tracking issues or previous conversations
+
+	If your pull request consists of changes to multiple files, provide guidance to reviewers about the order in which 
+	to review the files. Recommend where to start and how to proceed with the review.
+
+----------------------------------------------------------------------------------------------
+
+GIT Merge Conflicts
+
+	GitHub is a popular Git hosting platform that allows developers to collaborate on codebases. 
+	When you encounter a Git conflict on GitHub, here are the steps to resolve it:
+		-Open the Pull Request (PR) that has the Git conflict.
+		-Review the file(s) with the conflict.
+		-Click on the "Resolve conflicts" button.
+		-GitHub will open a file editor that shows the conflicting code.
+		-Review the conflicting code and decide which changes to keep.
+		-Make the necessary changes and save the file.
+		-Mark the conflict as resolved by clicking the "Mark as resolved" button.
+		-Submit the PR.
+
+	How to Avoid Git Conflicts on Git
+	Here are some best practices to avoid Git conflicts on Git:
+	
+		-Pull changes frequently: To stay up-to-date with the latest changes, pull them frequently. This will 
+		reduce the likelihood of conflicts occurring.
+
+		-Use descriptive commit messages: Use descriptive commit messages that explain the changes you've made. 
+		This will help others understand the changes and reduce the likelihood of conflicts.
+
+		-Use Git branches: Use Git branches to separate your changes from others. This way, you can work on your 
+		changes without interfering with others. Once your changes are ready, you can merge them back into 
+		the main branch.
+
+	How to Avoid Git Conflicts on GitHub
+		While conflicts are inevitable when multiple developers work on the same codebase, you can take steps to minimize them.
+		Here are some best practices to avoid Git conflicts on GitHub:
+
+		Communicate with your team: Ensure that your team communicates effectively and understands the scope of their changes. 
+		This will help avoid two developers working on the same file.
+
+		Break up large changes into smaller ones: Instead of making large changes in one go, break them up into smaller changes. 
+		This will reduce the likelihood of conflicts and make it easier to identify where they occur.
+
+		Review changes before merging: Before merging code changes, it's a good practice to review them. This will allow you 
+		to spot conflicts before they occur and avoid them.
+
+		Code Push Strategy - Always before code push FETCH -> PULL -> CHECK FOR CONFLICT -> PUSH
+
+		Use Git branches: Use Git branches to separate your changes from others. This way, you can work on your changes without
+		interfering with others. Once your changes are ready, you can merge them back into the main branch.
+
+----------------------------------------------------------------------------------------------
+
+User story till Deployment
+
+	-> Get User Story 
+	-> Check for dependency on existing functionality -> If dependency strategise for implementation -> Reuse any existing functionality
+	-> Once coding is done check for each of the points for checks
+	-> Create unit test cases + run test case
+	-> Once done from existing branch FETCH -> PULL -> Check for any merge conflicts + resolve -> CREATE feature branch -> Review the code for the new code changes -> Push the changes.
+	-> Create PR and document it -> Get the PR approved
+	-> Deploy it.
+
+
+
+
+
+
+
+

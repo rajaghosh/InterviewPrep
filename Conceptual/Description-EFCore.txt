@@ -76,3 +76,181 @@ Use of EDMX is DB first or Model first
 
 Basic of ADO
 
+---------------------------------------------------------------
+
+How to implement LazyLoading in EFCore
+
+	1. With Proxy Package
+	2. Without Proxy Package
+
+	1. With Proxy Package - 
+		S1 : Install Microsoft.EntityFrameworkCore.Proxies - package which will add all the required proxies needed to run Lazy Loading.
+		S2 : After installing the package, the system will ask the developer to allow the installed proxies to
+		access the databases and enable lazy loading.
+
+			public void ConfigureServices(IServiceCollection services)
+			{
+				services.AddDbContext<EFCoreContext>(b => b.UseLazyLoadingProxies()
+					.UseSqlServer(ConnectionString));
+			}
+
+	2. Without Proxy Package - Using the ILazyLoader interface.
+		S1 : The ILazyLoader can be found in Microsoft.EntityFrameworkCore.Abstraction Package.
+		S2 : The ILazyLoader interface represents a component that is responsible for 
+		loading navigation properties if they haven't already been loaded.
+
+		    public class Actor
+            {
+                private List<Movie> _movies;
+
+                public Actor()
+                {
+                }
+    
+                private Actor(ILazyLoader lazyLoader)
+                {
+                    LazyLoader = lazyLoader;
+                }
+    
+                private ILazyLoader LazyLoader { get; set; }
+                public int ActorId { get; set; }
+                public string FullName { get; set; }
+ 
+                public List<Movie> Movies
+                {
+                    get => LazyLoader.Load(this, ref _movies);
+                    set => _movies = value;
+                }
+            }
+
+            public class Movie
+            {
+                private Actor _actor;
+    
+                public Movie()
+                {
+                }
+    
+                private Movie(ILazyLoader lazyLoader)
+                {
+                    LazyLoader = lazyLoader;
+                }
+    
+                private ILazyLoader LazyLoader { get; set; }
+                public int MovieId { get; set; }
+                public string Title { get; set; }
+    
+                public Actor Actor
+                {
+                    get => LazyLoader.Load(this, ref _actor);
+                    set => _actor = value;
+                }
+            }
+
+    Is Lazy Loading Useful?
+    - Lazy loading is helpful once the association between entities is a one-to-many relationship and 
+    you're certain that associated entities aren't going to be utilized immediately.
+    
+    -It helps in functionality reducing application startup time, less memory utilization, and reduce 
+    the load on DBMS due to a small amount of query load on the server.
+    
+    -What can be concluded from Lazy Loading is that this feature is useful in some scenarios, otherwise, 
+    it could distract the users and developers if they forget to disable the feature.
+
+----------------------------------------------------------------------------
+
+MVC related questions
+
+1. ViewBag vs ViewData vs TempData 
+
+ViewData - 
+- It is Key-Value Dictionary collection	
+- ViewData is a dictionary object and it is property of ControllerBase class.
+- ViewData is Faster than ViewBag
+Ex - ViewData["Message"] = "ASP.NET Core!";
+
+ViewBag - 
+- It is a type object   
+- ViewBag is Dynamic property of ControllerBase class.
+- ViewBag is slower than ViewData
+Ex - ViewBag.Name = HttpContext.Session.GetString(SessionName);
+     ViewBag.Age = HttpContext.Session.GetInt32(SessionAge);
+
+TempData - 
+- It is Key-Value Dictionary collection.
+- TempData is a dictionary object and it is property of controllerBase class.
+
+---------------------------------------------
+
+2. What is ignoreRoutes?
+
+routes.IgnoreRoute("Employee/");
+
+This will prevent any user accessing that particular route.
+
+3. What is [NonAction]?
+
+This disables the public action method from accessing.
+
+4. What is RoutePrefix vs Route?
+
+RoutePrefix attribute is used to specify the common route prefix at the controller level. 
+It eliminates common route prefix on every controller method. Route attribute is used to 
+specify the route at the method level in controller. Each method in controller has its own unique route.
+
+    Code without RoutePrefix attribute: 
+
+        You can see prefix "api/students" is repeating with each method in controller.
+
+        public class StudentsController : ApiController
+        {
+            [Route("api/students/{id}")]
+            public Student Get(int id) 
+
+            [Route("api/students/{id}/courses")]
+            public IEnumerable<string> GetStudentCourses(int id)
+        }
+
+    Code with RoutePrefix attribute: 
+    
+        You can see RoutePrefix eliminate the use of prefix at method level by using it at controller level
+
+        [RoutePrefix("api/students")]
+        public class StudentsController : ApiController
+        {
+            [Route("{id}")]
+            public Student Get(int id) 
+
+            [Route("{id}/courses")]
+            public IEnumerable<string> GetStudentCourses(int id)
+        }
+
+5. Hackable URL
+
+A hackable URL is a URL where there's a clear pattern or template for constructing the URL. 
+As an example, if I present to you the URL http://foo.ploeh.dk/products/1234, it's easy to guess
+that this is a resource representing a product with the SKU of 1234. If you know the SKU of another product, 
+it's easy to 'hack' the URL to produce e.g. http://foo.ploeh.dk/products/5678.
+
+6. Partial View
+
+A view that is sharable.
+Partial view in ASP.NET MVC is a special view that renders a portion of view content. 
+It is just like a user control of a web form application. Partial can be reusable in multiple views. 
+It helps us to reduce code duplication. In other word a partial view enables us to render a view within the parent view.
+
+7. Areas
+
+The large ASP.NET MVC application includes many controllers, views, and model classes. So it can be difficult to
+maintain it with the default ASP.NET MVC project structure. ASP.NET MVC introduced a new feature called Area for 
+this. Area allows us to partition the large application into smaller units where each unit contains a separate 
+MVC folder structure, same as the default MVC folder structure. 
+
+8. Output Cache
+
+The output cache enables you to cache the content returned by a controller action.
+Output caching basically allows you to store the output of a particular controller in the memory. 
+Hence, any future request coming for the same action in that controller will be returned from the cached result. 
+
+
+

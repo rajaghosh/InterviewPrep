@@ -1,0 +1,246 @@
+﻿----------------------------------------------------------------------------------------
+
+JWT - JSON web token / Used for Authorization (Primary) + Authentication (also used for it)
+
+	JSON web token (JWT), pronounced "jot", is an open standard (RFC 7519) that defines a compact and 
+	self-contained way for securely transmitting information between parties as a JSON object. Again, 
+	JWT is a standard, meaning that all JWTs are tokens, but not all tokens are JWTs.
+
+	 JWT contains all the required information about an entity to avoid querying a database more than once. 
+	 The recipient of a JWT also does not need to call a server to validate the token.
+
+	Link : https://auth0.com/docs/secure/tokens/json-web-tokens
+
+Benefits -
+
+	There are benefits to using JWTs when compared to simple web tokens (SWTs) and SAML tokens.
+
+		-More compact: JSON is less verbose than XML, so when it is encoded, a JWT is smaller than a 
+		SAML token. This makes JWT a good choice to be passed in HTML and HTTP environments.
+
+		-More secure: JWTs can use a public/private key pair in the form of an X.509 certificate for signing.
+		A JWT can also be symmetrically signed by a shared secret using the HMAC algorithm. 
+		And while SAML tokens can use public/private key pairs like JWT, 
+		signing XML with XML Digital Signature without introducing obscure security holes is 
+		very difficult when compared to the simplicity of signing JSON. Read more about JWT
+		signing algorithms.
+
+		-More common: JSON parsers are common in most programming languages because they map 
+		directly to objects. Conversely, XML doesn't have a natural document-to-object mapping. 
+		This makes it easier to work with JWT than SAML assertions.
+
+		-Easier to process: JWT is used at internet scale. This means that it is easier to process 
+		on users' devices, especially mobile.
+
+Usage - 
+	JWTs can be used in various ways:
+
+	a. Authentication: When a user successfully logs in using their credentials, an ID token is returned. 
+	According to the OpenID Connect (OIDC) specs, an ID token is always a JWT.
+
+	b. Authorization: Once a user is successfully logged in, an application may request to access routes, 
+	services, or resources (e.g., APIs) on behalf of that user. To do so, in every request, it must pass 
+	an Access Token, which may be in the form of a JWT. Single Sign-on (SSO) widely uses JWT because of 
+	the small overhead of the format, and its ability to easily be used across different domains.
+
+	c. Information exchange: JWTs are a good way of securely transmitting information between parties because
+	they can be signed, which means you can be certain that the senders are who they say they are. Additionally,
+	the structure of a JWT allows you to verify that the content hasn't been tampered with.
+
+Security of JWT
+	1. We can use encrypted JWT token with encryption algorithms like (Triple DES, Aes). And it should
+	not contain any sensitive information.
+	2. It should contain an expiry time.
+	3. Must secure have secure communication with HTTPS.
+
+Structure of JWT
+	A well-formed JWT consists of three concatenated Base64url-encoded strings, separated by dots (.):
+
+	1. Header: contains metadata about the type of token and the cryptographic algorithms used to secure 
+	its contents. JSON object containing the parameters describing the cryptographic operations and parameters 
+	employed. The Header is comprised of a set of Header Parameters that typically consist of a name/value 
+	pair: the hashing algorithm being used (e.g., HMAC SHA256 or RSA) and the type of the JWT.
+		{
+		  "alg": "HS256",
+		  "typ": "JWT"
+		}
+
+	2. Payload (set of claims): contains verifiable security statements, such as the identity of the 
+	user and the permissions they are allowed. The payload contains statements about the entity (typically, the user)
+	and additional entity attributes, which are called claims. In this example, our entity is a user.
+	
+	3. JWS signature: used to validate that the token is trustworthy and has not been tampered with. 
+	When you use a JWT, you must check its signature before storing and using it.
+
+
+JWT claims (details)
+	JSON web tokens (JWTs) claims are pieces of information asserted about a subject. For example, an ID token 
+	(which is always a JWT) can contain a claim called name that asserts that the name of the user authenticating 
+	is "John Doe". In a JWT, a claim appears as a name/value pair where the name is always a string and the value
+	can be any JSON value. Generally, when we talk about a claim in the context of a JWT, we are referring to the
+	name (or key). For example, the following JSON object contains three claims (sub, name, admin):
+	{
+      "sub": "1234567890",
+      "name": "John Doe",
+      "admin": true
+    }
+
+	There are two types of JWT claims:
+	1. Registered: standard claims registered with the Internet Assigned Numbers Authority (IANA) and defined 
+	by the JWT specification to ensure interoperability with third-party, or external, applications. 
+	OIDC standard claims are reserved claims.
+	The JWT specification defines seven reserved claims that are not required, but are recommended to allow interoperability with third-party applications. These are:
+
+	1. iss (issuer): Issuer of the JWT
+	2. sub (subject): Subject of the JWT (the user)
+	3. aud (audience): Recipient for which the JWT is intended
+	4. exp (expiration time): Time after which the JWT expires
+	5. nbf (not before time): Time before which the JWT must not be accepted for processing
+	6. iat (issued at time): Time at which the JWT was issued; can be used to determine age of the JWT
+	7. jti (JWT ID): Unique identifier; can be used to prevent the JWT from being replayed (allows a token to be used only once)
+
+	2. Custom: consists of non-registered public or private claims. Public claims are collision-resistant 
+	while private claims are subject to possible collisions.
+
+	You can define your own custom claims which you control and you can add them to a token using Actions. Here are some examples:
+
+	-Add a user's email address to an access token and use that to uniquely identify the user.
+	-Add custom information stored in an Auth0 user profile to an ID token.
+
+	As long as the Action is in place, the custom claims it adds will appear in new tokens issued when using a refresh token.
+
+		A. Public claims
+		You can create custom claims for public consumption, which might contain generic information like name and email. 
+		If you create public claims, you must either register them or use collision-resistant names through namespacing 
+		and take reasonable precautions to make sure you are in control of the namespace you use.
+
+		B. Private claims
+		You can create private custom claims to share information specific to your application. For example, while a 
+		public claim might contain generic information like name and email, private claims would be more specific, 
+		such as employee ID and department name.
+
+	Note - Custom claims be at most 100KB 
+
+Access Token vs Refresh Token
+An access token is a digital token to provide access for communication between parties. Now thay have an expiry. So after 
+expiry they have to be re-generated again by re-authenticating. It encourages repeated logins. Generally used for short-sessions.
+
+Where as a Refresh token will extend the functionality of the Access token. So when the token is expired the token will be 
+re-genrated by the system again without the intervention of the user. So it restricts repeated login. Generally used for long-session.
+
+----------------------------------------------------------------------------------------
+
+OAuth 2.0 (Important for SSO)
+	OAuth2.0 is the industry-standard protocol for authorization. It is a safe way to let website access data from server
+	from application without sharing password.
+	It is designed to allow 3rd party application to access protected resources on behalf of a user.
+
+	Basic overview -
+	The server asks the user to login to their account. User enters credentials on success the authorization server generates
+	access token with an expiry date.
+	This is used to implement SSO.
+
+	Ex- When we open an app. It asks to validate using google account to access data. A req from the website goes to google server. 
+	Google verifies the user account and returns a token to the app. This token will be used to access data.
+	
+	Generally the token is exchanged as JSON token as it is compact, self contained and can be easily be verified.
+
+	2 Pegged Approach vs 3 Pegged Approach
+		a. 2 Legged Approach - User speaks to app and never speaks to identity server directly.
+		b. 3 Legged Approach - User speaks to identity server to gets authenticated and pass 
+			access token to application for access.
+
+	For OAuth2.0 we have 2 type of clients.
+		a. Public clients - Web Application interacting with User
+		b. Confidential clients - Application running on Web server
+
+	For communication we have 2 types of channels
+		a. Front channel - This channel is used for getting user input to the application then 
+			to the server (for token gen requests).
+		b. Back channel - This channel is used to communicate between the server and application 
+			(using some tokens once the token is generated) without intervention of the user input.
+
+
+	We have 4 type of OAuth2.0 Grants / Flows in OAuth2.0
+	1. Authorization Code Flow				- 3 legged Approach (Common appoach for SSO)
+	2. Client Credential Flow				- 2 legged Approach
+	3. Resource Owner Password Flow			- 2 legged Approach
+	4. Implicit Flow.						- 2 legged Approach
+
+	AUTH2.0 + JWT helps in implementation of SSO.
+	
+		* APP is the UI with which USER interact
+		* IDENTITY SERVER is the server which does the authentication/authorization
+		* RESOURCE SERVER is the server to which we send any kind of token to get some resource/data or perform some CRUD operations on.
+
+		1. Authorization Code Flow (Mostly used + also recommended for SSO) - 
+			a. Here from USER clicks on LOGIN on APP 
+				-> From APP an app authorization code is sent to the IDENTITY SERVER to authorize
+				-> on Authorization control return to APP for USER login data
+				-> APP shows login screen to get user credentials
+			b. Here USER enters credentials and sent to IDENTITY SERVER (via APP).
+				-> IDENTITY SERVER on authentication returns user authorization code to APP.
+			c. Now again from APP user authorizaation code is sent to IDENTITY SERVER to generate the access token (genrally in JWT format)
+				-> access token returns to APP
+			d. APP uses the access token to get data from RESOURCE SERVER
+				-> Get response from RESOURCE SERVER
+
+		2. Client Credential Flow -
+			a. Here APP sends client_id, client_secret, scope to AUTHORIZATION SERVER.
+				-> AUTHORIZATIO SERVER generates token and send to APP
+			b. APP uses the token to get data from RESOURCE SERVER
+
+		3. Resource Owner Password Flow -
+			* - Here from USER submits credentials (userId, password) to APP
+			<SAME AS Client Credential Flow..... >
+			a. Here APP sends client_id, client_secret, scope + user credential to AUTHORIZATION SERVER.
+				-> AUTHORIZATIO SERVER generates token and send to APP
+			b. APP uses the token to get data from RESOURCE SERVER
+	
+		4. Implicit Flow (Least secure approach) - 
+			a. USER login to APP and authentication details sent to AUTHORIZATION SERVER.
+				-> post authentication details validation token sent to APP
+				-> APP uses the token to communicate with the RESOURCE SERVER
+
+----------------------------------------------------------------------------------------
+
+SAML (Security Assertion Markup Language)
+	- Used for exchanging authorization/ authentication data between 2 parties -> identity provider (Server) and service provider (Server)
+	- It is a standard for SSO
+	- Once we can authenticate with Identity Server we can interact with multiple Service Provider Server
+
+----------------------------------------------------------------------------------------
+
+OpenIAM 
+	It is an identity and access management platform providing USERS with following
+	- Unified identity across all APP
+	- Flexible role based access control (RBAC) model
+	- Authentication
+	- SSO support
+
+----------------------------------------------------------------------------------------
+
+IGA - Identity governance and administration is a policy framework and set of security solution that helps us manage
+	large identity chaos and mitigate access related risk.
+	It is a critical component of any security strategy.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

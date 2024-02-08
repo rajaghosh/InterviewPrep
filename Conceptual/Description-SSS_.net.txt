@@ -1,0 +1,70 @@
+﻿----------------------------------------------------------------------------------------
+
+Session, State, Security Management .net core
+
+Session Management
+	
+What is the purpose of Session?
+
+	The HTTP protocol is, by default, stateless. But sometimes, it’s essential to hold user data while users 
+	are browsing our website.
+	Sessions are a mechanism for storing and managing user-specific data on the server side across multiple 
+	HTTP requests for a given session. A session provides a way to maintain a state for a user throughout 
+	their interaction with a web application, allowing you to store and retrieve data associated with a 
+	particular user’s session.
+
+Session work as Follows:
+	1. First, the client (Web Browser) will send the HTTP Request to the Server.
+	2. Once the server receives the request, it will process it and generate the response. 
+		Along with the generated response, it will create a SessionId and then send that SessionId in the 
+		Response header using the cookie. At the same time, the SessionId will also be stored on the server 
+		cache as a key with the required values. 
+	3. Once the client receives the response, from the next request onwards (as long as the session has not expired), 
+		the client will send the HTTP Request along with the cookie (cookie containing the SessionId) in the request header.
+	4. Once the server receives the request, it will check the cookie, get the SessionId from the Cookie, 
+		fetch the data from the server cache based on the SessionId, and accordingly process the request.
+
+How To Use Session in ASP.NET Core?
+	The package 
+	
+	Microsoft.AspNetCore.Session 
+	
+	offers a middleware component for managing the Session in ASP.NET Core Web Application. 
+	The Microsoft.AspNetCore.Session package:
+		- It is included implicitly by the Framework.
+		- Provides Middleware Component for Managing Session State.
+		- To enable the Session Middleware Component in ASP.NET Core Web Application, the 
+		- Main method of the Program class must contain the following:
+			a. Any of the "IDistributedCache Memory Cache" Service. The IDistributedCache implementation stores user 
+				data in the server by creating a SessionId as the key. We will discuss Distributed Caching in detail 
+				in our upcoming articles.
+			b. A call to the "AddSession" Service method where we need to configure the session time out, whether the
+				session is essential or not, and whether we want to access the session using HTTP only or not.
+			c. A call to the "UseSession" Middleware component to register the session into the application processing 
+				pipeline. It should be registered after the Routing and before the MVC Middleware component. This is
+				because we want the session middleware component to be executed before executing the action method.
+
+
+	To use it we can use the following
+		// Set session data
+        HttpContext.Session.SetString(SessionName, "Jarvik");
+        HttpContext.Session.SetInt32(SessionAge, 24);
+
+		//Get session data
+		HttpContext.Session.GetString(SessionName);
+        HttpContext.Session.GetInt32(SessionAge);
+
+	Session Options:
+		a. Cookie: It determines the settings used to create the cookie. 
+		b. IdleTimeout: The app uses the IdleTimeout property to determine how long a session can be idle 
+			before its contents in the server’s cache are cleared. This property is independent of the cookie expiration. 
+			Each request that passes through the Session Middleware resets the timeout. The default is 20 minutes.
+		c. IOTimeout: The maximum amount of time allowed to load a session from the store 
+			or to commit it back to the store. This setting may only apply to asynchronous operations. 
+			This timeout can be disabled using InfiniteTimeSpan. The default is 1 minute.
+
+
+
+
+
+

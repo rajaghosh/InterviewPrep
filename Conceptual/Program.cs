@@ -22,11 +22,16 @@ namespace Conceptual1
 
             //Reflection r1 = new Reflection();
 
-            ToStringOverride tso1 = new ToStringOverride();
+            //ToStringOverride tso1 = new ToStringOverride();
 
             //StringEqualsVsEqualequal sevee1 = new StringEqualsVsEqualequal();
 
             //ArrayOfJson aj1 = new ArrayOfJson();
+
+            var aa = 1;
+            var bb = aa;
+            var cc = (aa == 1);
+
 
             Console.ReadLine();
 
@@ -35,7 +40,7 @@ namespace Conceptual1
             //P.Test();
         }
 
-        public void Test()
+        public void Test(dynamic aa)
         {
         }
     }

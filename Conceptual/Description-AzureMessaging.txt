@@ -378,7 +378,7 @@ AZURE STORAGE SERVICES -
 
 This will have different storage mechanism -
 	- Azure files - Sharing of files between multiple VMs. It basically provides the file explorer structure for the VMs
-	- Azure blob storage SAS token - It is a scalable object store for text and binary data (for unstructured data).
+	- Azure blob storage SAS token - It is a scalable object store for text and binary data (for unstructured data). (190TB)
 	- Azure queues - Messaging Store for messaging between applications
 	- Azure tables (no sql) - NoSQL store for non-relation data.
 

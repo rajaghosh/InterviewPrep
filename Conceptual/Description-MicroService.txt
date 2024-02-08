@@ -1,0 +1,232 @@
+﻿-----------------------------------------------------------------------------------------
+
+Introduction
+	The term microservices portrays a software development style that has grown from contemporary trends 
+	to set up practices that are meant to increase the speed and efficiency of developing and managing 
+	software solutions at scale. Microservices is more about applying a certain number of principles and 
+	architectural patterns as architecture. Each microservice lives independently, but on the other hand, 
+	also all rely on each other. All microservices in a project get deployed in production at their own 
+	pace, on-premise on the cloud, independently, living side by side.
+
+	Features-
+		-Microservices are small, independent, and loosely coupled. A single small team of developers 
+		can write and maintain a service.
+		
+		-Each service is a separate codebase, which can be managed by a small development team.
+		
+		-Services can be deployed independently. A team can update an existing service without rebuilding 
+		and redeploying the entire application.
+		
+		-Services are responsible for persisting their own data or external state. This differs from 
+		the traditional model, where a separate data layer handles data persistence.
+
+		-Services communicate with each other by using well-defined APIs. Internal implementation details
+		of each service are hidden from other services.
+
+		-Supports polyglot programming. For example, services don't need to share the same technology stack, 
+		libraries, or frameworks.
+
+
+	Typical Microservice Architechture
+
+		CLIENT -> API GATEWAY ->	--------------------------------------------- -> COMMUNICATION TO ANY REMOTE SERVICE
+									|											|
+									|	SERVICE 1								|
+									|											|
+									|	SERVICE 2								|
+									|											|
+									|	SERVICE 3								|
+									|											|
+									|											|
+									|											|
+									---------------------------------------------
+										MANAGEMENT -> CHOREOGRAPHY/ORCHESTRATION
+
+
+	Management - This component is responsible for placing services on nodes, identifying failures, 
+	rebalancing services across nodes, and so forth. Typically this component is an off-the-shelf 
+	technology such as Kubernetes, rather than something custom built.
+
+	API Gateway. The API gateway is the entry point for clients. Instead of calling services directly,
+	clients call the API gateway, which forwards the call to the appropriate services on the back end.
+
+	Advantages of using an API gateway include:
+		-It decouples clients from services. Services can be versioned or refactored without needing 
+		to update all of the clients.
+		-Services can use messaging protocols that are not web friendly, such as AMQP.
+		-The API Gateway can perform other cross-cutting functions such as authentication, logging, 
+		SSL termination, and load balancing.
+		-Out-of-the-box policies, like for throttling, caching, transformation, or validation.
+
+-----------------------------------------------------------------------------------------
+
+What are Microservices?
+	In a monolithic system, all the components of the system are designed and packed into one single unit. 
+	Any change to a single component would need the entire system to be redeployed. 
+	This makes it difficult to scale and less flexible as well.
+
+	Software systems are growing in complexity these days. Building and maintaining monolithic systems is 
+	becoming increasingly difficult.
+
+	Microservice architecture is a software development style that breaks the system down into smaller 
+	independent components. It is a collection of autonomous services designed around a single business domain.
+	Microservices - also known as the microservice architecture - is an architectural style that structures an application
+	as a collection of services that are:
+	-Independently deployable
+	-Loosely coupled
+	Services are typically organized around business capabilities. Each service is often owned by a single, small team.
+	The microservice architecture enables an organization to deliver large, complex applications rapidly, frequently, 
+	reliably and sustainably - a necessity for competing and winning in today’s world.
+
+-----------------------------------------------------------------------------------------
+
+Pros and Cons of Microservices
+
+	Pros -
+
+	a. Scaling up becomes easier
+		In the microservices architecture, each service is designed, developed, and deployed independently. 
+		So, if one part of the software needs to be updated, we can update and use the microservice that
+		handles that functionality.
+
+		Here in the entire system need not be taken down and deployed again. This enables a seamless update 
+		process and functioning of the software system.
+
+	b. Leads to Improved Fault Tolerance
+		Large applications that have multiple services installed within have better fault tolerance towards 
+		the failure of any one module.
+		Applications within microservices could continue working even if one service fails. This is because 
+		of the loose coupling between the services. Failure of one microservice does not affect the working 
+		of others.
+
+	c. Ease of understanding of the codebase of the software system
+		As one module has one responsibility encapsulated within, it becomes easier to understand the code
+		base for that module.
+
+		It is easier to design a module keeping in mind the functionality of only that module. Understanding 
+		the specific functionality of each module is relatively more straightforward.
+
+	d. Gives you scope for experimenting with different technologies
+		Developers have the flexibility to experiment with different technologies while creating various services.
+
+		There are lesser technology dependencies between the modules. Rolling back to the previous iterations 
+		is less complicated.
+
+	5. Independent Deployment of each module
+		Since microservices are separate modules, they can be deployed independently in any application. If any 
+		module is modified, then the entire application need not be rebuilt and deployed.
+
+		Smaller codebases mean easier and quicker deployment. This is because there are lesser dependencies to 
+		take care of within the services.
+
+		Independent deployment of individual services also makes continuous deployment possible. Thus ensuring
+		that the software stays updated for users at all times.
+
+	Cons -
+
+	1. Increased Complexity of Communication Between the Services
+		Splitting an application into multiple smaller modules increases the communication overhead. Developers
+		have to be extra cautious while handling requests between the different modules.
+
+		The way different systems communicate could vary, and there might be a need for an interpreter. This can
+		increase the complexity of deploying the entire system at once.
+
+	2. Requires More Resources
+		With an increasing number of microservices, the resources needed to implement them increases as well.
+
+		Multiple databases and logs would need to be maintained. Transaction management between the services 
+		would increase the overhead of maintaining the records.
+
+	3. Global Testing and Debugging is Difficult
+		Testing a monolithic application is considerably simpler as compared to a microservice-based software. 
+		We just need to launch our app and ensure and test its connectivity with the underlying database.
+
+		With microservices-based applications, each service needs to be launched and tested individually first. 
+		Then the application as a whole needs to be tested again, once all the services are launched.
+
+	4. Not Practical for Small Applications
+		Microservices architecture is a good option for bigger applications. But, for smaller apps, it will probably
+		be more time consuming and challenging to implement.
+
+	5. Relatively Complex Deployment
+		The deployment could be a complicated and challenging procedure. It would need "coordination" between
+		multiple services during deployment. 
+		It would not be as simple as deploying a WAR file in a container.
+
+-----------------------------------------------------------------------------------------
+
+	Microservice Implementation Pattern - SAGA Pattern
+
+	Microservices are very popular and vastly used in today's technology world. Implementing microservices is easy 
+	but complications start when the distributed transaction comes into the picture.
+	
+	Why used ? SAGA patterns introduce to solve this problem. That is it solves the distributed transactions communications.
+
+	Consistency plays a very important role in any transaction. I mean transactions should execute all or nothing. 
+
+	Now think about multiple microservices with their database. We need to roll back all completed transactions in
+	case of any microservice failed in between to maintain data consistency to make our business reliable, sustainable, 
+	and reach to desire outcome.
+
+	USE CASE
+		Let us assume that we have an online restaurant ordering system.
+
+		For Online Restaurant system might have below microservices,
+
+		Order Services – Place order service
+		Payment Service – Payment service for payment
+		Restaurant Service – Select restaurants and select dishes. 
+		Delivery Service – Deliver order.
+
+		How do they interact?
+		1. Client/ UI placed Order using Order service.
+		2. Payment service confirmed about payment received and notify to order service and Restaurant service.
+		3. Restaurant service checks the availability of items and notifies to Order Service and next service Delivery service.
+		4. Once delivery is done, the Delivery service notifies to Order Service.
+
+		In case of any microservices failed, the SAGA pattern will roll back transaction from all other microservice
+		to make sure consistency. 
+
+	Types of SAGA
+		SAGA pattern can be implemented using the below 2 ways,
+
+		Choreography – Event-based
+		Orchestration – Command-based.
+
+		Choreography – Event-based
+			a.In choreography, each microservices interact with each other through the event. In this case, we do not have 
+			any centralized service or coordinator.
+
+			b.For the event, we can use event sync like RabbitMQ or MSMQ, etc.
+
+			c.Let's try to discuss the same use case for Choreography.
+
+			d.As we know its event-based and all microservice interact using common queue like RabbitMQ, MSMQ, etc
+
+			e.Each stage has an event and this event registers in a common queue. The next subsequence service will be
+			executed based on the event completed and register in the queue.
+
+		Pros/Cons
+			1.It is very simple to start as it doesn’t have any coordinator.
+			2.No single point of failure.
+			3.Complex in the large number of microservice and huge documents required to understand interaction flow of microservices.
+			4.Integrate testing is difficult.
+
+		Orchestration – Command-based.
+			a.It is a centralized service to manage transactions of all services and flow.
+
+			b.The orchestration tells each microservices which operations to perform and in case of failure, it also sends messages to 
+			different microservices for the rollback of the transaction.
+
+			c.It also manages the state of each task through the state machine.
+
+			d.It is the command-based approach. All command is handled by centralized Service called “Orchestration Service” This service 
+			maintain the state of each microservices and give command accordingly. 
+
+		Proc/Cons
+			1.Easily to add new microservices hence highly scalable.
+			2.No possibility of cyclic dependency between microservices
+			3.Single point of failure.
+			4.Complex due to manage state tasks.
+
+

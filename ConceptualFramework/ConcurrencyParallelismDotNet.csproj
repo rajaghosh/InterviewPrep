@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Description-API Additional.txt" />
     <Compile Include="MultiThreadingThreadSafe.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -55,6 +56,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Description-Delegate and Events.txt" />
     <Content Include="Description-ThreadParallelism.txt" />
     <Content Include="Description-WebAPI.txt" />
   </ItemGroup>

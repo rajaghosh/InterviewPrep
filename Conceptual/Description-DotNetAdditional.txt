@@ -1,0 +1,382 @@
+﻿.Net Questions
+
+1. How to Call an API from another API?
+2. Difference between .net core and .net framework
+3. Difference between IIS and Krestel
+4. How Krestel is platform independent
+5. How to read configs from appsettings.json
+6. How to call api from another web api - using httpclient instance
+7. How to cancel any ongoing task - using cancellation token
+8. Cache mechanism in .net core. \
+9. Return type from Rest API
+10.Factory vs Abstract factory vs CQRS vs Repository pattern vs SAGA vs Singleton
+11.Model validation
+12.API rate limiting on individual APIs
+13.Migration from .net core 3.1 to 6
+14.Questions related to .net core 6
+15.State Management
+16.Non-rest API
+17.Security Concepts - SSL, SAML, OpenId, CORS, CQRS, NUnit
+18.Docker Important Questions
+20.MVC related questions
+21.SOA - Service oriented architechture
+22.Yield
+23.Task.WhenAll vs Task.WaitAll
+24.4 fillers of OOPS
+25.EF Core - Unit of Work, Navigation
+26.Func<> vs Action<>
+27.Types of API
+28.Hosted service in .net core
+29.Wrapper Class
+30.OAuth
+31.Covarience vs Contravarience
+32.State management
+33.JWT parts
+34.App Domain
+35.Short circuit middleware
+36.Hosted Service
+
+
+Azure 
+
+1. Difference between Function App vs Logic App
+2. APIM
+
+Mongo DB 
+
+1. Sharding
+
+-----------------------------------------------------------------------------------------
+
+SAGA pattern -
+https://www.c-sharpcorner.com/article/microservices-architecture-pattern-saga/
+
+-----------------------------------------------------------------------------------------
+
+Task.WaitAll Vs Task.WhenAll
+
+Task.WaitAll is a method that blocks the main thread until all tasks complete, whereas 
+Task.WhenAll is an asynchronous operation, enabling you to initiate multiple tasks without 
+blocking the main thread. Task.WhenAll returns a task that represents the collective 
+completion of those tasks. Each of these methods has its distinct use cases, so it’s 
+essential to choose the one that aligns with your specific requirements in your C# applications.
+
+-----------------------------------------------------------------------------------------
+
+CORS - CORS works at browser
+
+-----------------------------------------------------------------------------------------
+
+Cross Site Request Forgery (CSRF)
+
+Cross-Site Request Forgery (CSRF) is an attack that forces an end user to execute unwanted actions on a web application
+in which they’re currently authenticated. With a little help of social engineering (such as sending a link via email or chat),
+an attacker may trick the users of a web application into executing actions of the attacker’s choosing. 
+If the victim is a normal user, a successful CSRF attack can force the user to perform state changing requests 
+like transferring funds, changing their email address, and so forth. If the victim is an administrative account, 
+CSRF can compromise the entire web application.
+
+-----------------------------------------------------------------------------------------
+
+https://www.linkedin.com/pulse/azure-logic-apps-vs-functions-aman-verma/
+
+-----------------------------------------------------------------------------------------
+
+
+Private Class
+
+    We can have private class in C# as nested class only.
+    That is 
+
+    public class A
+    {
+        //Private class
+        class B
+        {
+        
+        }
+    
+    }
+
+
+-----------------------------------------------------------------------------------------
+
+Static constructor
+
+A static constructor is used to initialize any static data, or to perform a particular action that needs to be performed only once. 
+It is called automatically before the first instance is created or any static members are referenced. 
+A static constructor will be called at most once.
+
+
+
+    Ex -
+
+    class Test1 {
+        private static int id;
+        //Static constructor, value of data member id is set conditionally here.
+        //This type of initialization is not possible at the time of declaration.
+        static Test1() {
+            if (Test.Id < 10) {
+                id = 20;
+            } else {
+                id = 100;
+            }
+            Console.WriteLine("Static<Class> Constructor for Class Test1 Called..");
+        }
+        public static void print() {
+            Console.WriteLine("Test1.id = " + id);
+        }
+        static void Main(string[] args) {
+            //Print the value of id
+            Test1.print();
+        }
+    }
+
+    Purpose
+    - The static constructor for a class executes before any instance of the class is created.
+    - The static constructor for a class executes before any of the static members for the class are referenced.
+    - The static constructor for a class executes after the static field initializers (if any) for the class.
+
+-----------------------------------------------------------------------------------------
+
+Short-Circuit Middleware
+
+When a middleware short-circuits, it's called a terminal middleware because it prevents further middleware from processing the request.
+
+-----------------------------------------------------------------------------------------
+
+Advantage of SPA.
+
+Single page application as faster
+
+
+-----------------------------------------------------------------------------------------
+
+State Management in .net Core
+
+As we all know, HTTP is a stateless protocol, i.e., each HTTP request does not know about the previous request. 
+If you are redirecting from one page to another page, then you have to maintain or persist your data so that you 
+can access it further. To do this, there were many techniques available in ASP.NET like ViewState, SessionState,\
+ApplicationState etc.
+
+    -Hidden Field
+    -Cookies
+    -Query String
+    -ViewData
+    -ViewBag
+    -TempData
+
+https://www.c-sharpcorner.com/article/state-management-in-asp-net-mvc/
+
+-----------------------------------------------------------------------------------------
+
+.net Core MVC request life cycle
+
+Http Req -> Middleware -> Controller -> Action Method Execution -> Result Execution -> DataResult/ViewRendering -> Response
+
+    Middleware component forms the basic building block of the applications's HTTP pipeline. 
+    At the action method /controller level we can have filters
+
+    We can have different return type
+
+    TYPES                   HELPER METHOD       DESC
+    ------------------------------------------------------------------------------------
+    ViewResult      	    View()	            Renders a view and retun HTML content
+    PartialViewResult   	PartialView()	    Returns partial view
+    ContentResult	        Content()	        Returns simple text
+    RedirectResult	        Rediect()	        Redirect result to URL
+    RedirectToRouteResult	RedirectToAction()	Redirect to an action method
+    JsonResult	            Json()	            Returns serialized json object
+    FileResult	            File()	            Returs a file
+    HttpNotFoundResult	    HttpNotFound()	    Returns not found or 404 error
+    EmptyResult	 	                            When action does not return values
+
+
+-------------------------
+Routing in MVC .net core
+
+	1. Conventional Routing - This routing will use default match URL with controller + action method (depending upon the route specified at controller/action method level).
+	2. Attribute Routing - 
+
+
+	A. Conventional Routing - This type of routing can be setup via UseEndpoints middleware. Which takes a route name and route parameters. So basically routes
+    are configured. We can configure so that if specific url does not matches to controller/action combo we can load a default route. (Here home controller)
+                
+                app.UseRouting();
+
+		        app.UseEndpoints(endpoints =>
+                {
+                    // same as example shown below
+                    // endpoints.MapDefaultControllerRoute();
+                    // Below is same as what MapDefaultControllerRoute does
+                    endpoints.MapControllerRoute(
+                        name: "default",
+                        pattern: "{controller=Home}/{action=Index}/{id?}");
+                    
+                    // This is called as dedicated conventional routing
+                    // as action is fixed 
+                    endpoints.MapControllerRoute(
+                        name: "default",
+                        pattern: "blog/{*article}",
+                        defaults: new { controller = "Blog", action = "GetBlogPost" });
+                });
+
+    B. Attribute Routing - Here we typically use this for REST Apis depending upon HTTP verbs. It uses MapControllers method inside UseEndpoints middleware
+                
+                app.UseRouting();
+
+                app.UseEndpoints(endpoints =>
+                {
+                    // To load all attribute routes
+                    endpoints.MapControllers();
+                });
+
+        Then we need to use [Route("")] attribute to specify the route
+        Or we can directly use HttpMethod Attribute. Ex - [HttpGet()]
+
+        Note - We can combine both 
+
+-------------------------------------------------------------------------------------
+
+Return type for .net core Web API
+
+    1. Specific type
+    2. IActionResult
+    3. ActionResult<T>
+
+    1. Specific type - Here for specific type we return Primitive (string, boolean etc) or complex data (custom objects) from an action method.
+        We cannot return status type here ex - OK(), NotFound()
+
+    2. IActionResult - Here we can have multiple return type. We can return the data using some build-in method. Ex - OK(), NotFound(), File()
+    For instance, if we want to return a 400 Bad Request response, instead of using the return new BadRequestResult();,
+    we could just write return BadRequest(); . Similarly, we could use Ok() and NotFound() methods to return 
+    the 200 Ok and 404 Not Found responses respectively. 
+    
+    NOTE - We can return View() here.
+        
+            [HttpGet("{id}")]
+            [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Employee))]
+            [ProducesResponseType(StatusCodes.Status404NotFound)]
+            public IActionResult GetById(int id)
+            {
+                if (!_repository.TryGetEmployee(id, out Employee? employee))
+                {
+                    return NotFound();
+                }
+
+                return Ok(employee);
+            }
+
+    3. ActionResult<T> - ASP.NET Core supports returning the ActionResult<T> type from Web API controller actions. 
+    While using the ActionResult<T>, we can either return an ActionResult type or a specific type. it can return 
+    both specific type as well as the built-in (Asp.Net Core) methods.
+
+            [HttpGet("{id}")]
+            [ProducesResponseType(StatusCodes.Status200OK)]
+            [ProducesResponseType(StatusCodes.Status404NotFound)]
+            public ActionResult<Employee> GetById(int id)
+            {
+                if (!_repository.TryGetEmployee(id, out var employee))
+                {
+                    return NotFound();
+                }
+                        
+                return employee;
+            }
+
+-------------------------------------------------------------------------------------------------
+
+Binding/Model Binding in .net Core
+
+    Model binding in ASP.NET Core is a mechanism that maps client request data (like form values, route data, query string parameters, 
+    request body, and HTTP headers) to action method parameters. 
+    This allows us to work directly with strongly typed .NET objects in our action methods. 
+
+    Why Is Model Binding Important in ASP.NET Core?
+        -Type Safety: Model binding converts client data into .NET types, ensuring that our action methods values are already 
+        of the expected data type. This will reduce the need for manual data type conversions and associated error checks.  
+    
+        -Automatic Validation: Model binding can validate the incoming data against predefined rules when combined with data annotations. 
+        We can easily check if the data is valid by examining the ModelState.IsValid property. How to use ModelState.IsValid property will be
+        discussed in detail in our upcoming articles. 
+    
+        -Code Simplification: Model binding eliminates the repetitive code of manually extracting values from the request and converting them to .NET types.
+
+    Model Binding Techniques
+
+    1. Basic Model Binding -  ASP.NET Core MVC tries to bind request data to the action method parameters by name.
+
+        public IActionResult Register(string username, string password)
+        {
+            // Your registration logic goes here
+            // ...
+        }
+
+        The HTTP request has a form or query string with a username and password; those will be automatically bound to the method parameters. 
+
+    2. Attribute Routing: Model binding can bind data from the URL using attribute routing.
+
+        [Route("employee/{id}")]
+        public IActionResult EmployeeDetails(int id)
+        {
+            //...
+        }
+
+    3. FromBody ([FromBody]): Gets values from the request body.
+        Binding data from the request body of an HTTP request. This attribute is particularly useful when you need to receive complex data, 
+        such as JSON or XML, from the client in the body of a POST or PUT request.
+
+        [HttpPost]
+        public IActionResult CreateEmployee([FromBody] Employee employee)
+        {
+            // Your code for creating an employee goes here
+            // ...
+        }
+
+    4. FormForm ([FromForm]): Gets values from posted form fields.
+        Binding data from HTML form submissions or multipart/form-data requests. This attribute allows you to map data sent by the client through 
+        form-to-action method parameters. It's particularly useful when you need to handle data submitted in HTML form on web pages.
+
+    5. FromHeader ([FromHeader]): Gets values from HTTP headers. Binding data from HTTP headers in an HTTP request. This attribute allows you to
+        access and use data present in the headers of the incoming request. It is commonly used to extract specific information such as authentication,
+        custom headers, content negotiation, and other header-related operations.
+
+        public IActionResult CheckUserAgent([FromHeader(Name = "User-Agent")] string userAgent)
+        {
+            // Your code for checking the User-Agent header goes here
+            // ...
+        }
+
+    6. FormRoute ([FormRoute]): Gets values from route data. Extracting values from the URL's path and using them within your endpoints. 
+        It enables resource identification, clean URLs, API versioning, and handling complex route structures.
+
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            // Your code for handling the GET request with an 'id' parameter goes here
+            // ...
+        }
+
+    7. FormQuery ([FormQuery]): Gets values from the query string. Extracting and working with data provided in the query string of a URL.
+        It enables scenarios such as filtering, searching, pagination, sorting, and more.
+
+        public IActionResult Search([FromQuery] string query)
+        {
+            // Your code for performing a search with the 'query' parameter goes here
+            // ...
+        }
+
+    8. Complex Type Binding: ASP.NET Core MVC can bind complex types by recursively binding properties of the complex type. For instance,
+        if you submit a form with the fields Employee.Name and Employee. Department, they can be bound to a complex object.
+
+        public IActionResult Create(Employee employee)
+        {
+            // Your code for creating an employee record goes here
+            // ...
+        }
+
+-------------------------------------------------------------------------------------------------------
+
+
+
+

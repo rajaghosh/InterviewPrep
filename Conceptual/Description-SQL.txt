@@ -76,11 +76,16 @@ In the context of managed languages like C# (.NET) or Java, memory management is
 
 In summary, the terms "stack" and "heap" refer to memory management concepts, and their usage and behavior depend on the programming language and runtime environment you're working with. In managed languages like C# and Java, memory management is more abstract and handled by the runtime environment, making the distinction between stack and heap less relevant from a programmer's perspective.
 
+------------------------------------------------------
 
+Why functions cant call SP?
 
+User defined functions aren’t allowed to execute any DML statements except SELECT; whereas stored procedures 
+do have the ability to execute DML statements.
 
+------------------------------------------------------
 
-
+For EF core unit of work is used for transaction
 
 
 

@@ -145,7 +145,7 @@ Programmatically, when our program needs memory, CLR allocates the memory for sc
 if the scope is completed.
 
 Language Compilers (e.g. C#, VB.Net, J#) will convert the Code/Program to Microsoft Intermediate Language (MSIL) 
-intern this will be converted to Native Code by CLR.
+inturn this will be converted to Native Code by CLR.
 
 	Purpose :
 	1. Provide common runtime environment.
@@ -197,7 +197,7 @@ Reflection - It is inspection of an Assembly at runtime and checking what are th
 Reflection in C# is a powerful feature that allows you to inspect and interact with the metadata of types,
 objects, and assemblies at runtime. It provides the ability to examine and manipulate the structure and 
 behavior of your code dynamically. Reflection is commonly used for tasks like creating instances of types, 
-invoking methods, accessing properties2, and more, without knowing the details at compile time.
+invoking methods, accessing properties, and more, without knowing the details at compile time.
 
 Ex - Type type = typeof(MyClass);
 	int i = 10;
@@ -224,6 +224,8 @@ Var vs Dynamic
  int t = a.length //It must be a.Length (Caps L)
  this would not be any error during compile time but during run-time there would be exceptions.
  
+ Note - var cant be used as function parameter, dynamic can be used as function parameters
+
  ------------------------------------------------------------------------------------------------------
 
  C# value type vs reference type
@@ -246,7 +248,7 @@ Var vs Dynamic
  Serialization:
 
 	Serialization is the process of converting objects or data structures into a format that can be easily 
-	stored or transmitted, usually as a stream of bytes. 
+	stored or transmitted, usually as a stream of bytes/XML/JSON. 
 
  Deserialization:
 
@@ -254,39 +256,7 @@ Var vs Dynamic
 	It takes the data stored in a format (such as binary, XML, or JSON) and creates instances of objects or 
 	data structures from it.
 
- ------------------------------------------------------------------------------------------------------
-
- Delegate - Its a type safe pointer to a function. It should match with the signature of the method.
-
- Note - In C# a class is a reference type and a struct is a value type. And all the references should be defined 
- under Namespace. So delegate must be defined under Namespace.
-
- But the question here is if a method can be called directly then why do we need to call the method indirectly.
-
- The meaning of delegate is a representative to communicate between parties.
- Purpose - So we will primarily use it for callbacks. That is when another method is called and we need to gather some info from 
- that another method we can use delegates for live data from that method. Typically used in parallel processing.
- It can be used to decouple method logic.
-
- Multicast Delegate - When a delegate is used for reference to more than one method it is called multicast delegate.
-
- Delegate can be used in shorter versions
- 1. Lambda expression for the above code - It is more shorter version of delegate
- 2. Func <with input as double, output as double> - It will take an input and produce and output (it might not have any input)
- 3. Action - This will take an input and do some work (and may or may not return any output) 
- 4. Predicate - This will take an input and will return and output as boolean
-
- ------------------------------------------------------------------------------------------------------
-
- Delegate VS Events (Both are used to implement the observer pattern)
-
- Delegate - It is a safe pointer to a function. It can refer to more than one method of same return type and parameter.
-	So delegates depends on functions.
-	It will be used for callbacks.
-
- Event - It is a notification mechanism that depends on delegates. Events depends on functions. Event is a wrapper over 
-	delegate. It will be used to create notifications.
-
+ 
  ---------------------------------------------------------------------------------------------------
 
  IS vs AS keywords
@@ -338,7 +308,7 @@ Var vs Dynamic
 	 Purpose - Having generations have good performance effect. So objects in GC0 will be visited by GC more than the objects in GC2.
 
 
-	Note - Managed code will be cleaned by GC. And for unmanaged code () we need to explicitly clean them by using Destructors 
+	Note - Managed code will be cleaned by GC. And for unmanaged code we need to explicitly clean them by using Destructors 
 	or related processes.
 
 	"Destructor" -> ~Constructor() Name -
@@ -639,7 +609,7 @@ IQueryable
 
 C# Copying objects -
 
-Shallow Copy (Reference Copy)
+Shallow Copy (Reference Copy) - Both original and copied object refer to same memory location.
 
 	A Shallow Copy is about copying an object's value type fields into the target object and the object's reference types 
 	are copied as references into the target object but not the referenced object itself. 
@@ -648,7 +618,7 @@ Shallow Copy (Reference Copy)
 	Class1 obj1 = new Class1();
 	Class1 obj2 = obj1;
 
-Deep Copy (New Pure Copy with new references)
+Deep Copy (New Pure Copy with new references) - Both original and copied object refer to different memory location.
 
 	Deep Copy is used to make a complete deep copy of the internal reference types, for this we need to configure the object 
 	returned by MemberwiseClone().
@@ -659,7 +629,7 @@ Deep Copy (New Pure Copy with new references)
 			//Class1 obj = (Class1)this.MemberwiseClone();
 			//return obj;
 
-			return (Class1)this.Memberwise.Clone();
+			return (Class1)this.MemberwiseClone();
 		}
 	}
 
@@ -934,13 +904,17 @@ Brief of .net background process
 
 	Status Code-
 	 102 - Processing (for long running process)
+	 
 	 200 - OK
 	 201 - Created 
 	 202 - Accepted
+
 	 400 - Bad Request (Expression not matching)
 	 401 - Unauthorized
 	 403 - Forbidden
 	 404 - Not found
+	 429 - Too many requests (for rate limiting)
+
 	 500 - Intenal Server Error
 	 501 - Not Implemented
 	 502 - Bad Gateway

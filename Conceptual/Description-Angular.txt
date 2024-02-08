@@ -1,5 +1,61 @@
 ﻿-------------------------------------------------------------------------------------------------------------------------------
 
+Polyfill - In angular polyfill is a piece of code that allows our application to run in older version browsers that does not 
+	support certain features. 
+
+	Polyfills.TS files is used for browser support. It will load a set of libraries which are used in application and are not 
+	supported by browsers by default to make an application work without any issues.
+
+	Install the necessary polyfill package using npm or yarn. For example, to install the core-js polyfill package, 
+	you can run the following command:
+		
+		npm install core-js 
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+Package.json vs Angular.json
+
+	Package.JSON holds all of the “npm” packages installed for the project. Angular.JSON holds the configuration for the project.
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+How angular application loads into the browser?
+
+The main.ts file bootstraps the angular application by passing the AppModule as argument. In this AppModule, we tell angular, 
+there is AppComponent and angular now analyzes the AppComponent, reads the setup we pass here and therefore knows this selector 
+app-root and now angular is able to handle app-root in the index.html file.
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+Subject vs Behaviour Subject
+
+	Behaviour Subject - A BehaviorSubject holds one value (so we actually need to initialize a default value). When it is subscribed
+	it emits that value immediately. A Subject on the other hand, does not hold a value.
+
+	What it actually means is that in Subject, the subscribers will only receive the upcoming value where as in BehaviorSubject
+	the subscribers will receive the previous value and also upcoming value.
+
+	BehaviorSubject keeps in memory the last value that was emitted by the observable. A regular Subject doesn't.
+
+	BehaviorSubject is like ReplaySubject with a buffer size of 1.
+
+	Summary -
+
+	Subject - Each Next subscriber receive only upcoming value.
+	BehaviourSubject - Each Next subscriber receive one previous value and upcoming value.
+	ReplaySubject - Each Next subscriber receive all previous value and upcoming value.
+	AsyncSubject - latest value when stream will close.
+
+	Link - https://dev.to/revanth_oleti/difference-between-subject-and-behaviorsubject-9g6
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+Angular route gaurds -
+	https://www.scaler.com/topics/angular/route-guard-in-angular/
+	There are others but popular interms of interview canActive and canDeactivate
+
+-------------------------------------------------------------------------------------------------------------------------------
+
 Directive 
 
 	In Angular, directives are special markers in the HTML that tell the Angular framework to do something with a DOM element. 
@@ -488,97 +544,6 @@ Template reference variable
 
 		In this example, we've created a template reference variable named myInput for the <input> element.
 
-------------------------------------------------------------------------------
-
-Pipes
-
-	Pipes in angular are used to alter the output representation of the variables/values on the template. Ex. for variable name
-	NAMEVAL = “raja” can be shown in titlecase using {{ NAMEVAL | titlecase}} will show “Raja”.
-
-	It supports chaining i.e use one Pipe after another
-	
-	Different types of pipes
-		* Date
-		* TitleCase | lowercase | uppercase
-		* Currency
-		* Json - Will convert object into json format.
-				In Angular, you can use the built-in JsonPipe to format JavaScript objects as JSON strings for display 
-				in your templates. The JsonPipe is one of Angular's built-in pipes, and it's used to convert objects to
-				JSON strings, making it easier to display JSON data in your templates.
-
-				Here's how you can use the JsonPipe in an Angular template:
-
-					import { Component } from '@angular/core';
-					import { JsonPipe } from '@angular/common';
-
-					@Component({
-					  selector: 'app-json-pipe',
-					  template: `
-						<h2>JSON Pipe Example</h2>
-						<p>Original Object:</p>
-						<pre>{{ myObject }}</pre>
-						<p>JSON String:</p>
-						<pre>{{ myObject | json }}</pre>
-					  `,
-					})
-					export class JsonPipeComponent {
-					  myObject = { name: 'John', age: 30 };
-					}
-
-				In the Html
-
-					<pre>{{ myObject | json }}</pre>
-				
-				When you use the json pipe in the template, it automatically converts the myObject JavaScript object into a 
-				formatted JSON string for display. The json pipe is especially useful for debugging and displaying JSON data 
-				in a readable format.
-
-
-
-	We can also have Custom Pipes.
-
---------------------------------------------------------------
-
-Custom Pipes
-
-	In Angular, you can create custom pipes to transform or format data in your templates. 
-	Custom pipes allow you to encapsulate reusable data transformation logic in a way that promotes 
-	maintainability and reusability across your application.
-
-	Step 1 :
-		
-		Create a Pipe Class:
-
-		Start by creating a class for your custom pipe. The class should be decorated with the @Pipe decorator, and it should 
-		implement the PipeTransform interface, which requires you to implement the transform method. The transform method is 
-		where you define the logic for your custom pipe.
-
-			import { Pipe, PipeTransform } from '@angular/core';
-
-			@Pipe({
-			  name: 'custom'
-			})
-			export class CustomPipe implements PipeTransform {
-			  transform(value: any, ...args: any[]): any {
-				// Your transformation logic here
-				return transformedValue;
-			  }
-			}
-
-	Step 2 : 
-
-		Register in the Module. By default it will be register in the module. If not we need to manually add it.
-
-	Step 3 :
-
-		Use:
-
-		You can now use your custom pipe in your Angular templates. To use it, you simply pipe your data through the custom pipe
-		in the template using the | symbol.
-
-		html
-		Copy code
-		<p>{{ 'World' | custom:'Hello' }}</p>
 
 --------------------------------------------------------------------
 

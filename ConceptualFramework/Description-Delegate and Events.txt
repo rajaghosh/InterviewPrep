@@ -1,0 +1,279 @@
+﻿Delegates and Events
+
+------------------------------------------------------------------------------------------------------
+
+ Delegate - Its a type safe pointer to a function. It should match with the signature of the method.
+
+ Note - In C# a class is a reference type and a struct is a value type. And all the references should be defined 
+ under Namespace. So delegate must be defined under Namespace.
+
+ But the question here is if a method can be called directly then why do we need to call the method indirectly.
+
+ The meaning of delegate is a representative to communicate between parties.
+ Purpose - So we will primarily use it for callbacks. That is when another method is called and we need to gather some info from 
+ that another method we can use delegates for live data from that method. Typically used in parallel processing.
+ It can be used to decouple method logic.
+
+ Multicast Delegate - When a delegate is used for reference to more than one method it is called multicast delegate.
+
+ Delegate can be used in shorter versions
+ 1. Lambda expression for the above code - It is more shorter version of delegate
+ 2. Func <with input as double, output as double> - It will take an input and produce an output (it might not have any input)
+ 3. Action - This will take an input and do some work (and may or may not return any output) 
+ 4. Predicate - This will take an input and will return and output as boolean
+
+------------------------------------------------------------------------------------------------------
+
+ Delegate VS Events (Both are used to implement the observer pattern)
+
+ Delegate - It is a safe pointer to a function. It can refer to more than one method of same return type and parameter.
+	So delegates depends on functions.
+	It will be used for callbacks.
+
+ Event - It is a notification mechanism that depends on delegates. Events depends on functions. Event is a wrapper over 
+	delegate. It will be used to create notifications.
+
+------------------------------------------------------------------------------------------------------
+
+ Delegate vs Event C#
+
+1. Delegate is a type which holds reference to a method. Event is a notification mechanism that depends on delegates.
+    So, delegates depends on functions 
+    and events depends on delegates. 
+    Event is wrapper over delegate to improve its security.
+    
+    Delegate is a typesafe function pointer.
+    Delegate stores the memory address of the method created.
+
+    public int Addition(int a, int b)
+    {
+        return a+b;
+    }
+    public delegate int SumDelegate(int a, int b);
+
+    SumDelegate sum = new SumDelegate(Addition); //Sum stores the address of the method Addition (so function pointer)
+                                                 //Method and delegate has to have same return type + param (so Type Safe)
+    int a = sum(1,2);
+   
+   * Delegates are useful to pass a method to another method
+   - Delegates are also helpful as we can use lambda exp, function, action, predicate, expression (for creating custom lambda exp).
+   - Callbacks are specifically useful in scenarios like creating custom middlewares. Ex. app.next() -> Passing httpReq to next middleware
+
+2. Delegates allow you to create references to methods and pass these references as parameters, store them in variables,
+    or invoke them dynamically. 
+    
+   Events are used to notify subscribers (event handlers) when something interesting happens within an object. Events are 
+   typically used for implementing the observer pattern, where an object (the publisher) notifies other objects (subscribers)
+   about changes or events. Events ensure that only the owning class can raise (invoke) the event, while external code can only
+   subscribe or unsubscribe from it.
+
+------------------------------------------------------------------
+
+Concept of Callbacks (IMPORTANT)
+    -When a method is passed as param in another method it (param passed method) is called callback functions.
+    To achieve this callback functionality we need delegates.
+
+    namespace TESTNAMESPACE
+    {
+        public delegate void PrintDelegate(int x);
+    
+        class Program
+        {
+            public static void Main(string[] args)
+            {
+                Program p = new Program();
+
+                p.PrintHelper(100, p.PrintMoney);
+                p.PrintHelper(110, p.PrintPrice);
+            
+                PrintDelegate method1 = p.Demo();
+                method1("hello world");
+            }
+
+
+            public void PrintMoney(int money)
+            {
+                Console.WriteLine(money);
+            }
+        
+            public void PrintPrice(int price)
+            {
+                Console.WriteLine(price);
+            }
+        
+            //Passing methods as arguments
+            public void PrintHelper(int x, PrintDelegate del)
+            {
+                del(x);
+            }
+
+            //Returning methods from another methods
+            public PrintDelegate Demo()
+            {
+                return PrintHelper;
+            }
+        }
+    }
+
+------------------------------------------------------
+
+Multicast Delegate - When a delegate is used to call more than one function it is called multicast delegate.
+    It uses FIFO approach.
+
+    We can 2 ways to create multicast delegate 
+    1. using + / - operator
+    2. using += / -=
+
+
+    namespace TESTING1
+    {
+        public delegate void MYDELEGATE1();
+
+        class Program
+        {
+            static void main(string[] args)
+            {
+                MYDELEGATE1 del1,del2,del3, del4;
+                Progaram p = new Program();
+                del1 = new MYDELGATE1(p.Method1);
+                del2 = new MYDELGATE1(p.Method2);
+                del3 = new MYDELGATE1(p.Method3);
+
+                //Multicast delegate creation - Way 1 (using + operator)/(using - operator reference will be removed)
+                del4 = del1 + del2 + del3 - del2;
+
+                //Here this will invoke del1->del2->del3 in the specific order in which they are assigned.
+                del4();
+                //del4.Invoke(); - Same
+
+                //Multicast delegate creation - Way 2 (using +=) [used for adding reference] / (-=) [used for removing reference]
+                MYDELEGATE1 del5 = new MYDELGATE1(p.Method1);
+                del5 += p.Method2;
+                del5 += p.Method3;
+                //del5 -= p.Method2; //Removing reference
+                
+                del5();
+                    
+            
+            }
+    
+            public void Method1()
+            {
+        
+            }
+
+            public void Method2()
+            {
+        
+            }
+
+            public void Method3()
+            {
+        
+            }
+        }
+    }
+
+    NOTE - Incase we have a delegate that returns values (i.e the method returns value) in that case the value of the last method 
+    of the chain will be stored and other values will be ignored.
+
+-----------------------------------------------------------
+
+Observer design pattern using Multicast design pattern. Using EVENTS
+
+Observer design pattern = Publish-Subscriber design pattern.
+
+    In this model we have a publisher and when publisher publishes something (i.e a work is done then it is called an event)
+    it is the responsibility of the published to notify the subscribers about that.
+    And once the subscribers received some notification they can perform some logic.
+
+    So the publisher is the emitter and 
+    subscribers are the observers.
+
+    Concept - An EVENT forms a layer of protection to delegate instance. Whenever we implement a multicast delegate to implement
+    a PUB-SUB model its better to use events as for multicast delegate we can assign a null method in the multicast chain, 
+    which will generate runtime error.
+    But with use of events we have an extra layer of protection which ensures we can chain only valid methods.
+
+    Ex - Observer pattern - Pub/Sub Pattern
+
+    class SERVICE1
+    {
+        public void SendSms()
+        {
+        
+        }
+    }
+
+    class SERVICE2
+    {
+        public void SendEmail()
+        {
+        
+        }
+    }
+
+    namespace TESTING2
+    {
+        public delegate void OnVideoUploadDel();
+        public event OnVideoUploadDel OnVideoUploaded;
+
+        class PUBLISHER
+        {
+            //Reference variable
+            OnVideoUploaded onVideoUploaded_VAR;
+
+            public string Name{get; set;}
+
+            public PUBLISHER(string name)
+            {
+                Name=name;
+            }    
+
+            public void UploadingVideo()
+            {
+                Console.WriteLine("Uploading Video....");
+                Thread.Sleep(5000);
+                Console.WriteLine("Uploaded Vide......");
+
+                onVideoUploaded_VAR();
+            }
+    
+        }
+    }
+
+
+    namespace TESTING3
+    {
+        class Program
+        {
+            static void Main(string[] args)
+            {
+                PUBLISHER p1 = new PUBLISHER("video1");
+
+                //Subscriber Services
+                SERVICE1 s1 = new SERVICE1();
+                SERVICE2 S2 = new SERVICE2();
+
+                p1.onVideoUploaded_VAR += s1.SendSms();
+                p1.onVideoUploaded_VAR += s2.SendEmail();
+
+                p1.UploadVideo();
+            }
+        }
+    
+    }
+
+    NOTE - Here as p1.UploadVideo() works then the event is called. As event has subscribers the 2 subsciber methods gets executed then.
+    Its important that we place the method in this bottom up approach.
+
+-----------------------------------------------------------
+
+Covarience VS Contravarience Concepts
+
+In C#, covariance and contravariance enable implicit reference conversion for array types, delegate types, and generic type arguments. 
+Covariance preserves assignment compatibility and contravariance reverses it.
+
+
+
+

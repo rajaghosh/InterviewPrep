@@ -15,7 +15,7 @@ namespace DesignPatterns
             Console.WriteLine("Counter Value -> " + counter);
         }
 
-        //This will be instanciated only once.
+        //This will be instantiated only once.
         private static Singleton1 _instanceVariable = null; //Basically this is actually the instance variable which will be responsible for all the tasks to be done with this class.
 
         public static Singleton1 GetInstance //Static Property, this will be used to communicate with outside 

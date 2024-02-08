@@ -1,0 +1,76 @@
+﻿API Related Questions...........
+-------------------------------------------------
+
+API Idempodency -
+
+Idempodency - It is a property of some operations such that no matter how many times we execute them, we achieve same result.
+
+Concept of API Idempodency -
+
+In the realm of RESTful web services, idempotency relates to the concept that making the same API request multiple times 
+should yield the same result as making it just once. This means that regardless of how many times you repeat an idempotent 
+request, the outcome remains consistent.
+
+When we design the REST APIs, we must realize that API consumers can make mistakes. Consumers can write the client code in
+such a way that there can be duplicate requests coming to the APIs.
+
+These duplicate requests may be unintentional as well as intentional sometimes (e.g. due to timeout or network issues). 
+We have to make our APIs fault-tolerant so that duplicate requests do not leave the system unstable.
+
+Also, idempotency is a key enabler for efficient caching and optimization strategies. Caches (and CDNs) can store and serve the 
+results of idempotent requests to reduce the load on servers and improve response times.
+
+Idempodency with HTTP Methods -
+
+An idempotent HTTP method is a method that can be invoked many times without different outcomes. It should not matter if the 
+method has been called only once, or ten times over. The result should always be the same.
+
+If we follow the REST principles in designing our APIs, we will have automatically idempotent REST APIs for GET, PUT, DELETE, 
+HEAD, OPTIONS, and TRACE methods. Only POST and PATCH APIs will not be idempotent.
+
+- POST and PATCH are NOT idempotent.
+- GET, PUT, DELETE, HEAD, OPTIONS and TRACE are idempotent.
+
+GET, HEAD, OPTIONS and TRACE methods NEVER change the resource state on the server. They are purely for retrieving the resource
+representation or metadata at that point in time.
+
+So invoking multiple requests will not have any write operation on the server, so GET, HEAD, OPTIONS, and TRACE are idempotent.
+
+To make non-idempotent operations safer, developers often implement strategies such as using unique request identifiers, 
+transactional mechanisms, or idempotent request headers to ensure that repeating the request doesn’t lead to unintended consequences.
+
+Source - https://restfulapi.net/idempotent-rest-apis/
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

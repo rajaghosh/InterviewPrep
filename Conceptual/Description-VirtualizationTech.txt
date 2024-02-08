@@ -1,0 +1,303 @@
+﻿----------------------------------------------------------------------------------------
+
+Terraform -
+	Terraform is an open-source infrastructure-as-code (IaC) tool developed by HashiCorp. 
+	It allows users to define, provision, and manage infrastructure resources declaratively using a high-level
+	configuration language. Terraform works by reading the configuration files 
+	(written in HCL - HashiCorp Configuration Language or JSON) and translating them into API calls
+	to interact with various infrastructure providers.
+
+Key features of Terraform -
+	The key features of Terraform include the following:
+		
+		a.Declarative Language: Terraform uses a declarative language called HashiCorp Configuration Language (HCL)
+		to define infrastructure resources. This makes it easier to understand and manage infrastructure as code.
+		
+		b.Multi-Cloud Support: Terraform supports many cloud providers, including AWS, Microsoft Azure, Google Cloud
+		Platform, and more. It also supports on-premises data centers.
+		
+		c.Resource Management: Terraform enables you to manage infrastructure resources such as virtual machines,
+		networks, and storage.
+		
+		d.State Management: Terraform keeps track of the state of infrastructure resources, allowing you to see the
+		current state of infrastructure and manage changes.
+		
+		e.Modularity: Terraform allows you to create reusable modules, making managing and provisioning complex
+		infrastructure easier.
+
+Terraform Module - 
+	A Terraform module is a reusable and self-contained code defining a set of infrastructure resources. Modules such 
+	as web servers, databases, or networking resources can create complex infrastructure configurations and be shared
+	and reused across different projects or environments.
+
+Terraform State File -
+	A state file is a file in which Terraform keeps track of all the infrastructure that is deployed by it.
+
+What are the main components of a Terraform configuration?
+	Answer: The main components of a Terraform configuration are:
+	-Providers: They define the cloud or infrastructure platform where resources will be created.
+	-Resources: They define the infrastructure components you want to manage (e.g., virtual machines, networks).
+	-Data Sources: They fetch information from external sources (e.g., existing infrastructure) to use within the configuration.
+	-Variables: They allow you to parameterize your configuration.
+	-Outputs: They define values that are useful to display or pass to other parts of the configuration.
+
+----------------------------------------------------------------------------------------
+
+Docker 
+	Docker is a very popular and powerful open-source containerization platform that is used for building, deploying, 
+	and running applications. Docker allows you to decouple the application/software from the underlying infrastructure.
+
+What Is Containerization?
+	Containerization is packaging an application with its dependencies, such as libraries and other binaries, 
+	into a single unit called a container. Containers (each package) allow for consistent development and deployment 
+	environments for applications, and they are isolated from each other and can run on any platform supporting 
+	container technology.
+
+	Containerization has many benefits, including portability, increased security, and improved resource utilization. 
+	Containers are lightweight and can be quickly deployed, and they are also easy to scale up or down as needed. 
+	This Containerization enables the application to run quickly and reliably from one environment to another without
+	the need to install and configure dependencies separately. 
+
+What Are the Benefits of Containerization?
+	Containerization has many benefits, including improved efficiency, portability, and security.
+
+	-Containerization can improve efficiency by allowing for more efficient use of resources. 
+	For example, multiple containers can be run on a single host, and each container can be given 
+	its resources, making it easier to use resources more efficiently and improve performance.
+
+	-Portability is another benefit of containerization. Containers can be easily moved from one 
+	host to another, making it possible to scale up or down as needed quickly, which can be 
+	particularly helpful when dealing with unexpected traffic spikes.
+
+	-Security is another benefit of containerization. Containers can be isolated from each other, 
+	making it more difficult for malware or malicious code to spread. This benefit can help to 
+	protect your system from attacks.
+
+What Is Container Orchestration?
+	Container orchestration is the process of managing and coordinating the use of containers in a 
+	distributed system, including managing the deployment, scaling, and networking of containers.
+
+	Several tools are available for container orchestration, including Kubernetes, Docker Compose, and Mesos. 
+	Each device has advantages and disadvantages, so choosing the right tool for the job is essential.
+
+	Kubernetes is a popular choice for container orchestration, especially for large-scale deployments. 
+	It is an open source and has a wide range of features, making it a good choice for complex implementations.
+
+	Docker Compose is a good choice for smaller deployments or those already using Docker. It is simple to 
+	use and can be easily integrated into existing workflows.
+
+	Mesos is a good choice for those who need a flexible and scalable container orchestration solution. 
+	It is designed to handle numerous containers, making it a good choice for large deployments.
+
+Containers vs. Virtual Machines
+	Containers and virtual machines are the two main approaches to virtualization. Each has its advantages and 
+	disadvantages, so it's essential to choose the right one for your needs.
+
+	Containers are lighter and more efficient than virtual machines, ideal for applications that don't need
+	an entire operating system. They're also easy to port between different servers, making them perfect for 
+	deployments where you need to scale quickly.
+
+	Virtual machines, on the other hand, offer more isolation and security since each one has its operating system.
+	This benefit makes them a better choice for applications that need to be highly secure or for situations 
+	where you need to run multiple operating systems on the same server.
+
+Docker Vs VM (Virtual Machine)
+	Virtual Machines								|	Docker Containers
+	-----------------------------------------------------------------------------------------------------------
+	Need more resources								|	Less resources are used
+	Process isolation is done at the hardware level	|	Process Isolation is done at Operating System-level
+	Separate Operating System for each VM			|	Operating System resources can be shared within Docker
+	VMs can be customized							|	Custom container setup is easy
+	Takes time to create a Virtual Machine			|	The creation of docker is very quick
+	Booting takes minutes							|	Booting is done within seconds.
+
+Docker
+	Docker can be defined as a Containerization platform that packs all your applications, and all the necessary 
+	dependencies combined to form containers. This will not only ensure the applications work seamlessly given any 
+	environment but also provides better efficiency to your Production-ready applications. Docker wraps up bits 
+	and pieces of software with all the needed filesystems containing everything that needs to run the code, 
+	provide the runtime, system tools/libraries. This will ensure that the software is always run and executed 
+	the same, regardless of the environment.
+
+What is the advantage of Docker over hypervisors?
+	Docker is lightweight and more efficient in terms of resource uses because it uses the host underlying kernel
+	rather than creating its own hypervisor.
+
+What is Docker's image?
+	They are executable packages(bundled with application code & dependencies, software packages, etc.) for the 
+	purpose of creating containers. Docker images can be deployed to any docker environment and the containers can 
+	be spun up there to run the application.
+
+	A Docker image can be understood as a template from which Docker containers can be created as many as we want
+	out of that single Docker image. Docker containers are created 	out of Docker images. Docker images are created 
+	with the build command, and this produces a container that 	starts when it is run. Docker images are stored 
+	in the Docker registry such as the public Docker registry 
+	(registry.hub.docker.com) as these are designed to be constituted with layers of other images, enabling just the 
+	minimal amount of data over the network.
+
+What is a DockerFile?
+	It is a text file that has all commands which need to be run for building a given image.
+
+	DOCKER FILE -> DOCKER IMAGE -> DOCKER CONTAINER
+
+Name and explain the various Docker components.
+	The three main Docker components are:
+
+	-Docker Client. Performs Docker build pull and run operations to open up communication with the Docker Host. 
+	The Docker command then employs Docker API to call any queries to run.
+
+	-Docker Host. Contains Docker daemon, containers, and associated images. The Docker daemon establishes a 
+	connection with the Registry. The stored images are the type of metadata dedicated to containerized applications.
+
+	-Registry. This is where Docker images are stored. There are two of them, a public registry and a private one. 
+	Docker Hub and Docker Cloud are two public registries available for use by anyone.
+
+What’s the difference between virtualization and containerization?
+	Virtualization is an abstract version of a physical machine, while containerization is the abstract version 
+	of an application.
+
+Docker container’s lifecycle.
+Although there are several different ways of describing the steps in a Docker container’s lifecycle, the following is the most common:
+
+	Create container
+	Run container
+	Pause container
+	Unpause container
+	Start container
+	Stop container
+	Restart container
+	Kill container
+	Destroy container
+
+Name the essential Docker commands and what they do.
+	The most critical Docker commands are:
+
+	Build. Builds a Docker image file
+	Commit. Creates a new image from container changes
+	Create. Creates a new container
+	Dockerd. Launches Docker daemon
+	Kill. Kills a container
+
+	Docker info. Displays system-wide information regarding the Docker installation
+	Docker pull. Downloads an image
+	Docker stats. Provides you with container information
+	Docker images. Lists downloaded images
+
+Can a container restart by itself?
+	Yes, it is possible only while using certain docker-defined policies while using the docker run command. Following are 
+	the available policies:
+
+	1. Off: In this, the container won’t be restarted in case it's stopped or it fails.
+	2. On-failure: Here, the container restarts by itself only when it experiences failures not associated with the user.
+	3. Unless-stopped: Using this policy, ensures that a container can restart only when the command is executed to stop it by the user.
+	4. Always: Irrespective of the failure or stopping, the container always gets restarted in this type of policy.
+
+----------------------------------------------------------------------------------------
+
+Hypervisor
+	A hypervisor is a software that allows us to construct and manage virtual machines. Hypervisors are often referred
+	to as virtual machine monitors (VMMs). A hypervisor allows a single host computer to handle numerous guest virtual
+	machines (VMs) by dividing resources such as memory and computation. When utilized as a hypervisor, the hardware is 
+	referred to as the host, and the multiple VMs that utilize its resources are referred to as guests.
+
+	The actual hardware is divided throughout the virtualization process such that each division functions as a distinct,
+	independent virtual computer. Here is when the hypervisor comes into play. The hypervisor controls the scheduling of 
+	the resources assigned to each virtual machine concerning the physical resources. It also distributes the resources 
+	to each virtual machine.
+
+Types of Hypervisor
+	a.Type1 or Native or Baremetal
+	b.Type2 or Hosted or 
+
+	a. Native - Type 1 hypervisors run on physical hosts. Because of this, it is sometimes referred to as a bare metal hypervisor.
+		A Type 1 hypervisor is often installed on a physical host first, so it behaves much like the host's operating system. 
+		This hypervisor is commonly seen in business data centers and other server-based systems.
+
+		A Type 1 hypervisor thus has full access to the resources of the actual physical host, such as the CPU, 
+		storage spaces, and network interface. Type 1 hypervisor functions similarly to a minimal operating system 
+		running entirely on the host's hardware.
+
+		Pros: Such kinds of hypervisors are very efficient because they have direct access to the physical 
+		hardware resources(like Cpu, Memory, Network, and Physical storage). This causes the empowerment of 
+		the security because there is nothing any kind of the third party resource so that attacker couldn’t 
+		compromise with anything. 
+
+		Cons: One problem with Type-1 hypervisors is that they usually need a dedicated separate machine to perform their 
+		operation and to instruct different VMs and control the host hardware resources.
+
+
+
+	b. Hosted - Such kind of hypervisors doesn’t run directly over the underlying hardware rather they run as an application in 
+		a Host system(physical machine). Basically, the software is installed on an operating system. Hypervisor asks the 
+		operating system to make hardware calls. An example of a Type 2 hypervisor includes VMware Player or Parallels Desktop.
+		Hosted hypervisors are often found on endpoints like PCs.  The type-2 hypervisor is very useful for engineers, 
+		and security analysts (for checking malware, or malicious source code and newly developed applications).
+
+		Pros: Such kind of hypervisors allows quick and easy access to a guest Operating System alongside the host machine running. 
+		These hypervisors usually come with additional useful features for guest machines. Such tools enhance the coordination 
+		between the host machine and the guest machine.
+
+		Cons: Here there is no direct access to the physical hardware resources so the efficiency of these hypervisors lags 
+		in performance as compared to the type-1 hypervisors, and potential security risks are also there an attacker 
+		can compromise the security weakness if there is access to the host operating system so he can also access the 
+		guest operating system.
+
+Pros of hypervisor
+	Quickness
+	In contrast to bare-metal servers, hypervisors enable the immediate creation of virtual computers. 
+	This significantly simplifies the supply of resources for complicated workloads.
+
+	Efficient
+	Utilizing a single hardware server more efficiently is frequently made possible by hypervisors that
+	run several virtual machines on its resources.
+
+	Portable
+	Hypervisors enable various operating systems to run on identical servers. They are portable because their
+	virtual computers are separate from the real machine.
+
+	Server Consolidation
+	Graphical dashboards are also implemented into hypervisors. We can optionally download extra improvements
+	to make the built-in dashboards more visible. This feature enables us to consolidate and control our servers 
+	centrally, even if they run various operating systems.
+
+	Being Adaptable
+	Because the hypervisor separates the operating system from the actual hardware, the program never again 
+	relies on specific hardware units or adapters. Bare-metal hypervisors allow operating systems and 
+	applications to run on various hardware types.
+
+	Replication of Data
+	Clone and replication operations may be carried out quickly using hypervisors. Hypervisor-based replication
+	is faster and less expensive than any other technique of virtual machine replication. We can save storage 
+	space by selecting the VMs and sections to be duplicated with hypervisor-based replication. Furthermore, 
+	hypervisor-based replication is hardware-independent, allowing us to store data copies on any storage medium easily.
+
+Cons of hypervisor
+	An External Administration Interface is Required
+	An external administration interface is used to administer hypervisors. Consequently, setting up a hypervisor 
+	will require a different system or computer.
+
+	Less Safe
+	The existence of a host operating system expands the system's attack surface. This implies that hackers have 
+	additional vulnerabilities to attack. Hypervisors, although resilient, might be a simple target for cyberattacks.
+	Vulnerability grows as a result of the centralized system.
+
+	Less Dependable
+	Any difficulties with the host OS's performance and availability would undoubtedly influence the hypervisor 
+	and the virtual machines that operate over it.
+
+	Access to Host Resources Decreased
+	The number of resources a hypervisor may access is constrained since it shares CPU, storage spaces and other 
+	components of the underlying infrastructure with the host OS.
+
+	Inability
+	The hypervisor does not support operating virtual machines on personal PCs. Several virtualization solutions 
+	are available that don't need hypervisors as an alternative.
+	
+
+
+
+
+
+
+
+
