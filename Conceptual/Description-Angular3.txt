@@ -549,7 +549,7 @@ Creation of Promise
 -------------------------------------------------------------------------
 Observable vs Promise 
 
-An Observable is an object that represents a stream of data that can be subscribed to, allowing multiple 
+- An Observable is an object that represents a stream of data that can be subscribed to, allowing multiple 
 values to be emitted over time. 
 Observables provide methods for subscribing to the stream and handling its emissions. 
 On the other hand, Operators are functions that can be used to transform, filter, or combine data streams produced by Observables.
@@ -560,13 +560,13 @@ failure and can only return a single value.
 Once a Promise is resolved or rejected, its state cannot be changed.
 Promises are used in Angular for handling HTTP requests and other asynchronous operations.
 
-Observable also has the advantage over Promise to be cancellable. 
+- Observable also has the advantage over Promise to be cancellable. 
 If the result of an HTTP request to a server or some other expensive async operation isn't needed anymore,
 the Subscription of an Observable allows you to cancel the subscription, 
 while a Promise will eventually call the success or failed callback even when
 you don't need the notification or the result it provides anymore.
 
-While a Promise starts immediately, an Observable only starts if you subscribe to it. This is why Observables are called lazy.
+- While a Promise starts immediately, an Observable only starts if you subscribe to it. This is why Observables are called lazy.
 
 -------------------------------------------------------------------------
 
@@ -638,6 +638,101 @@ Respect to Observable
     And when it comes to Subject and Observable is that a Subject has state, it keeps a list of observers. 
     On the other hand, an observable is just a function that sets up observation.
 
+
+-------------------------------------------------------------------------
+
+Subject vs Replay Subject vs Behaviour
+
+Subject 
+
+    A subject is like a turbocharged observable. It can almost be thought of an event message pump in that everytime a
+    value is emitted, all subscribers receive the same value. 
+    The same analogy can be used when thinking about “late subscribers”. A Subject does not have a memory, 
+    therefore when a subscriber joins, it only receives the messages from that point on (It doesn’t get backdated values).
+
+    Example -
+
+    Code
+
+        let mySubject = new Subject<number>();
+
+        mySubject.subscribe(x => console.log("First Subscription : " + x));
+
+        mySubject.next(1);
+        mySubject.next(2);
+        mySubject.next(3);
+
+        mySubject.subscribe(x => console.log("Second Subscription : " + x));
+
+        mySubject.next(4);
+
+    Output
+
+        First Subscription : 1
+        First Subscription : 2
+        First Subscription : 3
+        First Subscription : 4
+        Second Subscription : 4
+
+Replay Subject
+
+    In Subject it will hold the data from when it is instantiated. But with Replay Subject it can hold all the previous data.
+
+    Code
+
+        let mySubject = new ReplaySubject<number>();
+
+        mySubject.subscribe(x => console.log("First Subscription : " + x));
+
+        mySubject.next(1);
+        mySubject.next(2);
+        mySubject.next(3);
+
+        mySubject.subscribe(x => console.log("Second Subscription : " + x));
+
+        mySubject.next(4);
+
+    Output
+        
+        First Subscription : 1
+        First Subscription : 2
+        First Subscription : 3
+        Second Subscription : 1
+        Second Subscription : 2
+        Second Subscription : 3
+        First Subscription : 4
+        Second Subscription : 4
+
+Behaviour Subject
+    
+    A BehaviorSubject can sometimes be thought of a type of ReplaySubject, but with additional functionality
+    (Or limitations depending on how you look at it).
+
+    If you think of a BehaviorSubject as simply being a ReplaySubject with a buffersize of 1 (That is, they will 
+    only replay the last value), then you’re half way there to understanding BehaviorSubjects. The one large caveat 
+    is that BehaviourSubjects *require* an initial value to be emitted.
+
+    Code
+
+        let mySubject = new BehaviorSubject<number>(1);
+
+        mySubject.subscribe(x => console.log("First Subscription : " + x));
+
+        mySubject.next(2);
+        mySubject.next(3);
+
+        mySubject.subscribe(x => console.log("Second Subscription : " + x));
+
+        mySubject.next(4);
+
+    Output
+
+        First Subscription : 1
+        First Subscription : 2
+        First Subscription : 3
+        Second Subscription : 3
+        First Subscription : 4
+        Second Subscription : 4
 
 -------------------------------------------------------------------------
 

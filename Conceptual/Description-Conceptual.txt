@@ -117,18 +117,19 @@ public class GFG {
 
 ------------------------------------------------------------------------------------------------------
 
-Extension Methods vs Static Methods
+Extension Methods vs Static Methods (Diff based upon usage both as used to create utility methods)
 
 Extension methods are modified static methods.
 
 We use extension methods when we want to add utility methods to existing types, especially if 
 we don't have access to modify the original type's source code. They're particularly useful for 
 enhancing readability and providing syntactic sugar.
+Usage - Add utility methods to existing type for types which we dont want to modify or extend.
 
 We use static methods when you want to provide utility functions that don't need any state or 
 behavior from an instance. Static methods are also used for factory methods or other functionalities 
 that don't involve instance-specific behavior.
-
+Usage - Add utility methods when we dont want need any state or instance behavior (object).
 ------------------------------------------------------------------------------------------------------
 
 
@@ -228,6 +229,13 @@ Var vs Dynamic
 
  ------------------------------------------------------------------------------------------------------
 
+ Const vs Readonly
+
+ Const - for unchangable value added at compile time.
+ Readonly - for unchangable value added at run time.
+ 
+ ------------------------------------------------------------------------------------------------------
+
  C# value type vs reference type
 
  Value type - A data type which holds a data value within its own memory space. That is they directly contains value. 
@@ -275,7 +283,7 @@ Var vs Dynamic
  2) Now for objects say 
  Object obj1 = new Object();
  obj1.Name = "ABC;
- Here obj1 reference are stored in stack and the values i.e obj1.Name is stored in heap.
+ That is obj1 is stored on heap (with memory reference) and its memory reference original value is stored in stack.
  
  In stack data has to be pushed/removed from top only 
  but in heap data can be pushed or removed in any order.
@@ -353,8 +361,8 @@ Var vs Dynamic
 
 	}
 
-	This will tell the flow not to call the destructor and the unmanaged code will be handled. With this message GC will claim the unreferenced
-	managed objects as without waiting for the Destructor.
+	This will tell the flow not to prioritize call the destructor call (first) and the unreferenced managed code will be handled (as the normal flow). 
+	With this message GC will claim the unreferenced managed objects as without waiting for the Destructor.
 
 	******************************************
 	Here we have an important Concept - Why do use "using" statement for using unmanaged code such as network connections?
@@ -894,6 +902,29 @@ Thread.Sleep():
 
 ---------------------------------------------------------------------------------
 
+Task.WaitAll() vs Task.WhenAll() [Ref : https://www.c-sharpcorner.com/article/understanding-task-waitall-and-task-whenall-in-c-sharp/]
+
+Tasks in C# represent asynchronous operations. They provide a way to perform work on a separate thread and then continue 
+the execution once the task is completed. Tasks can be parallelized, making them ideal for scenarios where multiple
+operations can occur simultaneously, enhancing the overall performance of the application.
+
+	*Task.WaitAll: Waiting for All Tasks to Complete 
+	(Thread stops till all the tasks gets completed and task reference is returned)
+	
+	Task.WaitAll is a synchronous method that blocks the current thread until all the provided tasks have completed execution.
+	It's useful when you have multiple tasks that need to finish before proceeding further in your code. The method takes an 
+	array of tasks as a parameter and waits for all of them to finish before allowing the program to continue.
+
+	*Task.WhenAll: Awaiting All Tasks Concurrently 
+	(Thread continues to work, once all the tasks (working in background) get completed the task reference is returned)
+
+	Task.WhenAll is an asynchronous method that returns a task that completes when all the provided tasks have completed execution.
+	Unlike Task.WaitAll, it doesn't block the calling thread, allowing for a non-blocking and more responsive application.
+	It's especially useful in asynchronous environments such as UI applications.
+
+
+---------------------------------------------------------------------------------
+
 Brief of .net background process
 
 	Background task are those which run in the background without interfaring the primary process. They run as hosted service
@@ -1095,7 +1126,7 @@ Create a project and create the MsTestCase project
 			//Here we have IEmployee interface for the service
 			//Using Mock we will create employee repo instance to be 
 			//passed to the controller which we want to test.
-			//Step 1 : Use new Mock<Interface> - To Activate
+			//Step 1 : Use new Mock<ServiceClassInterface> - To Activate
 			//Step 2 : Use Setup() - To setup the method
 			//Step 3 : Assert - Use asset to verify
 		

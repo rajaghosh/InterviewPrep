@@ -377,6 +377,136 @@ Binding/Model Binding in .net Core
 
 -------------------------------------------------------------------------------------------------------
 
+What is Kubernetes? Why it is called K8S?
+
+    Kubernetes is an open-source container orchestration platform. It automates the deployment, scaling and management of contrainerized
+    application. Kubernetes is the enhanced version of BORG (Google deployment platform). In 2014, Google open-sourced it. 
+    
+    Why K8S -> KUBERNETES -> K ->UBERNETES (8Character) -> 8 
+
+    Kubernetes Parts 
+
+    Kubernetes Clusters -> Control Plane -> Set of Worker Nodes 
+
+    Kubernetes Clusters -> A kubernetes cluster is a set of machines called nodes that are used to run containerized app.
+    Two core pieces of K8S clusters.
+
+    1. Control Plane - Responsible for managing state of cluster. In prod the control panel usually runs on multiple nodes that span across
+    several data center zones.
+    2. Set of Worker nodes - These nodes run the containerized application workloads. Containers run on a Pod. Pods are the smallest 
+    deployable units of Kubernetes. They hosts one or more containers and provide shared storage and networking for those containers.
+    Pods are created and managed by K8s control plane. They are basic building block of K8s application.
+
+    ______________________________________________________________________
+    |                                                                     |
+    |   CLUSTER                                                           |
+    |                                                                     |
+    |   ---------------------               ---------------------         |
+    |   |                   |               |                   |         |
+    |   |   CONTROL PLANE   |               |   NODE 2          |         |
+    |   |                   |               |                   |         |
+    |   ---------------------               ---------------------         |
+    |                                                                     |
+    |                                                                     |
+    |   ---------------------------------                                 |
+    |   |                               |                                 |
+    |   |   NODE 1                      |                                 |
+    |   |   ________________________    |                                 |
+    |   |   |   POD                 |   |                                 |
+    |   |   |   _________________   |   |                                 |
+    |   |   |   |               |   |   |                                 |
+    |   |   |   | CONTAINER     |   |   |                                 |
+    |   |   |   |_______________|   |   |                                 |
+    |   |   |_______________________|   |                                 |
+    |   |_______________________________|                                 |
+    |_____________________________________________________________________|
+    
+    Control Plane
+
+    The control plane has 4 core components
+    a. API Server
+    b. etdc
+    c. Schedular
+    d. Controller Manager
+
+    a. API Server - It is the primary interface between the control plane and the rest of the cluster. It exposes a RESTful API that allows
+    client to interact with the control plane and submit req to manage clusters.
+    b. etcd - It is adistributed key-value store. It stores cluster's persistant state. It is used by API server and other components of the 
+    control plane to store and retrieve information about the cluster.
+    c. Schedular - It is responsible for scheduling pods onto worker nodes in the cluster. It uses info about the resources required by the 
+    pods and the available resources on the worker nodes to make placement decisions of POD inside nodes.
+    d. Controller Manager - Responsible for running controllers that manage the state of cluster.
+        Ex - Replicationn Controller - It ensures that the desired no. of replicas of a pod are running
+        Deployment Controller - It manages the rolling update and rollback of deployments
+
+    Worker Nodes
+    The worker nodes has 3 components
+    a. Kubelet - Daemon that runs on each worker node. It is responsible for communicating with control plane. It receives instructions from the
+    control plane and about which pods to run on the node and ensures that the desired state of the pod is maintained.
+    b. Container Runtime - It runs the containers on the worker nodes. It is responsible fro pulling the container images from a registry. 
+    Starting and stopping of containers, and managing the container's resources.
+    c. Kube proxy - It is a network proxy that rins on each worker node. It is responsible for routing traffic to the correct pods. It also 
+    provides load balancing for the pods and ensure that the traffic is distributed evenly across the pods.
+
+    Advantage of K8s
+    1. It is scalable and highly available.
+    2. It provide features like self-healing, automatic rollbacks, and horizontal scaling.
+    3. It is portable. It runs on-premise, in a public cloud, or in hybrid env.
+
+    Cons of K8s
+    1. Highly complex to maintain + deploy.
+    2. Upfront cost is high to setup.
+
+    Managed K8s service
+    1. It is a cost saving mechanism.
+    2. We can offload (from on-prem K8s) the control plane to a managed K8s service.
+    3. Managed K8s service are provided by cloud provider like Azure
+
+
+
+---------------------------------------------------------------------------------------------------
+
+SOLID PRINCIPLE IMPLEMENTATION EXAMPLE
+
+1. Single responsiblity principle - Creating dedicated Interface and implementation as per the entity. Example the operation related to 
+department must be seperated to that of employee. That is we must have IEmployee and IDepartment with dedicated method signatures.
+
+2. Open-Closed Principle - As the interface can be extended by the service class. Any new changes to done has to be done in the implementing 
+service. This is because if we do some changes by adding a new signature in the interface for adding a new method in the service class, then
+case if any other service class has implemented all the existing signature has to implement that new signature unnecessarily. So in situations
+where we might come across where we need to add any overloaded method to the service class which has all the implemented interface signature.
+Here the business use case is - All the interface method signatures have been implemented in service class + in that service class need to have
+an overloaded method whose signature is not present in interface. Solution is to add a new class which will inherit the service class and 
+add the overloaded method in this new class. 
+
+3.
+
+
+---------------------------------------------------------------------------------------------------
+
+SOLID Principles with example
+MVC questions
+ASP .net questions
+
+SQL server related question + Queries
+RTO + RFO (terms of cloud)
+
+Yield keyword details
+
+---------------------------------------------------------------------------------------------------
+
+
+
+Microservice -
+1. What is choreography
+2. What is orchestration
+3. Which is better choreography or orchestration? When to use what?
+
+---------------------------------------------------------------------------------------------------
+
+Programming 
+1. Dictionary
+2. 3rd highest salary using linq + SQL
 
 
 

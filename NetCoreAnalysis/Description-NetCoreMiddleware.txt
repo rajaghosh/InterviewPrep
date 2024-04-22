@@ -32,7 +32,7 @@ Generally order of Middleware is
 
 ----------------------------------------------------------------------------------------------------
 
-App.Run() -
+App.Run() - (Also called terminal middleware)
 	To execute a basic middleware, from the Configure() we have an instance of "IApplicationBuilder" as app.
 	so, we have a method app.Run() - this will execute any incoming request.
 
@@ -50,7 +50,7 @@ App.Run() -
 
 	Run() is an extension method
 
-App.Use() -
+App.Use() - (Used for middleware chaining)
 	ex:
 
 		app.Use(async(context, next) => {
@@ -72,7 +72,7 @@ App.Use() -
 		2-In app.Run
 		3-After Request
 
-	So we can find middleware chaining here.
+	So we can find "middleware chaining" here.
 	Note - Here next() and next.Invoke() and next(context) and next.Invoke(context) are same.
 
 	So we can think of 1st middleware is adding to next middleware. 
@@ -85,7 +85,7 @@ Definition for Interview purpose -
 Q. What is a request delegate?
 Request delegate is a delegate which handles httprequest and is used to build the request pipeline. 
 So a httpRequest is coming inside the configure() and then it is visiting
-middleware1 -> middleware2 -> last middleware and response -> middleware2 -> middleware1a
+middleware1 -> middleware2 -> last middleware and response -> middleware2 -> middleware1
 This flow forms the request pipeline.
 
 Ex - The Run method is an extension method on IApplicationBuilder and accepts a parameter of RequestDelegate. 
@@ -455,7 +455,7 @@ Ex - For any service which will be invoked multiple times for different purposes
 
 
 ------------------------------------------------------------------------------------------------------------------------
-CORS Website whitelisting
+CORS Website whitelisting (CORS work at browser level i.e no restriction from POSTMAN but we get restriction when calling from service or browser)
 
 Services.AddCors() use AddPolicy() delegate.
 

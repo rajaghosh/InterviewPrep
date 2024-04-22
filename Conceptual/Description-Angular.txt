@@ -25,6 +25,101 @@ The main.ts file bootstraps the angular application by passing the AppModule as 
 there is AppComponent and angular now analyzes the AppComponent, reads the setup we pass here and therefore knows this selector 
 app-root and now angular is able to handle app-root in the index.html file.
 
+Angular app work behind the scene -> Angular Flow / How Angular application loads in the browser / Angular bootstrapping process
+
+By flow, we mean how the files are called and in which sequence of files the app gets executed when we are running the application. 
+
+Files we need to understand
+
+1. Angular.Json
+
+It contains various properties and configurations.
+Demo structure
+
+        "options":{  
+            ......
+            "outputPath":"dist/hello-world",
+            "index":"src/index.html",
+            "main":"src/main.ts",  // THIS LINE
+            ......
+            ......
+            "polyfills":"src/polyfills.ts",
+            "tsConfig":"src/tsconfig.app.json",
+            "assets":[  
+               "src/favicon.ico",
+               "src/assets"
+             ],
+            "styles":[  
+               "node_modules/bootstrap/dist/css/bootstrap.min.css",
+               "src/styles.css"
+             ],
+            "scripts":[],
+            "es5BrowserSupport":true
+        }
+
+This is the first file that is referenced by angular builder to look for all the paths and configurations 
+and to check the main file. The main file indicates the builder to start the application from there.
+
+2. Main.ts - Bootstrapping starts here
+
+The main.ts acts as the entry point to the application. Main.ts helps in creating the browser environment
+for the application to run. This is done by:
+
+import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
+
+After this, main.ts file call the function bootstrapModule(AppModule) which tells the builder to
+bootstrap the app.
+
+platformBrowserDynamic().bootstrapModule(AppModule)
+
+3. App.Module.ts 
+
+We are bootstrapping the application with AppModule. AppModule is defined in Module.ts.
+
+This is the module, created with the @NgModule decorator, which has declaration of all the components we are creating 
+within the app module so angular is aware of them. Here we also have other modules to be used in the app.
+
+Sample :
+
+        import { BrowserModule } from '@angular/platform-browser';
+        import { NgModule } from '@angular/core';
+        import { FormsModule } from '@angular/forms';
+        import { AppComponent } from './app.component';
+        import { TestComponent } from './test/test.component';
+        @NgModule({
+           declarations: [
+              AppComponent,
+              TestComponent
+           ],
+           imports: [
+              BrowserModule,
+              FormsModule
+           ],
+           providers: [],
+           bootstrap: [AppComponent]
+        })
+        export class AppModule { }
+
+4. App.Components.ts + App.Component.html
+
+From App.Module.ts file the module asks to bootstrap the AppComponent.
+The AppComponent is in App.Component.ts file. This is the file which interacts with the html of the webpage and serves it with data.
+The component is made using @component decorator imported from '@angular/core'.
+
+The component has selector or custom tag to call the component. The initial selector is <app-root>
+It then has template or templateUrl which has html page. It also has styleUrls.
+
+Now Angular has all the info to be rendered.
+
+5. Index.html
+
+In the index.html file we can the selector to load the content of the component.
+
+
+Summary :
+
+Angular.json -> Main.ts -> App.Module.ts -> App.Component -> Index.html
+
 -------------------------------------------------------------------------------------------------------------------------------
 
 Subject vs Behaviour Subject

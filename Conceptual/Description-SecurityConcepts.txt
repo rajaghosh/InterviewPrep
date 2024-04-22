@@ -169,38 +169,38 @@ OAuth 2.0 (Important for SSO)
 
 	AUTH2.0 + JWT helps in implementation of SSO.
 	
-		* APP is the UI with which USER interact
-		* IDENTITY SERVER is the server which does the authentication/authorization
-		* RESOURCE SERVER is the server to which we send any kind of token to get some resource/data or perform some CRUD operations on.
+	* APP is the UI with which USER interact
+	* IDENTITY SERVER is the server which does the authentication/authorization
+	* RESOURCE SERVER is the server to which we send any kind of token to get some resource/data or perform some CRUD operations on.
 
-		1. Authorization Code Flow (Mostly used + also recommended for SSO) - 
-			a. Here from USER clicks on LOGIN on APP 
-				-> From APP an app authorization code is sent to the IDENTITY SERVER to authorize
-				-> on Authorization control return to APP for USER login data
-				-> APP shows login screen to get user credentials
-			b. Here USER enters credentials and sent to IDENTITY SERVER (via APP).
-				-> IDENTITY SERVER on authentication returns user authorization code to APP.
-			c. Now again from APP user authorizaation code is sent to IDENTITY SERVER to generate the access token (genrally in JWT format)
-				-> access token returns to APP
-			d. APP uses the access token to get data from RESOURCE SERVER
-				-> Get response from RESOURCE SERVER
+	1. Authorization Code Flow (Mostly used + also recommended for SSO) - 
+		a. Here from USER clicks on LOGIN on APP 
+			-> From APP an app authorization code is sent to the IDENTITY SERVER to authorize
+			-> on Authorization control return to APP for USER login data
+			-> APP shows login screen to get user credentials
+		b. Here USER enters credentials and sent to IDENTITY SERVER (via APP).
+			-> IDENTITY SERVER on authentication returns user authorization code to APP.
+		c. Now again from APP user authorizaation code is sent to IDENTITY SERVER to generate the access token (genrally in JWT format)
+			-> access token returns to APP
+		d. APP uses the access token to get data from RESOURCE SERVER
+			-> Get response from RESOURCE SERVER
 
-		2. Client Credential Flow -
-			a. Here APP sends client_id, client_secret, scope to AUTHORIZATION SERVER.
-				-> AUTHORIZATIO SERVER generates token and send to APP
-			b. APP uses the token to get data from RESOURCE SERVER
+	2. Client Credential Flow -
+		a. Here APP sends client_id, client_secret, scope to AUTHORIZATION SERVER.
+			-> AUTHORIZATIO SERVER generates token and send to APP
+		b. APP uses the token to get data from RESOURCE SERVER
 
-		3. Resource Owner Password Flow -
-			* - Here from USER submits credentials (userId, password) to APP
-			<SAME AS Client Credential Flow..... >
-			a. Here APP sends client_id, client_secret, scope + user credential to AUTHORIZATION SERVER.
-				-> AUTHORIZATIO SERVER generates token and send to APP
-			b. APP uses the token to get data from RESOURCE SERVER
+	3. Resource Owner Password Flow -
+		* - Here from USER submits credentials (userId, password) to APP
+		<SAME AS Client Credential Flow..... >
+		a. Here APP sends client_id, client_secret, scope + user credential to AUTHORIZATION SERVER.
+			-> AUTHORIZATIO SERVER generates token and send to APP
+		b. APP uses the token to get data from RESOURCE SERVER
 	
-		4. Implicit Flow (Least secure approach) - 
-			a. USER login to APP and authentication details sent to AUTHORIZATION SERVER.
-				-> post authentication details validation token sent to APP
-				-> APP uses the token to communicate with the RESOURCE SERVER
+	4. Implicit Flow (Least secure approach) - 
+		a. USER login to APP and authentication details sent to AUTHORIZATION SERVER.
+			-> post authentication details validation token sent to APP
+			-> APP uses the token to communicate with the RESOURCE SERVER
 
 ----------------------------------------------------------------------------------------
 
