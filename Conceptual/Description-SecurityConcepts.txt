@@ -121,6 +121,8 @@ JWT claims (details)
 
 	Note - Custom claims be at most 100KB 
 
+----------------------------------------------------------------------------------------
+
 Access Token vs Refresh Token
 An access token is a digital token to provide access for communication between parties. Now thay have an expiry. So after 
 expiry they have to be re-generated again by re-authenticating. It encourages repeated logins. Generally used for short-sessions.
@@ -134,6 +136,8 @@ OAuth 2.0 (Important for SSO)
 	OAuth2.0 is the industry-standard protocol for authorization. It is a safe way to let website access data from server
 	from application without sharing password.
 	It is designed to allow 3rd party application to access protected resources on behalf of a user.
+
+	Usecase - Login to Facebook just by using the Google account userid. Here we do not need to pass password.
 
 	Basic overview -
 	The server asks the user to login to their account. User enters credentials on success the authorization server generates

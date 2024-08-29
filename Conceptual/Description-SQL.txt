@@ -7,8 +7,8 @@ Max Non-Clustered Index per table - 999
 
 
 
-Table variable is a type of local variable that used to store data temporarily, similar to the temp table in SQL Server. Tempdb database is used to store table variables.
-
+Table variable is a type of local variable that used to store data temporarily, similar to the temp table in SQL Server. 
+Tempdb database is used to store table variables.
 
 In SQL Server, both table variables and temporary tables are used to store and manipulate temporary data within a session or a scope. However, they have some differences in terms of usage, behavior, and performance characteristics. Here's a comparison between table variables and temporary tables:
 

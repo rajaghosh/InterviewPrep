@@ -1,0 +1,509 @@
+﻿1. JWT process explaination
+------------------------------------------------------------------
+
+Abstract vs Interface C#
+
+In C#, both abstract classes and interfaces are used to define contracts for classes that implement them,
+but they have different characteristics and use cases. Here are the key differences between abstract classes
+and interfaces in C#:
+
+Abstract Class:
+
+    - Definition: An abstract class is a class that cannot be instantiated on its own and is typically used as a base 
+    class for other classes.
+    It can contain a mix of abstract (unimplemented) and concrete (implemented) methods and properties. 
+    Abstract methods are declared using the abstract keyword and must be implemented by derived classes.
+
+    - Inheritance: A class can inherit from only one abstract class. 
+
+    - Access Modifiers: Abstract classes can have access modifiers like public, protected, or internal for their members, 
+    allowing you to control the visibility of members to other classes.
+    
+    - Constructors: Abstract classes can have constructors, and constructors in abstract classes are called when an instance
+    of a derived class is created.
+    
+    - Common Use Cases: 
+    a. Use abstract classes when you want to provide a common base with some default implementation 
+    to derived classes. 
+    b. Use abstract classes when you need to enforce a certain structure or behavior among derived classes.
+
+
+    public abstract class Shape
+    {
+        public abstract double CalculateArea();
+        public void Display()
+        {
+            Console.WriteLine("This is a shape.");
+        }
+    }
+
+Interface:
+
+    - Definition: It is a contract. An interface defines a contract by specifying a set of method and property signatures 
+    without any implementation details. It is used to define a common set of methods that multiple classes can implement.
+
+    - Inheritance: A class can implement multiple interfaces, allowing for multiple interface inheritance.
+
+    - Access Modifiers: Interface members are implicitly public, and you cannot specify access modifiers for them. 
+
+    - Constructors: Interfaces cannot have constructors because they do not define concrete implementations.
+
+    - Common Use Cases:
+    a. Use interfaces when you want to ensure that multiple classes adhere to a specific contract or have a consistent set of methods.
+    b. Use interfaces when you need to enable classes to implement multiple contracts (achieve multiple inheritance of contracts).
+
+------------------------------------------------------------------
+
+ABSTRACT KEYWORD
+
+The abstract keyword is used for classes and methods:
+    1. Abstract class: is a restricted class that cannot be used to create objects (to access it, it must be inherited
+        from another class).
+    2. Abstract method: can only be used in an abstract class, and it does not have a body. The body is provided by the 
+        derived class (inherited from).
+
+------------------------------------------------------------------
+
+Virtual Override Important Concept
+    1. Base class - Use virtual keyword with method in base -> virtual Method1();
+       Derived Class - Use override keyword with the same method -> override Method1();
+       Result - 
+       class A { virtual Method1()}
+       class B:A { override Method1()}
+       class C:B { override Method1()}
+       
+       A objA = new A(); -> Call A
+       B objB = new B(); -> Call B
+       C objC = new C(); -> Call C
+
+       A objAB = new B();-> Call B
+       A objAC = new C();-> Call C
+
+    2. Base class - Use virtual keyword with method in base -> virtual Method1();
+       Derived Class - Use new keyword with the same method -> new Method1();
+
+       Note: with "override" we cant use "new" or "virtual". When ever we find "new" the existing flow gets cut and new flow comes.
+
+       Result - 
+       class A { virtual Method1()}
+       class B :A { new Method1()}
+       //class C:B { override Method1()} //Not allowed as flow is broken in class B with no virtual keyword
+
+       A objA = new A(); -> Call A
+       B objB = new B(); -> Call B
+       A objAB = new B();-> Call A
+
+       ----------------------------------------------------
+       class A { virtual Method1()}
+       class B :A { new virtual Method1()}
+       class C :B { override Method1()} //Allowed 
+
+       A objA = new A(); -> Call A
+       B objB = new B(); -> Call B
+
+       A objAB = new B();-> Call A
+       A objAC = new C();-> Call A
+
+       B objBC = new C();-> Call C
+
+
+    Abstract Class Important Concept
+
+    With abstract method the derived class method can't use base keyword
+
+    1. abstract class A
+        {
+            public abstract void A();
+            public virtual void B(){
+                //Some work;
+            }
+        }
+        class B:A
+        {
+            override void A(){
+                //base.A(); //Not allowed
+                //Some work
+            }
+        
+            override void B(){
+                base.B(); //Allowed
+                //Some work
+            }
+        
+        }
+
+        Note - Base referes to the parent's method. And has to be used either with constructor or method.
+
+
+------------------------------------------------------------------
+
+   DEPENDENCY INVERSION PRINCIPLE (DIP) - It is a principle which states how can we decouple 2 dependent classes.
+   Between 2 classes One will be calling other class. That is CALLER CLASS and CALLED CLASS.
+   Now as such there will be coupling between these two classes. That is huge dependency.
+   If the CALLED CLASS gets changed then we might have to modify the CALLING CLASS or
+   If some blocking happens in CALLED CLASS this will impact the CALLING CLASS too. 
+   So to remove this dependency we need to decouple (with very limited dependency).
+   This is called the DEPENDENCY INVERSION PRINCIPLE. To be precise:
+   1. High-level modules should not depend on low-level modules.Both should depend on the abstraction.
+   2. Abstractions should not depend on details. Details should depend on abstractions.
+
+
+   INVERSION OF CONTROL (IOC) - Control inverted from Caller to Called to Called to Caller.
+   Once the decoupling happens then how we are going to connect these classes making them loosely coupled.
+   So to reduce the dependency we would try to invert the dependency flow or control of the flow
+   from "CALLER -> CALLED" to "CALLED -> CALLER". So now the CALLED CLASS will determine how the flow should be.
+   And the CALLER CLASS do not need to know about the flow.
+
+   DEPENDENCY INJECTION - Implementation
+   As we will be inverting the control we somehow need to hook the CALLED CLASS to the CALLER CLASS. This hooking
+   will be done by DEPENDENCY INJECTION. That is creating an abstract class point in the CALLER CLASS which will be invoked
+   only when needed. As it is an abstract class so the CALLER CLASS do not need to have any knowledge of the CALLED CLASS.
+   But this is forms a dependency so we call it DEPENDENCY INJECTION or a Dependency is hooked.
+
+   Dependency injection is the most popular method of implementing IOC. There are mainly three types of dependency injection:
+   - Property Injection
+   - Constructor Injection
+   - Method Injection
+
+   Advantage
+   1. Decoupling of the classes
+   2. Plug and play approach
+   
+-------------------------------------------------------------
+
+Singleton Class Vs Static Class
+
+In both we create one global object. But why we need both of them.
+Let us understand.
+
+1. Singleton is a design pattern and it restricts the instantiation of the class to one "single" instance. That is one object will be used 
+        throughout the project.
+   Static class cannot be instantiated. To use its members we directly use <ClassName>.<member>. Throughout the project for a static class
+         a single unit can be assigned to values and utilized.
+
+2. Static classes can be used when we need to implement some kind of utility classes that do not need many modifications, classes such 
+        as extension, helper, constant, etc. As Static classes don’t allow instantiation, there will be no duplicate objects, avoiding extra
+        usage of memory.
+   Singleton classes can be used when only one instance of a particular class needs to be created, and then a simple global access
+        to that instance is going to be provided for the entire application, for example when you have some service proxies, a Logger 
+        class, caching, database connections, etc.
+
+3. A Singleton class supports interface implementation, while static classes cannot implement interfaces.
+
+4. A Singleton class supports inheritance, while a Static class is a sealed class, and therefore cannot be inherited. Static class can be 
+        thought as abstract + sealed.
+
+5. Both Singleton and static are stored on the Heap memory, but static classes are stored in a special area of the Heap Memory called 
+    the High-Frequency Heap (Objects in High Frequency Heap are not garbage collected by GC, and hence static members are available 
+    throughout the application lifetime).
+
+6. Singleton class instance can be passed as parameter whereas we cant static class value as parameter.
+
+-------------------------------------------------------------
+
+Thread VS Task
+
+In C#, both threads and tasks are used for concurrent and parallel programming, but they have different characteristics and use cases:
+
+Thread:
+    - Threads are the smallest unit of execution in a program, managed by the operating system.
+    - Creating and managing threads can be more complex and lower-level compared to tasks.
+    - Threads are typically used for low-level synchronization and when you need fine-grained control over execution.
+    - They have a higher overhead in terms of system resources, so creating many threads can be less efficient.
+
+Task:
+    - Tasks are a higher-level abstraction introduced in the Task Parallel Library (TPL) in C#.
+    - They are built on top of the ThreadPool and are managed by the TPL, making it easier to work 
+      with asynchronous and parallel code.
+    - Tasks are typically used for asynchronous programming and parallelism when you want to offload work to 
+      a background thread without managing threads explicitly.
+    - They provide better performance and resource management compared to creating threads manually.
+
+
+NOTE - 
+TPL - Task Parallel Library (TPL), basically provides a higher level of abstraction. Fundamentally, it boils down 
+to a “task” which is equivalent to a thread except that it is more lightweight and comes without the overhead of 
+creating an OS thread. 
+namespace System.Threading.Tasks
+
+------------------------------------------------------------
+
+Lazy Loading Vs Eager Loading
+
+Lazy Loading:
+
+    - Lazy loading is a technique where related data (e.g., properties or navigation properties) is not loaded from 
+    until it is explicitly requested by the application code.
+    - Lazy loading is advantageous when you have large datasets with many related objects, and you want to minimize 
+    the initial data retrieval to improve application startup time or reduce memory usage.
+    - However, it can lead to the "N+1 query problem," where multiple database queries are executed as you access 
+    related data for each entity, potentially causing performance issues.
+
+    In terms of DB with ORM we can use IQueryable to achieve lazy loading.
+    For code we can use Lazy<T> Class.
+
+    Note - to enable lazy laoding we need to add to sqlserverconfig -> .UseLazyLoadingProxies()
+
+    What is N+1 problem with Lazy loading?
+    The N+1 Problem is one that exists in most ORMs, or Object Relational Mapper tools. The N+1 problem happens as a
+    result of so called “lazy-loading”. 
+    It gets its name from the pattern of executing N+1 SQL queries, where N represents the number of main entities 
+    you retrieve, and each "+1" represents an additional query to load related data for each of those entities. 
+    This problem can lead to significant performance degradation.
+    The N+1 problem can affect the performance of an application. For example, if the initial query has one result, 
+    N+1 = 2. If the initial query has 1000 results, N+1 = 1001 queries.
+
+
+Eager Loading:
+    
+    - Eager loading is a technique where you explicitly request related data to be loaded along with the main 
+    entity when querying the database.
+    - This is achieved using methods or keywords provided by the ORM system (e.g., Include in Entity Framework)
+    to specify which related data should be retrieved in a single query.
+    - Eager loading is advantageous when you know upfront that you will need specific related data, as it reduces 
+    the number of database queries by loading all required data in a single query. 
+    - It helps avoid the N+1 query problem associated with lazy loading.
+
+    In terms of DB with ORM we can use IEnumerable to achieve eager loading.
+
+---------------------------------------------------------
+
+Generics - Works at compile time. It helps us to make our classes or methods type independent
+
+    class Generics
+    {
+        //Generic Method
+        public static bool ValueEqual<T> (T a, T b)
+        {
+            return a.Equals(b);
+        }
+    
+        //This does the same. But here there is no type checking
+        //public static bool ValueEqual(object a,object b)
+        //{
+        //    return a.Equals(b);
+        //}
+    }
+
+    //Generic Class
+    class Calculator<T>
+    {
+        public static bool ValueEqual(T a,T b)
+        {
+            return a.Equals(b);
+        }
+    }
+
+    
+    Call
+    
+    Console.WriteLine(Generics.ValueEqual<string>("abc", "abc"));
+    Console.WriteLine(Calculator<string>.ValueEqual("abc", "abc"));
+   
+    
+    Note - T is anytype
+
+
+
+--------------------------------------------------------
+
+Non-Generic vs Generics Collection
+
+Generic Collection - They are used with System.Collections.Generic.
+    While implementing they must be used with a specific datatypes.
+    Ex - List<T>, Dictionary<TKey,TValue>,HashSet<T>
+
+
+Non-Generic Collection - They are used with System.Collections.
+    While implementing they can be used with multiple type of datatypes.
+    Ex - ArrayList, Hashtable
+
+
+Q. Array vs arrayList
+     
+    Note - Both uses heap.
+
+    Array
+        // creating array
+        int[] arr = new int[4];
+ 
+        // initializing array
+        arr[0] = 47;
+        arr[1] = 77;
+        arr[2] = 87;
+        arr[3] = 97;
+ 
+        // traversing array
+        for (int i = 0; i < arr.Length; i++) {
+ 
+            Console.WriteLine(arr[i]);
+        }
+
+    ArrayList
+        // Create a list of strings
+        ArrayList al = new ArrayList();
+        al.Add("Ajay");
+        al.Add("Ankit");
+        al.Add(10);
+        al.Add(10.10);
+ 
+        // Iterate list element using foreach loop
+        foreach(var names in al)
+        {
+            Console.WriteLine(names);
+        }
+
+    1. Array size is fixed and cant be changed dynamically.
+       Arraylist size can be changed dynamically.
+    
+    2. Array belongs to System.Array namespace and Arraylist belongs to System.Collection namespace
+
+    3. Array - Only one datatype can be stored. 
+       Arraylist - Multiple datatype can be stored.
+
+    4. Array - Insert delete operation is fast
+       ArrayList - Operation is slow.
+       
+    5. Array - Cant accept null.
+       Arraylist - Can accept null
+
+Q. Dictionary Vs Hashtable
+
+    Dictionary : Always a keyvalue pair. Key has to be unique. Under System.collection.generic
+
+        // Creating a dictionary
+        // using Dictionary<TKey, TValue> class
+        Dictionary<string, string> My_dict =
+                    new Dictionary<string, string>();
+ 
+        // Adding key/value pairs in the Dictionary
+        // Using Add() method
+        My_dict.Add("a.01", "C");
+        My_dict.Add("a.02", "C++");
+        My_dict.Add("a.03", "C#");
+ 
+        foreach(KeyValuePair<string, string> element in My_dict)
+        {
+            Console.WriteLine("Key:- {0} and Value:- {1}",
+                              element.Key, element.Value);
+        }
+
+    Hashtable : A Hashtable is a collection of key/value pairs that are arranged based on the hash code of the key.
+        The key data has to be unique but key can be of mixed datatype. The values can be of mixed datatype.
+        It is the non-generic type of collection which is defined in System.Collections namespace. 
+
+        // Create a hashtable
+        // Using Hashtable class
+        Hashtable my_hashtable = new Hashtable();
+ 
+        // Adding key/value pair in the hashtable
+        // Using Add() method
+        my_hashtable.Add("A1", "Welcome");
+        my_hashtable.Add("A2", "to");
+        my_hashtable.Add(3, 3);
+ 
+        foreach(DictionaryEntry element in my_hashtable)
+        {
+            Console.WriteLine("Key:- {0} and Value:- {1} ",
+                               element.Key, element.Value);
+        }
+
+    1. Hashtable - Data retrieval is slow due to boxing unboxing.
+       Dictionary - Data retrieval is fast.
+
+    2. Hashtable - If we try to access a key which is not present then we get a null.
+       Dictionary - In dictionary if a key not present if accessed we get an error.
+
+    3. Hashtable - Value order is not maintained
+       Dictionary - Value order is maintained
+
+    4. Hashtable - It is loosely coupled. So it is thread safe. A code is called thread safe if it is being called from multiple threads 
+        concurrently "without execution of a piece of code by the multiple threads at the same time".
+
+
+--------------------------------------------------------
+
+3 Different Types of Triggers in SQL
+There are three types of triggers in SQL servers. 
+
+1. DML or Data Manipulation Language Triggers
+DML triggers allow the user to execute an additional code in response to the data modification or execution of insert, 
+update, or delete statements.
+
+2. DDL or Data Definition Language Triggers
+DDL triggers allow the user to execute code in response to changes in the structure of the database (dropping or creating a table) 
+or a server event (user login). Based on where they are scoped, they are divided into two types, Database Scoped DDL triggers and Server Scoped DDL triggers. 
+
+3. Logon Triggers
+Logon triggers are specific server-scoped DDL triggers that fire in response to a LOGON event raised when the session of the user is established. 
+
+--------------------------------------------------------
+
+SQL Server Transaction Isolation Level
+
+SQL Server isolation levels are used to define the degree to which one transaction must be isolated from resource
+or data modifications made by other concurrent transactions. The different Isolation Levels are:
+
+    - Read Uncommitted
+    - Read Committed
+    - Repeatable Read
+    - Snapshot
+    - Serializable
+
+
+Read Committed is the default isolation level.
+
+To change the isolation level the syntax is:
+
+SET TRANSACTION ISOLATION LEVEL
+    {READ UNCOMMITTED
+    | READ COMMITTED
+    | REPEATABLE READ
+    | SNAPSHOT
+    | SERIALIZABLE
+    }
+
+
+Read Uncommitted:
+    - This is the lowest isolation level.   
+    - Transactions at this level can read data that is currently being modified by other transactions. 
+    - This level offers the least data consistency but the highest concurrency.
+    - It allows dirty reads, non-repeatable reads, and phantom reads.
+
+Read Committed: Only Read Lock , No Write Lock
+    - This is the default isolation level in SQL Server.
+    - Transactions at this level can only read committed data, which means they are not affected by uncommitted 
+    changes made by other transactions.
+    - It allows non-repeatable reads and phantom reads but prevents dirty reads.
+
+Repeatable Read: Both Read + Write Lock
+    In Repeatable Read, statements cannot read data that has been modified but not yet committed by other transactions.
+    No other transaction can modify data that has been read by the current transaction until the current transaction completes.
+
+    Shared locks are placed on all data read by each statement in the transaction and are held until the transaction 
+    completes. This prevents other transactions from modifying any rows that have been read by the current transaction. 
+    This isolation level prevents the Non-Repeatable Read issue.
+
+    Other transactions can insert new rows that match the search conditions of statements issued by the current transaction.
+    If the current transaction then retries the statement it will retrieve the new rows, which results in phantom reads.
+
+Snapshot:
+    This isolation level allows each transaction to work on a snapshot of the data as it existed at the beginning of the 
+    transaction.
+    It provides high concurrency because it doesn't use locks for read operations.
+
+Serializable:
+    This is the highest isolation level.
+    It ensures that no other transactions can modify data that the current transaction has read or written until the 
+    current transaction is complete.
+    It prevents dirty reads, non-repeatable reads, and phantom reads but can lead to reduced concurrency and potential deadlocks.
+
+--------------------------------------------------------
+--------------------------------------------------------
+--------------------------------------------------------
+
+
+
+Stored Proc vs Func Sql Server
+
+

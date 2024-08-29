@@ -1,8 +1,8 @@
 ﻿----------------------------------------------------------------------------------------------------
 
-In dot net core when deployed in Azure App Service whatever config settings present launchSettings.
-Json can be configured individually in the "Configuration" option of AppService.
-
+"launchSettings.json" link to Azure AppService Configuration - 
+In dot net core when deployed in Azure App Service whatever config settings present "launchSettings.json" file.
+Json can be configured individually in the "Configuration" option of AppService. So LaunchSettings.json
 
 Middleware - It is a method which can intercept a Httprequest/Httpresponse and then do some work and provide response.
 Typically total of all middlewares combined + some other methods form the .net core pipeline.
@@ -31,6 +31,53 @@ Generally order of Middleware is
 	Custom Middlewares
 
 ----------------------------------------------------------------------------------------------------
+
+Settings File
+
+appsettings.json
+	Stores configurations that are needed when the application is running, such as database connection strings, 
+	file paths, and XML Web service URLs.
+	It can have different versions like - appsettings.Development.json, which will be region specific data. 
+
+launchsettings.json
+	Stores configurations that are needed to start or launch the application, such as the application URL and port number.
+	It also allows you to set the environment for local machine development, and environment values set in launchsettings.json 
+	override values set in the system environment. This is particularly useful when we are deploying to Azure AppService. 
+	Whatever the values hold in this file will be updated in the AppService -> Configuration block. 
+
+----------------------------------------------------------------------------------------------------
+
+Differences between IConfiguration, IOptions, and IOptionsSnapshot in ASP.NET Core:
+
+	IConfiguration:
+		-Represents the configuration settings for your application.
+		-Provides access to configuration values from various sources (e.g., JSON files, environment variables, command line arguments).
+		-Typically injected into services to read configuration values directly.
+		Use Case:
+			When configuration values remain relatively static (e.g., during startup or infrequently accessed).
+	
+	IOptions:
+		-Allows mapping configuration sections to strongly typed objects (POCOs).
+		-Decouples client classes from the configuration structure.
+		-Helps avoid tight coupling between your service and the configuration file.
+		Use Case:
+			-When you want to map app settings from a JSON file to a .NET object.
+			-Provides better maintainability by isolating configuration logic.
+	
+	IOptionsSnapshot:
+		-Scoped service that provides a snapshot of options at the time the object is constructed.
+		-Designed for use with transient and scoped dependencies (e.g., within a request scope).
+		-Supports real-time updates within the same request.
+		Use Case:
+			When you need dynamic configuration updates during a request (e.g., for scenarios like Azure App Configuration).
+	
+	In summary:
+		-Use IConfiguration for static configuration.
+		-Use IOptions for strongly typed configuration.
+		-Use IOptionsSnapshot for real-time updates within a request scope.
+
+----------------------------------------------------------------------------------------------------
+
 
 App.Run() - (Also called terminal middleware)
 	To execute a basic middleware, from the Configure() we have an instance of "IApplicationBuilder" as app.
@@ -412,7 +459,7 @@ Using Func<HttpContext, Func<Task>, Task> Delegate:
 
 AddSingleton vs AddScoped vs AddTransient
 
-In .NET Core (now known as .NET 5 and later versions), there are three main lifetime options for registering services 
+In .NET Core, there are three main lifetime options for registering services 
 with the built-in dependency injection container: Singleton, Scoped, and Transient. 
 These lifetimes determine how instances of the registered services are managed and shared within the application. 
 Let's explore each of these lifetimes:
@@ -456,7 +503,7 @@ Ex - For any service which will be invoked multiple times for different purposes
 
 ------------------------------------------------------------------------------------------------------------------------
 CORS Website whitelisting (CORS work at browser level i.e no restriction from POSTMAN but we get restriction when calling from service or browser)
-
+(Cross-Origin Resource Sharing)
 Services.AddCors() use AddPolicy() delegate.
 
 services.AddCors(options =>
@@ -921,11 +968,12 @@ Filters vs Middleware in ASP.NET Core
 In .NET Core, both filters and middleware can be used to add additional functionality to an HTTP request pipeline. 
 However, there are some differences between the two:
 
-1. Filters are used to add functionality that is specific to an action method or controller, whereas middleware is 
+
+1. Functionality - Filters are used to add functionality that is specific to an action method or controller, whereas middleware is 
 used to add functionality that is applied to all requests passing through the pipeline.
 
-2. Filters are executed in a specific order, based on their type (authorization filters, action filters, result filters, etc.),
-whereas middleware is executed in the order it is added to the pipeline.
+2. Order of Call - Filters are executed in a specific order, based on their type (authorization filters, action filters, 
+result filters, etc.), whereas middleware is executed in the order it is added to the pipeline.
 
 3. Filters can access and modify the action context and arguments, whereas middleware can only modify the HTTP context.
 
@@ -965,7 +1013,7 @@ Purpose
 
 Implementation
 1. Use of Custom Middleware
-2. Use of Package AspNetCoreRateLimit package
+2. Use of Package "AspNetCoreRateLimit" package
 
 Step 1 : using AspNetCoreRateLimit; -> Status when rate expired - 429
 

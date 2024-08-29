@@ -1,6 +1,6 @@
 ﻿.Net Questions
 
-1. How to Call an API from another API?
+1. How to Call an API from another API? - HttpClient
 2. Difference between .net core and .net framework
 3. Difference between IIS and Krestel
 4. How Krestel is platform independent
@@ -466,25 +466,104 @@ What is Kubernetes? Why it is called K8S?
 
 ---------------------------------------------------------------------------------------------------
 
-SOLID PRINCIPLE IMPLEMENTATION EXAMPLE
+DESIGN PRINCIPLES - SOLID PRINCIPLE IMPLEMENTATION EXAMPLE
 
-1. Single responsiblity principle - Creating dedicated Interface and implementation as per the entity. Example the operation related to 
-department must be seperated to that of employee. That is we must have IEmployee and IDepartment with dedicated method signatures.
+SOLID Principles
 
-2. Open-Closed Principle - As the interface can be extended by the service class. Any new changes to done has to be done in the implementing 
-service. This is because if we do some changes by adding a new signature in the interface for adding a new method in the service class, then
-case if any other service class has implemented all the existing signature has to implement that new signature unnecessarily. So in situations
-where we might come across where we need to add any overloaded method to the service class which has all the implemented interface signature.
-Here the business use case is - All the interface method signatures have been implemented in service class + in that service class need to have
-an overloaded method whose signature is not present in interface. Solution is to add a new class which will inherit the service class and 
-add the overloaded method in this new class. 
+S - Single Responsibility Principle
+O - Open Closed Principle
+L - Liskov Substitution Principle
+I - Interface Segregation Principle
+D - Dependeny Inversion Principle
 
-3.
+Short Definition
+
+    Single Responsibility Principle - The class must have only one target to complete. Or it must only have a single task. 
+            Lesser the task lesser the bug.
+
+    Open Closed Principle - A class must be open for extension /inheritance but must be closed for change.
+
+    Liskov Substitution Principle - Sub type must be replacable as needed due to the change in the base type 
+            without change in the flow of the program.
+
+    Interface Segregation - Larger "interfaces" must be broken down into smaller interface such that impementing class 
+            should only implement those methods which are needed.
+
+    Dependency Inversion - It says high level module should not be dependent on any other module. 
+            Rather they should be dependent on an interface.
+
+Detailed
+
+    1. Single responsiblity principle - Creating dedicated Interface and implementation as per the entity. 
+        Example the operation related to department must be seperated to that of employee. 
+        That is we must have IEmployee and IDepartment with dedicated method signatures.
+
+    2. Open-Closed Principle - As the interface can be extended/used by the service class. Any new changes to done 
+        has to be done in the implementing service. Or if this implemented service class has been inherited by some 
+        other class then that child class has to implement that new changes.
+
+        This is because if we do some changes by adding a new method signature in the interface for adding a new method 
+        in all the implementing service classes, then for any service classes they also have to implement that new 
+        signature whether they need it or not. 
+        
+        Example for implementation -
+        So in situations where for an interface implemented in two or more service classes, and suppose one of the service class 
+        needs to add a new method then we can "do it" by adding any overloaded method to the service class which has all the 
+        implemented interface signature.
+
+        Here the business use case is - All the interface method signatures have been implemented in service 
+        class + in that service class need to have an overloaded method whose signature is not present in interface. 
+        Solution is to add a new class which will inherit the service class and add the overloaded method in this new class. 
+
+    3. Liskov Substitution Principle - If there is an interface for which a service class has implemented the method signature.
+        And then interface is injected in controller class (with the implentation in a service class).
+        Then if needed where we need to substitute this service class with another service class which can have different 
+        implementation of the business requirements. Then the new service class with different logic should be implented using the
+        signature of the same interface. This will ensure minimal changes as the method signatures are same.
+
+        Use Case - For a DBContext class which refers to SQL Server has to be replaced with DBContext class referring to MongoDB.
+        We can easily do it by using interface IDBContext and creating two service class 
+            SqlServerDBContext: IDBContext and
+            MongodbDBContext: IDContext
+
+        In terms of .net core when we inject a dependency injection lifetime we can do it by
+            Prev : services.AddTransient<IDBContext, SqlServerDBContext>()
+            New : services.AddTransient<IDBContext, MongodbDBContext>()
+
+        So implementations should be substituted if needed.
+
+    4. Interface Segregation
+        Classes should not be forced to impement interface they do not need.
+
+        Larger "interfaces" must be broken down into smaller interface such that impementing class 
+        should only implement those methods which are needed.
+        Else unnecessary methods has to be implemnted in the classes which it might not need.
+
+        If we have ICorporate interface which is implemented by PWC Class and Deloitte Class. That is both of them have mostly similar 
+        policies. Now if PWC wants to have some different policies which will not be implemented by Deloitte class, then we can 
+        create another interface called IPWC. This new interface can be implemnted with the PWC class.
+
+        PWC : ICorporate, IPWC
+        {
+        }
+
+    5. Dependency Inversion - Between 2 classes One will be calling other class. That is CALLER CLASS and CALLED CLASS.
+        Now as such there will be coupling between these two classes. That is huge dependency. If the CALLED CLASS gets 
+        changed then we might have to modify the CALLING CLASS or If some blocking happens in CALLED CLASS this will 
+        impact the CALLING CLASS too. So to remove this dependency we need to decouple (with very limited dependency).
+        This is called the DEPENDENCY INVERSION PRINCIPLE. 
+        To be precise:
+	        1. High-level modules should not depend on low-level modules.Both should depend on the abstraction.
+	        2. Abstractions should not depend on details. Details should depend on abstractions.
+
+        Dependency injection is the most popular method of implementing IOC. There are mainly three types of dependency injection:
+            Property Injection
+            Constructor Injection
+            Method Injection
 
 
 ---------------------------------------------------------------------------------------------------
 
-SOLID Principles with example
 MVC questions
 ASP .net questions
 

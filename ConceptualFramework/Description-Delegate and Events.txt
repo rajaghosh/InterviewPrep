@@ -20,7 +20,7 @@
  1. Lambda expression for the above code - It is more shorter version of delegate
  2. Func <with input as double, output as double> - It will take an input and produce an output (it might not have any input)
  3. Action - This will take an input and do some work (and may or may not return any output) 
- 4. Predicate - This will take an input and will return and output as boolean
+ 4. Predicate - This will take an input and will return an output as boolean
 
 ------------------------------------------------------------------------------------------------------
 

@@ -221,7 +221,7 @@ Steps to Implement -
             }
         }
 
-3. Create IKayVaultService and KeyVaultService. 
+3. Create IKeyVaultService and KeyVaultService. 
     Provide lifetime in StartUp.cs under configureServices as Services.AddTransient()
     Or builder.services.AddTransient<>
 

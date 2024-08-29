@@ -1,0 +1,67 @@
+﻿Azure APIM - Azure API Management is the most reliable, scalable way to publish all the APIs in the centralized location.
+It will provide interface to manage the APIs.
+
+It has three components -
+1. Gateway
+2. Developer Portal
+3. API Management Plane
+
+1. Gateways -
+	The API gateway acts as a endpoint to connect to the backend services (the original service endpoint). 
+	1. This will accept the client req. which includes API keys, JWT token. 
+	2. This can implement usage quotas and rate limiting.
+	3. We can also have logs
+
+2. API Management Plane - 
+	This provide full access to API Management tools
+	1. We can configure API management services.
+	2. Here we can bundle APIs into "products".
+	3. We can setup policies for each APIs.
+
+3. Developer Portal - 
+	This will be used for the documentation of APIs.
+	1. Once created this portal can be shared with consumers. The consumers can subscribe to this portal and get the API 
+	keys.
+
+------------------------------------------------------------------------------------------------------------
+	
+To publish an API. We are showing here a single way. We can have multiple otherways.
+1. Go to API (representation for API management plane)
+2. Here we will get "Add API". Then we can select "OpenAPI". This is for APIs which as all the operations
+	as per OPEN API specification (like GET, PUT, PATCH)
+		a. Open API specification -> The API url
+		b. Display Name -
+		c. Name - 
+		d. API URL suffix - The name that we need to put to the end of the APIM url
+			ex - if the APIM url is www.myapim.azure-api.net
+			then with URL suffix as myfirstapi -> APIM url is www.myapim.azure-api.net/myfirstapi
+	Once added APIM will import all the APIs as per Open API specifications.
+
+------------------------------------------------------------------------------------------------------------
+
+OpenAPI integration to APIm. 
+
+Let us understand the flow:
+	1. Client request to APIm. We consider the client has valid credentials.
+	2. APIM validates whether the token is valid by sending to identity provider server. Identity server will refresh token
+		if expired. Then APIm will save this token. 
+	3. APIM will call the backend service.
+
+To perform the operation.
+	1. Go to AZURE AD, so that our applications can be exposed. Click on new registration. Add details of APIM
+		a. We need to add permission to this for 
+			a. APIM - As reader.
+			b. MS Graph API - As reader + writer.
+		b. We need to add secrets
+			a. Generate a new client secret.
+
+
+	2. Go to APIM -> API management plane.
+		a. Design -> Inbound Processing (middle tile) -> Add Policy
+
+
+	For initial setup. We need to call the endpoint provided by Azure AD and generate the token. Using the token we can call 
+	the APIm.
+
+
+

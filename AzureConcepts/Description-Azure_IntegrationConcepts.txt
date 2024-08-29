@@ -1,0 +1,55 @@
+﻿Azure Callback URLs
+
+	In Azure, a callback URL (or redirect URI) is a URL that is used during the authentication process to redirect users 
+	back to your application after they have successfully authenticated with an identity provider. 
+	This is commonly used in scenarios involving OAuth 2.0 and OpenID Connect, where users are authenticated through 
+	services like Azure Active Directory (Azure AD).
+
+	Here’s a breakdown of how it typically works:
+
+		- User Requests Authentication: A user attempts to access a resource or service that requires authentication.
+		
+		- Redirect to Identity Provider: The user is redirected to an identity provider (like Azure AD) to log in.
+
+		- Authenticate User: The user logs in and the identity provider authenticates the user.
+		
+		- Redirect Back to Application: After authentication, the identity provider redirects the user back to your 
+		application using the callback URL provided during the setup.
+
+	Why Callback URLs are Important:
+
+		- Security: Callback URLs ensure that tokens or authentication codes are sent to the correct location. 
+		 This helps prevent interception and misuse.
+
+		- Application State: They allow the application to handle the response and potentially pass any state or 
+		additional parameters needed by the application.
+
+	Configuring Callback URLs in Azure:
+		
+		When registering an application in Azure Active Directory, you need to specify the callback URLs where 
+		the identity provider should redirect after authentication. This is done in the Azure portal:
+
+			- Register Your Application: In the Azure portal, go to "Azure Active Directory" > "App registrations" 
+				and select your application.
+
+			- Configure Redirect URIs: Under the "Authentication" section, you can add or configure the redirect URIs
+				that your application will use.
+
+	Key Points to Remember:
+
+		- Exact Matching: Ensure that the redirect URIs configured in Azure AD exactly match the URIs used by your 
+		application to avoid errors.
+
+		- Multiple URIs: You can specify multiple redirect URIs if your application has different endpoints for 
+		different environments (e.g., development, staging, production).
+
+	Overall, callback URLs are a crucial part of the authentication flow, ensuring that users are returned to the correct 
+	application with the proper authentication context.
+
+*******************************************************************************
+
+1. OAuth 2.0 and OpenID
+2. How to register a new application to AAD
+3. How to setup authentication (in the AAD) using password.
+4. How to integrate VNET to function app.
+5. How to call third party services from function app.

@@ -24,8 +24,8 @@ int i = (int)Obj;    // Unboxing
 
 Generics and Boxing/Unboxing
 
-Boxing is the process of converting a type to object (or as the name suggests wrapping it inside the object container).
-Unboxing means converting the object to a type. or unwrapping the type from the object container.
+Boxing is the process of converting a value type to object/reference type (or as the name suggests wrapping it inside the object container).
+Unboxing means converting the object to a value type. or unwrapping the type from the object container.
 
 Boxing/Unboxing are costly operations, and it is always better to not rely on them heavily in your code.
 
@@ -41,7 +41,8 @@ Advantage of using Generics -
 Extension Methods and its advantage
 
 Extension methods are used to add new functionality to existing types without modifying the original types or creating 
-a new derived type.
+a new derived type. 
+That is adding functionality to the existing type without modifying or without extending.
 In C#, an extension method is a static method of a static class, where the "this" keyword is used as the first parameter
 of the method. This allows the method to be called as if it were an instance method on the type of the first parameter. 
 
@@ -129,13 +130,13 @@ Usage - Add utility methods to existing type for types which we dont want to mod
 We use static methods when you want to provide utility functions that don't need any state or 
 behavior from an instance. Static methods are also used for factory methods or other functionalities 
 that don't involve instance-specific behavior.
-Usage - Add utility methods when we dont want need any state or instance behavior (object).
+Usage - Add utility methods when we dont need to maintain any state or instance behavior (object).
 ------------------------------------------------------------------------------------------------------
 
 
 CLR and CTS - 
 
-CLR - Common Language Runtime (CLR) - A runtime environment for Managed Code
+CLR - Common Language Runtime (CLR) - A runtime "environment" for Managed Code
 
 .Net Framework provides "runtime environment" called Common Language Runtime (CLR). It provides an environment 
 to run all the .Net Programs. The code which runs under the CLR is called as Managed Code. Programmers need
@@ -225,7 +226,7 @@ Var vs Dynamic
  int t = a.length //It must be a.Length (Caps L)
  this would not be any error during compile time but during run-time there would be exceptions.
  
- Note - var cant be used as function parameter, dynamic can be used as function parameters
+ NOTE - dynamic can be used as function parameters, var cant be used as function parameter
 
  ------------------------------------------------------------------------------------------------------
 
@@ -241,14 +242,14 @@ Var vs Dynamic
  Value type - A data type which holds a data value within its own memory space. That is they directly contains value. 
  So when used with functions whenever we pass the value in the parameter, the parameter will create its own memory space.
  Holds value in Stack.	
- Ex - All basic/primitive data types (except string) + Struct + enum
+ Ex - All basic/primitive data types (except string) + Struct + enum. Default value is some specific value ex- for int its 0.
 
  Reference type - A reference type does not hold the value directly rather it will hold the value of the address 
  where its actually value is actually stored. 
  The default value of a reference type variable is "null" when they are not initialized. Null means not refering to any object.
  When used with function no new copy is created instead address is passed.
  Holds value in Heap.
- Ex - String, stringbuilder, array (even its elements are value type), class, delegate
+ Ex - String, stringbuilder, array (even its elements are value type), class, delegate. Default value is null.
 
 
  ------------------------------------------------------------------------------------------------------
@@ -463,6 +464,138 @@ Var vs Dynamic
 	Q. When we will use weak reference?
 	Ans - Caching, object pooling. Wherever object creation is resource intensive caching and pooling can improve performance.
 
+
+------------------------------------------------------------------------------------------------------
+
+Bin vs Obj folders
+
+In C# compilation is a two step process - compiling and linking.
+
+Compilation Process - In compiling every code file is segregated into individual compiled units. These compiled units are stored in Obj folder.
+Linking Process - Then each of these compiled files would be linked to form DLL file, exe file etc. These linked units are stored in Bin folder. 
+
+Note - When build is done only whatever file is updated would be updated in the folders.
+
+------------------------------------------------------------------------------------------------------
+
+Common Collections -
+
+	IEnumerable vs IEnumerator vs IQueryable
+
+	IEnumerable is used when we want to iterate amongst our collection classes using foreach loop. Ex foreach(var a in col)
+	So whichever collection we have it is internally using IEnumerable interface.
+
+	And IEnumerable internally uses IEnumerator to iterate.
+
+	Formats -
+	
+	IEnumerable -
+		IEnumerable<string> data1 = employees; // employees is List<string>
+		foreach(var d1 in data1)
+		{
+			.....
+		}
+
+	IEnumerator -
+		IEnumerator<string> data2 = employees.GetEnumerator();
+		while(data2.MoveNext())
+		{
+			.....
+		}
+
+	List (using IList) is derived from IEnumerable. 
+
+	IQueryable - It is derived from IEnumerable too. Its better for usage with SQL. 
+
+	Use -
+		IQueryable<string> data3 = (IQueryable<string>)employees;
+		foreach(var d3 in data3)
+		{
+			.....
+		}
+
+	Where IEnumerable is preferred and where IQueryable is preferred?
+	- IEnumerable is preferred with in-memory collection. As such if we use any lambda expression with filters 
+	then whole dataset will be fetched and then filters will be applied. Used from System.Collections namespace.
+
+		IEnumerable<Employee> data4 = dbContext.Employees.Where(p => p.Name.StartsWith("H"));
+
+	- IQueryable is preferred to fetch data from DB. As such if we use any lambda expression with filters 
+	then whole dataset will be filtered at DB level and then filtered data will be fetched. Used from System.Linq namespace.
+
+		IQueryable<Employee> data4 = dbContext.Employees.Where(p => p.Name.StartsWith("H"));
+
+	Inheritence -
+
+	--------IEnumerable---------- 
+	|							|
+	ICollection				IQueryable
+	|
+	IList
+
+
+	IEnumerable (System.Collections) - Read Forward Only / Supports DEFERRED EXECUTION
+		-Data iterated forward only. 
+		-Supports for linq/lambda expressions.
+		-Internally calls IEnumerator, which provides it the capability to iterate over collection.
+
+	ICollection (System.Collections) - Read Forward Only / Supports DEFERRED EXECUTION
+		- Inherit property of IEnumerable + Add, Update, Delete the collection.
+		- Can use Count() to get the count of the items.
+
+	IList (System.Collections) - Read can be done by index / Supports DEFERRED EXECUTION
+		- Inherit property of ICollection + Support Indexing. As it supports 
+		indexing so add or remove from middle of list is possible.
+		- Supports DEFERRED EXECUTION.
+
+	IQueryable (System.Linq) - Read Forward Only / Supports LAZY LOADING
+		- Supports Linq to SQL.
+		- It creates a query using an Expression Tree.
+
+
+
+	Deferred execution vs Lazy Loading
+
+	Deferred Execution - (Defer the execution till it is actually needed) 
+		a. Deferred execution refers to delaying the actual execution of a query or operation until the result is actually needed.
+		b. When you retrieve an IEnumerable result from a query (e.g., using LINQ), the query execution is deferred. 
+		c. The actual work (such as querying a database) doesn’t happen until you start iterating over the collection.
+		It’s like getting a ticket to claim the result later. The work is deferred until you actually use it.
+
+		// The query is not executed yet; it's deferred.
+		var query = from item in items
+            where item.Price > 100
+            select item;
+		
+		foreach (var item in query)
+		{
+			// Now the query is executed for each item.
+			Console.WriteLine(item.Name);
+		}
+
+	Lazy Loading - (Load on demand) 
+		a. Lazy loading loads data only when it’s explicitly requested.
+		b. In the context of images, lazy loading means loading images on demand (e.g., when they come into view).
+		It reduces the initial page payload and overall load time by loading resources only when necessary.
+		Example (for images):
+		Images are loaded only when they are visible in the viewport, improving page performance.
+		This is common in web development, especially for large image galleries or infinite-scrolling pages.
+	
+	In summary, deferred execution is about delaying computation until the caller uses the result, while lazy loading 
+	focuses on loading resources (like images) only when needed. Both concepts optimize performance and resource usage.
+
+	List - 
+	Use of List is preferable if we want immediate execution and faster response. With list we have a definite implementation
+	of the Interface IList hence all the methods have proper implementation.
+
+	Fast Response - As for the interfaces most of the operations will have deferred execution as such they have to track 
+	and operate on the final collection. Moreover as the collection is not final in the case of deferred execution so for
+	each iteration they might have to allocate memory. Faster response holds good if we need to iterate through the List.
+	
+	Note - With IEnumerable the memory consumption is more and performance is slow. Memory consumption is more as 
+	for each operation we need GetEnumerator() run. List is best as it is materialized.Both in terms of speed and memory.
+	Best if data is in memory. So if we have data in memory and we need to iterate, the best approach is to	convert to list 
+	and iterate.
 
 ------------------------------------------------------------------------------------------------------
 
@@ -908,14 +1041,14 @@ Tasks in C# represent asynchronous operations. They provide a way to perform wor
 the execution once the task is completed. Tasks can be parallelized, making them ideal for scenarios where multiple
 operations can occur simultaneously, enhancing the overall performance of the application.
 
-	*Task.WaitAll: Waiting for All Tasks to Complete 
+	*Task.WaitAll: Waiting for All Tasks to Complete (i.e waiting for group of tasks as a group response)
 	(Thread stops till all the tasks gets completed and task reference is returned)
 	
 	Task.WaitAll is a synchronous method that blocks the current thread until all the provided tasks have completed execution.
 	It's useful when you have multiple tasks that need to finish before proceeding further in your code. The method takes an 
 	array of tasks as a parameter and waits for all of them to finish before allowing the program to continue.
 
-	*Task.WhenAll: Awaiting All Tasks Concurrently 
+	*Task.WhenAll: Awaiting All Tasks Concurrently (i.e waiting for individual tasks concurrently)
 	(Thread continues to work, once all the tasks (working in background) get completed the task reference is returned)
 
 	Task.WhenAll is an asynchronous method that returns a task that completes when all the provided tasks have completed execution.
@@ -1015,6 +1148,8 @@ SCRUM CEREMONIES
 
 MOQ Testing
 
+MS Test Case-
+
 Create a project and create the MsTestCase project
 
 	//Use of package
@@ -1093,6 +1228,63 @@ Create a project and create the MsTestCase project
 			Assert.AreEqual(expectedSum, actualSum, "Sum operation is incorrect.");
 		}
 	}
+
+	------------------------------------------------------------------------------------------
+
+	Mocking -
+		Mocking in software development refers to the concept of simulating the behavior or returned objects of classes, 
+		methods, or services that another part of the system under test depends on. Let’s break it down:
+
+	Purpose of Mocking:
+		When testing a specific component or unit of code, it’s essential to isolate it from its dependencies 
+		(e.g., databases, web services, other classes).
+		The goal is to ensure that the test focuses solely on the functionality of the unit being tested, 
+		without being affected by external aspects of the code.
+	
+	What Are Mock Objects?:
+		Mock objects allow you to mimic the behavior of real classes and interfaces.
+		They act as stand-ins for actual dependencies, letting your test code interact with them as if they were real.
+		By using mock objects, you can control the input and output of these dependencies during testing.
+	
+	MOQ Framework:
+		MOQ is a popular mocking framework for .NET.
+		It simplifies the creation of mock objects for unit testing.
+		With MOQ, you can create test doubles (mocks) that simulate the behavior of real objects, allowing you to set specific 
+		outcomes for method calls.
+
+	Benefits of Mocking with MOQ:
+		Control: You can specify how mock methods behave, what they return, and how they handle input parameters.
+		Isolation: Mocking isolates the code you’re testing, ensuring it works independently without interference from other code.
+		Verification: MOQ allows you to verify whether expected calls are made during testing
+	
+	
+	
+	
+	Advantages of the MOQ framework over MSTest:
+
+	Isolation and Mocking: (Important)
+		- MOQ helps isolate code for unit testing by creating mock objects (fakes) dynamically.
+		- With MOQ, you can mock dependencies (e.g., database calls, external services) without needing actual implementations.
+		- MSTest also supports mocking, but MOQ’s dynamic generation of mock types simplifies the process.
+	
+	Strongly Typed and Readable:
+		-MOQ’s API is built around lambda constructs, ensuring tests are strongly typed and easy to read.
+		-You define expectations and behaviors using lambda expressions, making test setup concise and clear.
+		-MSTest also provides mocking capabilities, but MOQ’s syntax is often more intuitive.
+	
+	Quick to Write:
+		-MOQ reduces boilerplate code needed for creating test doubles.
+		-Its concise syntax allows you to set up mocks quickly.
+		-MSTest can be verbose in comparison, especially when dealing with complex scenarios.
+	
+	String-Based API for Protected Methods:
+		-MOQ provides a string-based API to mock protected methods.
+		-This feature allows you to mock non-public members easily.
+		-MSTest lacks a built-in mechanism for directly mocking protected methods.
+	
+	In summary, MOQ simplifies mocking, offers a readable syntax, and speeds up test setup. While MSTest also supports mocking, 
+	MOQ’s features make it a popular choice for .NET developers.
+	
 
 	------------------------------------------------------------------------------------------
 	To test any service we will be using the Moq package
@@ -1271,7 +1463,7 @@ of static members. To handle such a situation, C# provides static constructor.
 		}
 	}
 
-
+------------------------------------------------------------------
 
 
 

@@ -68,7 +68,7 @@ Ans ->
 We all know a singleton class can have a single instance only. That is either directly i.e Class A creating instance of SingletonClass
 or by inheriting i.e Child Class B creating instance of SingletonClass must be restricted.
 
-So we have used SEALED so that it could not be inherited and PRIAVTE constructor so that instance cannot be created directly.
+So we have used SEALED so that it could not be inherited and PRIVATE constructor so that instance cannot be created directly.
 Now this combination is a must so that a NESTED DERIVED class cannot be used to create an instance of the Singleton Class directly.
 
 Example
@@ -92,6 +92,69 @@ public class ClassA{
 
 In the above code we have removed the SEALED keyword. Now we can create the instance indirectly via the NESTED DERIVED class.
 So the combination of SEALED + PRIVATE is needed.
+-----------
+Sample Code
+
+	public sealed class Singleton1
+    {
+
+        private static int counter = 0;//This is not mandatory and have been used to just validate
+        private Singleton1() //This declaration is important as we want our constructor to be private, else a new instance can be created
+        {
+            counter++;
+            Console.WriteLine("Counter Value -> " + counter);
+        }
+
+        //This will be instantiated only once.
+        private static Singleton1 _instanceVariable = null; //Basically this is actually the instance variable which will be responsible for all the tasks to be done with this class.
+
+        public static Singleton1 GetInstance //Static Property, this will be used to communicate with outside 
+        {
+            get 
+            {
+                if (_instanceVariable == null)
+                    _instanceVariable = new Singleton1();
+                return _instanceVariable;
+            }
+        }
+
+        //Derived Nested Class - Instance of the Singleton1 class can be created from
+        //DerivedSingleton class so we have made Singleton Class Sealed
+        //public class DerivedSingleton : Singleton1
+        //{
+
+        //}
+
+        public void PrintDetails(string message)
+        {
+            Console.WriteLine(message);
+        }
+    }
+
+	Calling -
+
+	public class Singleton1Helper
+    {
+        public static void PrintEmployee1Details()
+        {
+            /*
+             * Assuming Singleton is created from employee class
+             * we refer to the GetInstance property from the Singleton class
+             */
+            Singleton1 fromEmployee = Singleton1.GetInstance;
+            fromEmployee.PrintDetails("From Employee");
+        }
+
+        public static void PrintStudent1Details()
+        {
+            /*
+            * Assuming Singleton is created from student class
+            * we refer to the GetInstance property from the Singleton class
+            */
+            Singleton1 fromStudent = Singleton1.GetInstance;
+            fromStudent.PrintDetails("From Student");
+        }
+    }
 
 
 -------------------------------------------------------------------------------------------------------------

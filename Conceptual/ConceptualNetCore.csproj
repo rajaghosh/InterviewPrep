@@ -7,19 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Description-AzureAppInsightAKV.txt" />
-    <None Remove="Description-AzureFuncAppLogicApp.txt" />
-    <None Remove="Description-AzureMessaging.txt" />
-    <None Remove="Description-AzureSecurity.txt" />
     <None Remove="Description-EFCore.txt" />
     <None Remove="Description-SQL.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Description-AzureMessaging.txt" />
-    <Content Include="Description-AzureFuncAppLogicApp.txt" />
-    <Content Include="Description-AzureAppInsightAKV.txt" />
-    <Content Include="Description-AzureSecurity.txt" />
     <Content Include="Description-EFCore.txt" />
     <Content Include="Description-SQL.txt" />
   </ItemGroup>

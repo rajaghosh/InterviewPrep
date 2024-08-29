@@ -1,0 +1,1157 @@
+﻿Azure Integration Account - An helper account service to logic apps to manage B2B artifacts
+(Link - https://learn.microsoft.com/en-us/azure/logic-apps/enterprise-integration/create-integration-account?tabs=azure-portal%2Cconsumption)
+	
+	B2B Artifacts - Before you can build business-to-business (B2B) and enterprise integration workflows using Azure Logic Apps, we need 
+	to create an integration account resource. This account is a scalable cloud-based container in Azure that simplifies 
+	how you store and manage "B2B artifacts" that you define and use in your workflows for B2B scenarios, for example:
+
+		- Trading partners
+		- Agreements
+		- Maps
+		- Schemas
+		- Certificates
+
+	Industry Protocols - We also need an integration account to electronically exchange B2B messages with other organizations. 
+	When other organizations use protocols and message formats different from your organization, we have to convert 
+	these formats so your organization's system can process those messages. With Azure Logic Apps, we can build 
+	workflows that support the following industry-standard "protocols" :
+
+		- AS2
+		- EDIFACT
+		- RosettaNet
+		- X12
+
+*******************************************************************
+
+Authentication Mode - The integration account uses an automatically created and enabled system-assigned managed identity 
+to authenticate access.
+
+*******************************************************************
+
+Types of Azure Integration Tiers - 
+
+	- Premium
+	- Standard
+	- Basic 
+	- Free
+
+	- Premium 
+		- Store and use unlimited artifacts, such as partners, agreements, schemas, maps, certificates, and so on.
+		- Bring and use your own storage, which contains the relevant runtime states for specific B2B actions and 
+		EDI standards. For example, these states include the MIC number for AS2 actions and the control 
+		numbers for X12 actions, if configured on your agreements.
+		- Set up and use a key vault to store private certificates or customer-managed keys. To access these keys,
+		your Premium integration account uses its system-assigned managed identity, not an Azure Logic
+		Apps shared service principal.
+
+	- Standard
+		- For scenarios where you have more complex B2B relationships and increased numbers of entities that you must manage.
+		- Supported by the Azure Logic Apps SLA.
+
+	- Basic 
+		- For scenarios where you want only message handling or to act as a small business partner that has a trading 
+		partner relationship with a larger business entity.
+		- Supported by the Azure Logic Apps SLA.
+
+	- Free 
+		- For exploratory scenarios, not production scenarios. This tier has limits on region availability, throughput, and usage. 
+
+**********************************************************************
+
+Linking Integration Account To Logic Apps
+
+NOTE - For you to successfully link your integration account to your logic app resource, make sure that both resources
+use the same Azure subscription and Azure region.
+
+	CONSUMPTION BASED LOGIC APP -
+
+		1 .In the Azure portal, open your logic app resource.
+		
+		2. On your logic app's navigation menu, under Settings, select Workflow settings. 
+		Under Integration account, open the Select an Integration account list, and 
+		select the integration account you want.
+		
+		3. To finish linking, select Save.
+
+	STANDARD LOGIC APP -
+		
+		1. Find your integration account's callback URL
+			- Before you can link your integration account to a Standard logic app resource, you need to 
+			have your integration account's callback URL.
+
+			1. In the Azure portal search box, enter integration accounts, and then select Integration accounts.
+			2. From the Integration accounts list, select your integration account.
+			3. On your selected integration account's navigation menu, under Settings, select Callback URL.
+			4. Find the Generated Callback URL property value, copy the value, and save the URL to use later for linking.
+
+			NOTE - Now our logic app workflow can use the artifacts in your integration account plus the B2B connectors, 
+			such as XML validation and flat file encoding or decoding.
+
+		2. Link integration account to Standard logic app
+			- Azure portal
+				1. In the Azure portal, open your Standard logic app resource.
+				2. On our logic app's navigation menu, under Settings, select Environment variables.
+				3. On the Environment variables page, check whether the app setting named WORKFLOW_INTEGRATION_ACCOUNT_CALLBACK_URL exists.
+				4. If the app setting doesn't exist, at the end of the settings list, add a new app setting by entering the following:
+					Property	Value
+					--------	----------------------
+					Name		WORKFLOW_INTEGRATION_ACCOUNT_CALLBACK_URL
+					Value		<integration-account-callback-URL>
+				5. When you're done, select Apply.
+
+			- Visual Studio Code (This is additional step needed if we want to to develop + debug from VS Code)
+				1. From your Standard logic app project in Visual Studio Code, open the "local.settings.json" file.
+				2. In the Values object, add an app setting that has the following properties and values, including 
+					the previously saved callback URL:
+					Property	Value
+					--------	----------------------
+					Name		WORKFLOW_INTEGRATION_ACCOUNT_CALLBACK_URL
+					Value		<integration-account-callback-URL>
+
+					This example shows how a sample app setting might appear:
+					{
+						"IsEncrypted": false,
+						"Values": {
+							"AzureWebJobStorage": "UseDevelopmentStorage=true",
+							"FUNCTIONS_WORKER_RUNTIME": "dotnet",
+							"WORKFLOW_INTEGRATION_ACCOUNT_CALLBACK_URL": "https://prod-03.westus.logic.azure.com:443/integrationAccounts/...."
+						}
+					}
+				3. When you're done, save your changes.
+
+**********************************************************************
+
+Unlinking Integration Account from Logic Apps
+
+If we want to link your logic app to another integration account, or no longer use an integration account with your logic app, 
+delete the link by using Azure Resource Explorer.
+
+	CONSUMPTION BASED LOGIC APP -
+
+		1. Open your browser window, and go to Azure Resource Explorer (https://resources.azure.com). 
+			Sign in with the same Azure account credentials.
+		2. In the search box, enter your logic app's name to find and open your logic app.
+	
+		3. On the explorer title bar, select Read/Write.
+
+		4. On the Data tab, select Edit.
+		In the editor, find the integrationAccount object, which has the following format, and delete the object:
+		{
+		   // <other-attributes>
+		   "integrationAccount": {
+			  "name": "<integration-account-name>",
+			  "id": "<integration-account-resource-ID>",
+			  "type": "Microsoft.Logic/integrationAccounts"  
+		   },
+		}
+
+		5. On the Data tab, select Put to save your changes.
+		
+		6. In the Azure portal, open your logic app. On your logic app menu, under Workflow settings, confirm that the
+		Integration account property now appears empty.
+
+	STANDARD LOGIC APP -
+		
+		1. Azure portal
+			a. In the Azure portal, open your Standard logic app resource.
+			b. On your logic app menu, under Settings, select Environment variables.
+			c. On the Environment variables page, find the app setting named WORKFLOW_INTEGRATION_ACCOUNT_CALLBACK_URL.
+			d. Clear the app setting name and its value.
+			e. When you're done, select Apply.
+		
+		2. Visual Studio Code
+			a. From your Standard logic app project in Visual Studio Code, open the local.settings.json file.
+			b. In the Values object, find and delete the app setting that has the following properties and values:
+					Property	Value
+					--------	----------------------
+					Name		WORKFLOW_INTEGRATION_ACCOUNT_CALLBACK_URL
+					Value		<integration-account-callback-URL>
+
+**********************************************************************
+
+Trading Partners For Integration Accounts
+
+	To represent your organization and others in business-to-business (B2B) enterprise integration workflows, 
+	create a trading partner in your integration account to represent each participant in a business relationship. 
+	Partners are business entities that participate in B2B transactions and exchange messages with each other.
+
+
+Prerequisite -
+
+	An integration account resource where you define and store artifacts, such as trading partners, agreements, 
+	certificates, and so on, for use in your enterprise integration and B2B workflows. This resource has to 
+	meet the following requirements:
+		1. Is associated with the same Azure subscription as your logic app resource.
+		2. Exists in the same location or Azure region as your logic app resource.
+		3. If you're using the Logic App (CONSUMPTION) resource type, your integration account requires a link 
+		to your logic app resource before you can use artifacts in your workflow.
+		4. If you're using the Logic App (STANDARD) resource type, your integration account doesn't need a link 
+		to your logic app resource but is still required to store other artifacts, such as partners, agreements, 
+		and certificates, along with using the AS2, X12, and EDIFACT operations. 
+		
+		NOTE - Your integration account still has to meet other requirements, such as using the same Azure subscription 
+		and existing in the same location as your logic app resource.
+
+Add a partner -
+	
+	1. In the Azure portal search box, enter integration accounts, and select Integration accounts.
+	2. Under Integration accounts, select the integration account where you want to add your partners.
+	3. On the integration account menu, under Settings, select Partners.
+	4. On the Partners pane, select Add.
+	5. On the Add Partner pane, provide the following information about the partner:
+		a. Name* - Partner's name
+		b. Qualifier* - The authenticating body that provides unique business identities to 
+		organizations, for example, D-U-N-S (Dun & Bradstreet).
+		Important: For partners in your integration account to participate in an agreement 
+		and exchange messages with each other, they have to use the same or compatible qualifier. 
+		c. Value* - A value that identifies the documents that your logic apps receive.
+	6. When you're done, select OK.	
+
+**********************************************************************
+
+Add agreements between partners in integration accounts 
+
+After you add partners to your integration account, specify how partners exchange messages by defining agreements
+in your integration account. Agreements help organizations communicate seamlessly with each other by defining
+the specific industry-standard protocol for exchanging messages and by providing the following shared benefits:
+	- Enable organizations to exchange information by using a well-known format.
+	- Improve efficiency when conducting business-to-business (B2B) transactions.
+	- Make creating, managing, and using agreements easy for building enterprise 
+	integration solutions.
+
+An agreement requires a host partner, which is always your organization, and a
+guest partner, which is the organization that exchanges messages with your organization. 
+The guest partner can be another company, or even a department in your own organization.
+Using this agreement, you specify how to handle inbound and outbound messages from the host partner's perspective.
+
+NOTE - This article shows how to create and manage an agreement, which you can then use to exchange B2B messages
+with another partner by using the AS2, X12, EDIFACT, or RosettaNet operations.
+
+Pre-requisite
+
+	- An integration account resource where you define and store artifacts, such as trading partners, agreements,
+	certificates, and so on, for use in your enterprise integration and B2B workflows. 
+	This resource has to meet the following requirements:
+	
+		a. Is associated with the same Azure subscription as your logic app resource.
+		b. Exists in the same location or Azure region as your logic app resource.
+		c. If you're using the Logic App (Consumption) resource type, your integration 
+		account requires a link to your logic app resource before you can use 
+		artifacts in your workflow.
+		d. If you're using the Logic App (Standard) resource type, your integration account doesn't 
+		need a link to your logic app resource but is still required to store other artifacts, 
+		such as partners, agreements, and certificates, along with using the AS2, X12, and EDIFACT operations.
+		Your integration account still has to meet other requirements, such as using the same
+		Azure subscription and existing in the same location as your logic app resource.
+	
+	- At least two trading partners in your integration account. An agreement requires a host partner 
+	and a guest partner. Also, an agreement requires that both partners use the same or compatible 
+	business identity qualifier that's appropriate for an AS2, X12, EDIFACT, or RosettaNet agreement.
+	
+	- Optionally, the logic app resource and workflow where you want to use the agreement to exchange messages. 
+	The workflow requires any trigger that starts your logic app's workflow.
+
+Add an agreement
+
+	1. In the Azure portal search box, enter integration accounts, and select Integration accounts.
+	2. Under Integration accounts, select the integration account where you want to add your partners.
+	3. On the integration account menu, under Settings, select Agreements.
+	4. On the Agreements pane, select Add.
+	5. On the Add pane, provide the following information about the agreement:
+		a. Name - The name for your agreement
+		b. Agreement Type - The protocol type for your agreement. When you create your agreement 
+			file, the content in that file must match the agreement type. Ex - AS2, X12, EDIFACT, or RosettaNet
+		c. Host Partner* - The host partner represents your organization
+		d. Host Identity* - The host partner's identifier
+		e. Guest Partner* - The guest partner represents the organization that communicates with your organization
+		f. Guest Identity* - The guest partner's identifier
+		g. Receive Settings - These properties specify how the host partner receives inbound messages
+			from the guest partner in the agreement. For more information, review the respective agreement type:
+				- AS2 message settings
+				- EDIFACT message settings
+				- X12 message settings
+		h. Send Settings - These properties specify how the host partner sends outbound messages to the guest 
+				partner in the agreement. For more information, review the respective agreement type:
+				- AS2 message settings
+				- EDIFACT message settings
+				- X12 message settings
+		i. RosettaNet PIP references - This pane specifies information about one or more Partner Interface Processes 
+				(PIP) to use RosettaNet messages.
+	6. When you're done, select OK. Your agreement now appears on the Agreements list.
+
+**********************************************************************
+
+Add schemas to use with workflows with Azure Logic Apps
+
+	Workflow actions such as Flat File and XML Validation require a schema to perform their tasks.
+	For example, the XML Validation action requires an XML schema to check that documents use valid
+	XML and have the expected data in the predefined format. This schema is an XML document that uses
+	XML Schema Definition (XSD) language and has the .xsd file name extension. The Flat File actions 
+	use a schema to encode and decode XML content.
+
+	This article shows how to add a schema to your integration account. If you're working with a Standard
+	logic app workflow, you can also add a schema directly to your logic app resource.
+
+	Pre-requisites -
+
+		1. The schema file that you want to add. To create schemas, you can use the following tools:
+			a. Visual Studio 2019 and the Microsoft Azure Logic Apps Enterprise Integration Tools Extension.
+			b. Visual Studio 2015 and the Microsoft Azure Logic Apps Enterprise Integration Tools 
+				for Visual Studio 2015 2.0 extension.
+
+		2. Based on whether you're working on a Consumption or Standard logic app workflow, you'll need an 
+			integration account resource. Usually, you need this resource when you want to define and store
+			artifacts for use in enterprise integration and B2B workflows.
+			a. If you're working on a "Consumption" logic app workflow, you'll need an integration account 
+			that's linked to your logic app resource.
+			b. If you're working on a "Standard" logic app workflow, you can link your integration account 
+			to your logic app resource, upload schemas directly to your logic app resource, or both,
+			based on the following scenarios:
+				
+				i. If you already have an integration account with the artifacts that you need or 
+				want to use, you can link your integration account to multiple Standard logic app 
+				resources where you want to use the artifacts. That way, you don't have to upload 
+				schemas to each individual logic app. For more information, review Link your logic 
+				app resource to your integration account.
+				
+				ii. The Flat File built-in connector lets you select a schema that you previously 
+				uploaded to your logic app resource or to a linked integration account, but not both.
+				You can then use this artifact across all child workflows within the same logic app 
+				resource.
+
+			NOTE - So, if you don't have or need an integration account, you can use the upload option. 
+			Otherwise, you can use the linking option. Either way, you can use these artifacts across all
+			child workflows within the same logic app resource.
+
+	Limitation -
+		
+		NOTE - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config?tabs=consumption#integration-account-limits
+				
+		1. Limits apply to the number of artifacts, such as schemas, per integration account. 
+		For more information, review Limits and configuration information for Azure Logic Apps.
+		
+		2. Based on whether you're working on a Consumption or Standard logic app workflow, 
+		schema file size limits might apply.
+			a. If you're working with Standard workflows, no limits apply to schema file sizes.
+			b. If you're working with Consumption workflows, the following limits apply:
+				i. If your schema is 2 MB or smaller, you can add your schema to your integration account 
+				directly from the Azure portal.
+				ii.If your schema is bigger than 2 MB but not bigger than the size limit for schemas, you'll
+				need an Azure storage account and a blob container where you can upload your schema. Then, 
+				to add that schema to your integration account, you can then link to your storage account 
+				from your integration account. For this task, the following table describes the items you need:
+					ITEM						DESCRIPTION
+					------------------------	-----------------------------------------------------------------
+					Azure storage account		In this account, create an Azure blob container for your schema. 
+												Learn how to create a storage account.
+
+					Blob container				In this container, you can upload your schema. You also need this 
+												container's content URI later when you add the schema to your 
+												integration account. Learn how to create a blob container.
+
+					Azure Storage Explorer		This tool helps you more easily manage storage accounts and blob 
+												containers. To use Storage Explorer, choose a step:
+													- In the Azure portal, select your storage account. From your
+													storage account menu, select Storage Explorer.
+													- For the desktop version, download and install Azure Storage 
+													Explorer. Then, connect Storage Explorer to your storage account
+													by following the steps in Get started with Storage Explorer. 
+
+				To add larger schemas, you can also use the Azure Logic Apps REST API - Schemas. For Standard workflows,
+				the Azure Logic Apps REST API is currently unavailable.
+
+		3. Usually, when you're using an integration account with your workflow, you add the schema to that account. 
+		However, if you're referencing or importing a schema that's not in your integration account, you might receive
+		the following error when you use the element xsd:redefine:
+		
+		An error occurred while processing the XML schemas: ''SchemaLocation' must successfully resolve if <redefine> 
+		contains any child other than <annotation>.'.
+		
+		To resolve this error, you need to use the element xsd:import or xsd:include instead of xsd:redefine, or use a URI.
+
+	Considerations for adding schemas
+		1. If you're working with a "Consumption" workflow, you must add your schema to a linked integration account.
+		2. If you're working with a "Standard" workflow, you have the following options:
+			a. Add your schema to a linked integration account. You can share the schema and integration account across 
+			multiple Standard logic app resources and their child workflows.
+			b. Add your schema directly to your logic app resource. However, you can only share that schema across child
+			workflows in the same logic app resource.
+
+	Add schemas to logic app
+
+		CONSUMPTION BASED LOGIC APP
+
+			For Consumption workflows, based on your schema's file size, follow the steps for uploading a schema that's either
+			up to 2 MB or more than 2 MB, up to 8 MB.
+
+			Add schemas up to 2 MB
+				1. On the Add Schema pane, enter a name for your schema. Keep Small file selected. Next to the Schema box,
+				select the folder icon. Find and select the schema you're uploading.
+				2. When you're done, select OK. 
+				After your schema finishes uploading, the schema appears in the Schemas list.
+
+			Add schemas more than 2 MB
+				To add larger schemas for Consumption workflows to use, you can either use the Azure Logic Apps REST API - 
+				Schemas or upload your schema to an Azure blob container in your Azure storage account. Your steps for adding
+				schemas differ based whether your blob container has public read access. So first, check whether or not your 
+				blob container has public read access by following these steps: Set public access level for blob container.
+
+			Check container access level
+				1. Open Azure Storage Explorer. In the Explorer window, expand your Azure subscription if not already expanded.
+				2. Expand Storage Accounts > {your-storage-account} > Blob Containers. Select your blob container.
+				3. From your blob container's shortcut menu, select Set Public Access Level.
+					a. If your blob container has at least public access, select Cancel, 
+					and follow these steps later on this page: Upload to containers with public access.
+					b. If your blob container doesn't have public access, select Cancel, 
+					and follow these steps later on this page: Upload to containers without public access.
+
+			Upload to containers with public access
+				1. Upload the schema to your storage account. In the right-hand window, select Upload.
+				2. After you finish uploading, select your uploaded schema. On the toolbar, select 
+				Copy URL so that you copy the schema's URL.
+				3. Return to the Azure portal where the Add Schema pane is open. Enter a name for your 
+				assembly. Select Large file (larger than 2 MB). The Content URI box now appears, rather than the Schema box.
+				4. In the Content URI box, paste your schema's URL. Finish adding your schema.
+				After your schema finishes uploading, the schema appears in the Schemas list. On your integration account's Overview page, under Artifacts, your uploaded schema appears.
+
+			Upload to containers without public access
+				1. Upload the schema to your storage account. In the right-hand window, select Upload.
+				2. After you finish uploading, generate a shared access signature (SAS) for your schema. 
+				From your schema's shortcut menu, select Get Shared Access Signature.
+				3. In the Shared Access Signature pane, select Generate container-level 
+				shared access signature URI > Create. 
+				After the SAS URL gets generated, next to the URL box, select Copy.
+				4. Return to the Azure portal where the Add Schema pane is open. Select Large file.
+				The Content URI box now appears, rather than the Schema box.
+				5. In the Content URI box, paste the SAS URI you previously generated. 
+				Finish adding your schema.
+				After your schema finishes uploading, the schema appears in the Schemas list. On your 
+				integration account's Overview page, under Artifacts, your uploaded schema appears.
+
+		STANDARD LOGIC APP
+
+			For a Standard logic app resource, the following steps apply only if you want to add a schema directly 
+			to your resource. Otherwise, add the schema to your integration account.
+
+			Azure portal
+				1. On your logic app resource's menu, under Settings, select Schemas.
+				2. On the Schemas pane toolbar, select Add.
+				3. On the Add schema pane, enter a unique name for your schema.
+				4. Next to the Schema box, select the folder icon. Select the schema to upload.
+				5. When you're done, select OK.
+				After your schema file finishes uploading, the schema appears in the Schemas list. 
+				On your integration account's Overview page, under Artifacts, your uploaded schema also appears.
+
+			Visual Studio Code
+				1. In your logic app project's structure, open the Artifacts folder and then the Schemas folder.
+				2. In the Schemas folder, add your schema.
+
+**********************************************************************
+
+Add maps for transformations in workflows with Azure Logic Apps
+
+	Workflow actions such as Transform XML and Liquid require a map to perform their tasks. For example, the 
+	Transform XML action requires a map to convert XML between formats. A map is an XML document that uses 
+	Extensible Stylesheet Language Transformation (XSLT) language to describe how to convert data from XML to
+	another format and has the .xslt file name extension. The map consists of a source XML schema as input and
+	a target XML schema as output. You can define a basic transformation, such as copying a name and address
+	from one document to another. Or, you can create more complex transformations using the out-of-the-box map 
+	operations. You can manipulate or control data by using different built-in functions, such as string
+	manipulations, conditional assignments, arithmetic expressions, date time formatters, and even looping constructs.
+
+	For example, suppose you regularly receive B2B orders or invoices from a customer who uses the YearMonthDay 
+	date format (YYYYMMDD). However, your organization uses the MonthDayYear date format (MMDDYYYY). You can 
+	define and use a map that transforms the YYYYMMDD format to the MMDDYYYY format before storing the order 
+	or invoice details in your customer activity database.
+
+	This guide shows how to add a map for your workflow to use. You can add maps either to your linked integration
+	account, or if you have a Standard logic app, you can add maps directly to your logic app resource.
+
+	Pre-requisite
+		
+		1. The map that you want to add. To create maps, you can use any of the following tools:
+			a. Visual Studio Code and the Data Mapper extension. To call the maps created with Data Mapper 
+			from your workflow, you must use the Data Mapper Operations action named Transform using Data
+			Mapper XSLT, not the XML Operations action named Transform XML. For more information, see Create
+			maps for data transformation with Visual Studio Code.
+			b. Visual Studio 2019 and the Microsoft Azure Logic Apps Enterprise Integration Tools extension.
+			c. Visual Studio 2015 and the Microsoft Azure Logic Apps Enterprise Integration Tools for Visual 
+			Studio 2015 2.0 extension.
+
+		2. Based on whether you're working on a Consumption or Standard logic app workflow, you'll need an 
+		integration account resource. Usually, you need this resource when you want to define and store 
+		artifacts for use in enterprise integration and B2B workflows.
+			a. If you're working on a Consumption logic app workflow, you'll need an integration account 
+			that's linked to your logic app resource.
+			b. If you're working on a Standard logic app workflow, you can link your integration account 
+			to your logic app resource, upload maps directly to your logic app resource, or both, based
+			on the following scenarios:
+				i. If you already have an integration account with the artifacts that you need or want to 
+				use, you can link your integration account to multiple Standard logic app resources where 
+				you want to use the artifacts. That way, you don't have to upload maps to each individual
+				logic app. For more information, review Link your logic app resource to your integration 
+				account.
+				ii.The Liquid built-in connector lets you select a map that you previously uploaded to your 
+				logic app resource or to a linked integration account, but not both.
+			So, if you don't have or need an integration account, you can use the upload option. Otherwise, 
+			you can use the linking option. Either way, you can use these artifacts across all child 
+			workflows within the same logic app resource.
+			
+		3. Consumption and Standard workflows support XSLT maps that reference external assemblies, which
+		enable directly calling custom .NET code from XSLT maps. To support this capability, Consumption
+		workflows also have the following requirements:
+			a. You need a 64-bit assembly. The transform service runs a 64-bit process, so 32-bit 
+			assemblies aren't supported. If you have the source code for a 32-bit assembly, recompile 
+			the code into a 64-bit assembly. If you don't have the source code, but you obtained the
+			binary from a third-party provider, get the 64-bit version from that provider. For example,
+			some vendors provide assemblies in packages that have both 32-bit and 64-bit versions. 
+			If you have the option, use the 64-bit version instead.
+			b. You have to upload both the assembly and the map in a specific order to your integration 
+			account. Make sure you upload your assembly first, and then upload the map that references
+			the assembly.
+			c. If your assembly or map is 2 MB or smaller, you can add your assembly and map to your 
+			integration account directly from the Azure portal.
+			d. If your assembly is bigger than 2 MB but not bigger than the size limit for assemblies, 
+			you'll need an Azure storage account and blob container where you can upload your assembly.
+			Later, you can provide that container's location when you add the assembly to your integration 
+			account. For this task, the following table describes the items you need:
+				ITEM						DESCRIPTION
+				------------------------------------------------
+				Azure storage account		In this account, create an Azure blob container for your assembly.
+				
+				Blob container				In this container, you can upload your assembly. You also need this 
+											container's content URI location when you add the assembly to your 
+											integration account. 
+				
+				Azure Storage Explorer		This tool helps you more easily manage storage accounts and blob containers. 
+											To use Storage Explorer, either download and install Azure Storage Explorer. 
+											Then, connect Storage Explorer to your storage account by following the 
+											steps in Get started with Storage Explorer. 
+
+			To add larger maps, you can use the Azure Logic Apps REST API - Maps. For Standard workflows,
+			the Azure Logic Apps REST API is currently unavailable.
+
+
+	Limitations
+
+		1. Limits apply to the number of artifacts, such as maps, per integration account. 
+		For more information, review Limits and configuration information for Azure Logic Apps.
+		2. Based on whether you're working on a Consumption or Standard logic app workflow, 
+		the following limitations apply:
+			a. Standard workflows
+				i. Support XSLT 1.0, 2.0, and 3.0.
+				ii.No limits apply to map file sizes.
+			b. Consumption workflows
+				i. Azure Logic Apps allocates finite memory for processing XML transformations. 
+				If you create Consumption workflows, and your map or payload transformations 
+				have high memory consumption, such transformations might fail, resulting in out
+				of memory errors. To avoid this scenario, consider these options:
+					- Edit your maps or payloads to reduce memory consumption.
+					- Create Standard logic app workflows, which run in single-tenant 
+					Azure Logic Apps and offer dedicated and flexible options for 
+					compute and memory resources.
+
+	Create maps
+		You can create maps using either Visual Studio Code with the Data Mapper extension or Visual 
+		Studio with the Microsoft Azure Logic Apps Enterprise Integration Tools extension.
+
+	Visual Studio Code
+		When you create maps using Visual Studio Code and the Data Mapper extension, you can call 
+		these maps from your workflow, but only with the Data Mapper Operations action named Transform
+		using Data Mapper XSLT, not the XML Operations action named Transform XML. 
+		For more information, see Create maps for data transformation with Visual Studio Code.
+
+	Visual Studio
+		1. When you create maps using Visual Studio, you'll need to create an integration project with 
+		either of the following tools:
+			- Visual Studio 2019 and the Microsoft Azure Logic Apps Enterprise Integration Tools extension
+			- Visual Studio 2015 and the Microsoft Azure Logic Apps Enterprise Integration Tools for 
+			Visual Studio 2015 2.0 extension.
+		
+		2. In the integration project, you can build an integration map file, which lets you visually
+		map items between two XML schema files. These tools offer the following map capabilities:
+			- You work with a graphical representation of the map, which shows all the relationships
+			and links you create.
+			- You can make a direct data copy between the XML schemas that you use to create the map.
+			The Enterprise Integration SDK for Visual Studio includes a mapper that makes this task 
+			as simple as drawing a line that connects the elements in the source XML schema with their 
+			counterparts in the target XML schema.
+			- Operations or functions for multiple maps are available, including string functions,
+			date time functions, and so on.
+			- To add a sample XML message, you can use the map testing capability. With just one gesture,
+			you can test the map you created, and review the generated output.
+			- After you build your project, you get an XSLT document.
+		
+		3. Your map must have the following attributes and a CDATA section that contains the call 
+		to the assembly code:
+			- name is the custom assembly name.
+			- namespace is the namespace in your assembly that includes the custom code.
+			
+			The following example shows a map that references an assembly named XslUtilitiesLib and 
+			calls the circumference method from the assembly.
+
+			<?xml version="1.0" encoding="UTF-8"?>
+			<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:user="urn:my-scripts">
+			<msxsl:script language="C#" implements-prefix="user">
+				<msxsl:assembly name="XsltHelperLib"/>
+				<msxsl:using namespace="XsltHelpers"/>
+				<![CDATA[public double circumference(int radius){ XsltHelper helper = new XsltHelper(); return helper.circumference(radius); }]]>
+			</msxsl:script>
+			<xsl:template match="data">
+			<circles>
+				<xsl:for-each select="circle">
+					<circle>
+						<xsl:copy-of select="node()"/>
+							<circumference>
+								<xsl:value-of select="user:circumference(radius)"/>
+							</circumference>
+					</circle>
+				</xsl:for-each>
+			</circles>
+			</xsl:template>
+			</xsl:stylesheet>
+
+	Add referenced assemblies
+
+		CONSUMPTION BASED LOGIC APP
+
+			1. A Consumption logic app resource supports referencing external assemblies from maps, which 
+			enable directly calling custom .NET code from XSLT maps.
+				a. In the Azure portal search box, enter integration accounts, and select Integration accounts.
+				b. Select the integration account where you want to add your assembly.
+				c. On your integration account's menu, select Overview. Under Settings, select Assemblies.
+				d. On the Assemblies pane toolbar, select Add.
+			Based on your assembly file's size, follow the steps for uploading an assembly that's either up
+			to 2 MB or more than 2 MB but only up to 8 MB. For limits on assembly quantities in integration 
+			accounts, review Limits and configuration for Azure Logic Apps.
+
+			2. Add assemblies up to 2 MB
+				
+				a. Under Add Assembly, enter a name for your assembly. Keep Small file selected. Next to the 
+				Assembly box, select the folder icon. Find and select the assembly you're uploading. After you
+				select the assembly, the Assembly Name property automatically shows the assembly's file name.
+				
+				b. When you're done, select OK. After your assembly file finishes uploading, the assembly 
+				appears in the Assemblies list. On your integration account's Overview pane, under Artifacts,
+				your uploaded assembly also appears.
+
+			3. Add assemblies more than 2 MB
+				To add larger assemblies, you can upload your assembly to an Azure blob container in your Azure
+				storage account. Your steps for adding assemblies differ based whether your blob container has 
+				public read access. So first, check whether or not your blob container has public read access 
+				by following these steps: Set public access level for blob container
+
+
+			4. Check container access level
+				a. Open Azure Storage Explorer. In the Explorer window, expand your Azure subscription if 
+				not already expanded.
+				b. Expand Storage Accounts > {your-storage-account} > Blob Containers. Select your blob container.
+				c. From your blob container's shortcut menu, select Set Public Access Level.
+					- If your blob container has at least public access, select Cancel, and follow these steps
+					later on this page: Upload to containers with public access
+					- If your blob container doesn't have public access, select Cancel, and follow these steps
+					later on this page: Upload to containers without public access
+
+			5. Upload to containers with public access
+				a. Upload the assembly to your storage account. In the right-side window, select Upload.
+				b. After you finish uploading, select your uploaded assembly. On the toolbar, select Copy 
+				URL so that you copy the assembly's URL.
+				c. Return to the Azure portal where the Add Assembly pane is open. Enter a name for your 
+				assembly. Select Large file (larger than 2 MB). The Content URI box now appears, 
+				rather than the Assembly box.
+				d. In the Content URI box, paste your assembly's URL. Finish adding your assembly.
+				After your assembly finishes uploading, the assembly appears in the Assemblies list. 
+				On your integration account's Overview pane, under Artifacts, your uploaded assembly also appears.
+
+			6. Upload to containers without public access
+				a. Upload the assembly to your storage account. In the right-side window, select Upload.
+				b. After you finish uploading, generate a shared access signature (SAS) for your assembly.
+				From your assembly's shortcut menu, select Get Shared Access Signature.
+				c. In the Shared Access Signature pane, select Generate container-level 
+				shared access signature URI > Create. After the SAS URL gets generated, 
+				next to the URL box, select Copy.
+				d. Return to the Azure portal where the Add Assembly pane is open. Enter a name for your 
+				assembly. Select Large file (larger than 2 MB). The Content URI box now appears, rather 
+				than the Assembly box.
+				e. In the Content URI box, paste the SAS URI that you previously generated. Finish adding 
+				your assembly.
+				After your assembly finishes uploading, the assembly appears in the Assemblies list. On your 
+				integration account's Overview page, under Artifacts, your uploaded assembly also appears.
+
+		STANDARD BASED LOGIC APP
+			
+			1. A Standard logic app resource supports referencing external assemblies from maps, which enable
+			directly calling custom .NET code from XSLT maps:
+
+				ASSEMBLY TYPE							DESCRIPTION
+				---------------------------				---------------------------------------
+				Client/SDK Assembly (.NET Framework)	This assembly type provides storage and deployment of client and 
+														custom SDK for the .NET Framework. For example, the SAP built-in 
+														connector uses these assemblies to load the SAP NCo 
+														non-redistributable DLL files.
+				
+				Client/SDK Assembly (Java)				This assembly type provides storage and deployment of custom SDK 
+														for Java. For example, the JDBC built-in connector uses these JAR 
+														files to find JDBC drivers for custom relational databases (RDBs).
+
+				Custom Assembly (.NET Framework)		This assembly type provides storage and deployment of custom DLLs. 
+														For example, the Transform XML operation uses these assemblies for 
+														the custom transformation functions that are required during XML 
+														transformation.
+
+			2. Azure portal
+				a. In the Azure portal search box, find and open your logic app resource.
+				b. On the logic app menu, under Artifacts, select Assemblies.
+				c. On the Assemblies page toolbar, select Add. On the Add Assembly pane, under Assembly Type, select the 
+				following type for your assembly, based on your scenario.
+				d. Now, either drag-and-drop your assemblies to the Upload Files area, or browse to and select your assemblies.
+				e. When you're done, select Upload Files.
+				Your selected assemblies now appear on your logic app's Assemblies page.
+
+			3. Visual Studio Code
+				a. In your Standard logic app project, open the following folders: Artifacts > lib > custom > net472.
+				b. Add your assemblies to the net472 folder.
+
+	Add maps
+		1. If you're working with a Consumption workflow, you must add your map to a linked integration account.
+		2. If you're working with a Standard workflow, you have the following options:
+			a. Add your map to a linked integration account. You can share the map and integration account across 
+			multiple Standard logic app resources and their child workflows.
+			b. Add your map directly to your logic app resource. However, you can only share that map across child 
+			workflows in the same logic app resource.
+	
+	Add map to integration account
+		1. In the Azure portal, sign in with your Azure account credentials.
+		2. In the Azure portal search box, enter integration accounts, and select Integration accounts.
+		3. Find and select your integration account.
+		4. On the integration account's navigation menu, under Settings, select Maps.
+		5. On the Maps pane toolbar, select Add.
+		For Consumption workflows, based on your map's file size, now follow the steps for uploading a map that's
+		either up to 2 MB or more than 2 MB.
+
+	Add maps up to 2 MB
+		1. On the Add Map pane, enter a unique name for your map.
+		2. Under Map type, select the type, for example: Liquid, XSLT, XSLT 2.0, or XSLT 3.0.
+		3. Next to the Map box, select the folder icon. Select the map to upload.
+		If you left the Name property empty, the map's file name automatically appears in that 
+		property after you select the map file.
+		4. When you're done, select OK.
+		After your map file finishes uploading, the map appears in the Maps list. On your integration
+		account's Overview page, under Artifacts, your uploaded map also appears.
+	
+	Add maps more than 2 MB
+		To add larger maps for Consumption workflows, use the Azure Logic Apps REST API - Maps.
+		LINK - https://learn.microsoft.com/en-us/rest/api/logic/maps/create-or-update?view=rest-logic-2016-06-01&tabs=HTTP
+
+	Add map to Standard logic app resource
+		The following steps apply only if you want to add a map directly to your Standard logic app resource.
+		Otherwise, add the map to your integration account.
+		LINK - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-maps?tabs=standard#add-map-integration-account
+
+		Azure portal
+			1. On your logic app resource's menu, under Artifacts, select Maps.
+			2. On the Maps pane toolbar, select Add.
+			3. On the Add Map pane, enter a unique name for your map and include the .xslt extension name.
+			4. Next to the Map box, select the folder icon. Select the map to upload.
+			5. When you're done, select OK.
+			After your map file finishes uploading, the map appears in the Maps list. On your integration account's 
+			Overview page, under Artifacts, your uploaded map also appears.
+
+		Visual Studio Code
+			1. In your logic app project's structure, open the Artifacts folder and then the Maps folder.
+			2. In the Maps folder, add your map.		
+
+**********************************************************************
+
+Add certificates to integration accounts for securing messages in workflows with Azure Logic Apps
+LINK - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-certificates
+
+	1. When you need to exchange confidential messages in a logic app business-to-business (B2B) workflow, you can 
+	increase the security around this communication by using certificates. A certificate is a digital document that 
+	helps secure communication in the following ways:
+		- Checks the participants' identities in electronic communications.
+		- Encrypts message content.
+		- Digitally signs messages.
+	2. You can use the following certificate types in your workflows:
+		- Public certificates, which you must purchase from a public internet certificate authority (CA). 
+		These certificates don't require any keys.
+		- Private certificates or self-signed certificates, which you create and issue yourself. However, 
+		these certificates require private keys in an Azure key vault.
+
+	Pre-requisite
+		1. An integration account resource where you define and store artifacts, such as trading partners, agreements,
+		certificates, and so on, for use in your enterprise integration and B2B workflows. This resource has to meet
+		the following requirements:
+			a. Is associated with the same Azure subscription as your logic app resource.
+			b. Exists in the same location or Azure region as your logic app resource.
+			c. If you have a Consumption logic app resource, you have to link your integration account to 
+			your logic app resource before you can use your artifacts in your workflow.
+			To create and add certificates for use in Logic App (Consumption) workflows, you don't need a
+			logic app resource yet. However, when you're ready to use those certificates in your workflows,
+			your logic app resource requires a linked integration account that stores those certificates.
+			d. If you have a Standard logic app resource, your integration account doesn't need a link to 
+			your logic app resource but is still required to store other artifacts, such as partners, 
+			agreements, and certificates, along with using the AS2, X12, and EDIFACT operations. Your 
+			integration account still has to meet other requirements, such as using the same Azure subscription
+			and existing in the same location as your logic app resource.
+		
+		2. For private certificates, you must meet the following prerequisites:
+			a. Add a private key in Azure Key Vault and have the Key Name. For more information, review Add your
+			private key to Azure Key Vault.
+			b. Authorize the Azure Logic Apps service to perform operations on your key vault. To grant access to 
+			the Azure Logic Apps service principal, use Azure role-based access control to manage access to your
+			key vault. For more information, see Provide access to Key Vault keys, certificates, and secrets with
+			an Azure role-based access control.
+			c. Add the corresponding public certificate to your key vault. This certificate appears in your
+			agreement's Send and Receive settings for signing and encrypting messages. For example, review Reference
+			for AS2 messages settings in Azure Logic Apps.
+
+		3. At least two trading partners and an agreement between those partners in your integration account.
+		An agreement requires a host partner and a guest partner. Also, an agreement requires that both partners 
+		use the same or compatible business identity qualifier that's appropriate for an AS2, X12, EDIFACT, or 
+		RosettaNet agreement.
+
+		4. Optionally, the logic app resource and workflow where you want to use the certificate. The workflow 
+		requires any trigger that starts your logic app's workflow. If you haven't created a logic app workflow
+		before, review Quickstart: Create an example Consumption logic app workflow.
+	
+	Use a public certificate
+		To use a public certificate in your workflow, you have to first add the certificate to your integration account.
+			1. In the Azure portal search box, enter integration accounts, and select Integration accounts.
+			2. Under Integration accounts, select the integration account where you want to add your certificate.
+			3. On the integration account menu, under Settings, select Certificates.
+			4. On the Certificates pane, select Add.
+			5. On the Add Certificate pane, provide the following information about the certificate:
+				
+				Name* - Your certificate's name
+				Certificate* - To browse for the certificate file that you want to add, select the folder icon next to the Certificate box.
+								Select the certificate that you want to use.
+				Certificate Type* - Your certificate's type. Value will be "Public".
+			6. When you're done, select OK. After Azure validates your selection, Azure uploads your certificate.
+	
+	Use a private certificate
+		To use a private certificate in your workflow, you have to first meet the prerequisites for private keys,
+		and add a public certificate to your integration account.
+			1. In the Azure portal search box, enter integration accounts, and select Integration accounts.
+			2. Under Integration accounts, select the integration account where you want to add your certificate.
+			3. On the integration account menu, under Settings, select Certificates.
+			4. On the Certificates pane, select Add.
+			5. On the Add Certificate pane, provide the following information about the certificate:
+
+				Name* - Your certificate's name
+				Certificate* - To browse for the certificate file that you want to add, select the folder icon next to the Certificate box. 
+								Select the public certificate that corresponds to the private key that's stored in your key vault.
+				Certificate Type* - Your certificate's type. Value will be "Private".
+				Resource Group* - Your integration account's resource group
+				Key Vault* - Your key vault name
+				Key name* - Your key name
+			6. When you're done, select OK. After Azure validates your selection, Azure uploads your certificate.
+				
+**********************************************************************
+
+Manage artifact metadata in integration accounts
+LINK - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-metadata
+
+	You can define custom metadata for artifacts in integration accounts and get that metadata during runtime for your 
+	logic app workflow to use. For example, you can provide metadata for artifacts, such as partners, agreements, schemas, 
+	and maps. All these artifact types store metadata as key-value pairs.
+
+	Pre-requisite
+
+		1. An integration account that has the artifacts where you want to add metadata. The artifacts can be the following types:
+			a. Partner
+			b. Agreement
+			c. Schema
+			d. Map
+
+		2. The logic app workflow where you want to use the artifact metadata. Make sure that your workflow has at least a trigger,
+		such as the Request or HTTP trigger, and the action that you want to use for working with artifact metadata.
+		The example in this article uses the Request trigger named When a HTTP request is received.
+
+		3. Make sure to link your integration account to your Consumption logic app resource or to your Standard logic app workflow.
+
+	Add metadata to artifacts
+
+		1. In the Azure portal, go to your integration account.
+		2. Select the artifact where you want to add metadata, and then select Edit.
+		3. On the Edit pane, enter the metadata details for that artifact, and then select OK. 
+		The following screenshot shows three metadata key-value pairs:
+		4. To view this metadata in the integration account's JavaScript Object Notation (JSON) definition, 
+		select Edit as JSON, which opens the JSON editor.
+
+	Get artifact metadata
+		1. In the Azure portal, open the logic app resource that's linked to your integration account.
+		2. On the logic app navigation menu, select Logic app designer.
+		3. In the designer, add the Integration Account Artifact Lookup action to get the metadata.
+			a. Under the trigger or an existing action, select New step.
+			b. Under the Choose an operation search box, select Built-in. In the search box, enter integration account.
+			c. From the actions list, select the action named Integration Account Artifact Lookup.
+		4. Provide the following information for the artifact that you want to find:
+			PROPERTY						DESCRIPTION
+			---------------------------		-----------------------------------------
+			Artifact Type*					The type for the artifact you want to get. 
+											Values could be (Schema, Map, Partner, Agreement, or a custom type)
+			
+			Artifact Name*					The name for the artifact you want to get
+
+		This example gets the metadata for a trading partner artifact by following these steps:
+			a. For Artifact Type, select Partner.
+			b. For Artifact Name, click inside the edit box. When the dynamic content list appears, 
+			select the name output from the trigger.
+		5. Now, add the action that you want to use for using the metadata. This example continues with the
+		built-in HTTP action.
+		6. Provide the following information for the artifact metadata that you want the HTTP action to use.
+		For example, suppose you want to get the routingUrl metadata that you added earlier. Here are the 
+		property values that you might specify:
+			PROPERTY						DESCRIPTION
+			---------------------------		----------------------------------------
+			Method							The HTTP operation to run on the artifact. 
+											Ex- Use the GET method for this HTTP action.
+
+			URI								The endpoint where you want to send the outgoing request.
+
+			Headers							Any header outputs from the trigger that you want to pass 
+											to the HTTP action.
+
+			Body							Any other content that you want to pass through the HTTP 
+											action's body property.
+
+		7. To check the information that you provided for the HTTP action, you can view your workflow's 
+		JSON definition. On the designer toolbar, select Code view.
+		8. On the code view toolbar, select Designer. Any expressions that you entered in the designer 
+		now appear resolved.
+
+**********************************************************************
+
+Exchange B2B messages between partners using workflows
+LINK - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-b2b?tabs=consumption
+
+	When you have an integration account that defines trading partners and agreements, you can create an 
+	automated business-to-business (B2B) workflow that exchanges messages between trading partners by 
+	using Azure Logic Apps. Your workflow can use connectors that support industry-standard protocols, 
+	such as AS2, X12, EDIFACT, and RosettaNet. You can also include operations provided by other connectors
+	in Azure Logic Apps, such as Office 365 Outlook, SQL Server, and Salesforce.
+
+	This article shows how to create an example logic app workflow that can receive HTTP requests by using 
+	a Request trigger, decode message content by using the AS2 Decode and Decode X12 actions, and return 
+	a response by using the Response action. The example uses the workflow designer in the Azure portal,
+	but you can follow similar steps for the workflow designer in Visual Studio.
+
+	If you're new to logic apps, review What is Azure Logic Apps? For more information about B2B enterprise 
+	integration, review B2B enterprise integration workflows with Azure Logic Apps.
+
+	Pre-requisite
+
+		1.An integration account resource where you define and store artifacts, such as trading partners, 
+		agreements, certificates, and so on, for use in your enterprise integration and B2B workflows. 
+		This resource has to meet the following requirements:
+			a. Is associated with the same Azure subscription as your logic app resource.
+			b. Exists in the same location or Azure region as your logic app resource.
+			c. If you're using the Logic App (Consumption) resource type, your integration 
+			account requires a link to your logic app resource before you can use artifacts 
+			in your workflow.
+			d. If you're using the Logic App (Standard) resource type, your integration account 
+			doesn't need a link to your logic app resource but is still required to store other
+			artifacts, such as partners, agreements, and certificates, along with using the AS2,
+			X12, or EDIFACT operations. Your integration account still has to meet other requirements, 
+			such as using the same Azure subscription and existing in the same location as 
+			your logic app resource.
+
+		2. At least two trading partners in your integration account. The definitions for both partners
+		must use the same business identity qualifier, which is AS2, X12, EDIFACT, or RosettaNet.
+
+		3. An AS2 agreement and X12 agreement for the partners that you're using in this workflow. 
+		Each agreement requires a host partner and a guest partner.
+
+		4. A logic app resource with a blank workflow where you can add the Request trigger and then the following actions:
+			- AS2 Decode
+			- Condition, which sends a Response based on whether the AS2 Decode action succeeds or fails
+			- Decode X12 message
+
+	Add the Request trigger
+		
+		CONSUMPTION BASED LOGIC APP
+			
+			1. In the Azure portal, open your logic app resource and blank workflow in the workflow designer.
+			2. Under the designer search box, select All, if not selected. In the search box, enter when a http
+			request. Select the Request trigger named When an HTTP request is received.
+			3. In the trigger, leave the Request body JSON Schema box empty. 
+			The reason is that the trigger will receive an X12 message in flat file format.
+			4. When you're done, on the designer toolbar, select Save. 
+			This step generates the HTTP POST URL that you later use to send a request that triggers logic app workflow.
+			5. Copy and save the URL to use later.
+		
+		STANDARD LOGIC APP
+			
+			1. In the Azure portal, open your logic app resource and blank workflow in the workflow designer.
+			2. On the designer, select Choose an operation. Under the search box, select Built-in, if not selected. 
+			In the search box, enter when a http request. Select the Request trigger named When an HTTP request is received.
+			3. In the trigger, leave the Request body JSON Schema box empty. 
+			The reason is that the trigger will receive an X12 message in flat file format.
+			4. When you're done, on the designer toolbar, select Save. 
+			This step generates the HTTP POST URL that you later use to send a request that triggers logic app workflow.
+			5. Copy and save the URL to use later.
+
+	Add the decode AS2 action
+		
+		CONSUMPTION BASED LOGIC APP
+
+			1. Under the trigger, select New step.
+			2. Under the Choose an operation search box, select All, if not selected. In the search box,
+			enter as2, and select AS2 Decode.
+			3. In the action's Message to decode property, enter the input that you want the AS2 action to decode,
+			which is the body output from the Request trigger. You have multiple ways to specify this content as 
+			the action's input, either by selecting from the dynamic content list or as an expression:
+				a. To select from a list that shows the available trigger outputs, click inside the Message to
+				decode box. After the dynamic content list appears, under When a HTTP request is received, select
+				Body property value, for example:
+				b. To enter an expression that references the trigger's body output, click inside the Message to decode box. 
+				After the dynamic content list appears, select Expression. In the expression editor, enter the following 
+				expression, and select OK:
+					triggerOutputs()['body']
+				Or, in the Message to decode box, directly enter the following expression:
+					@triggerBody()
+				The expression resolves to the Body token.
+			4. In the action's Message headers property, enter any headers required for the AS2 action, which are in 
+			the headers output from the Request trigger.
+				a. To enter an expression that references the trigger's headers output, select Switch Message headers to text mode.
+				b. Click inside the Message headers box. After the dynamic content list appears, select Expression. In the 
+				expression editor, enter the following expression, and select OK:
+					triggerOutputs()['Headers']
+				In the AS2 Decode action, the expression now appears as a token:
+				c. To get the expression token to resolve into the Headers token, switch between the designer and code view. 
+				After this step, the AS2 Decode action looks like this example:
+
+		STANDARD LOGIC APP
+
+			1. Under the trigger, select Insert a new step (plus sign), and then select Add an action.
+			2. Under the Choose an operation search box, select Azure, if not already selected. In the search box, 
+			enter as2, and select Decode AS2 message.
+			3. When prompted to create a connection to your integration account, provide a name to use for your connection, 
+			select your integration account, and then select Create.
+			4. In the action's body property, enter the input that you want the AS2 action to decode, which is the body
+			output from the Request trigger. You have multiple ways to specify this content as action's input, either by
+			selecting from the dynamic content list or as an expression:
+				a. To select from a list that shows the available trigger outputs, click inside the body property box. 
+				After the dynamic content list appears, under When a HTTP request is received, select Body property value, 
+				for example:
+				b. To enter an expression that references the trigger's body output, click inside the body property box.
+				After the dynamic content list appears, select Expression. In the expression editor, enter the following expression,
+				and select OK:
+					triggerOutputs()['body']
+				Or, in the body property box, directly enter the following expression:
+					@triggerBody()
+				The expression resolves to the Body token.
+			5. In the Headers property box, enter any headers required for the AS2 action, which are in the headers output 
+			from the Request trigger.
+				a. To enter an expression that references the trigger's headers output, select Switch Message headers to text mode.
+				b. Click inside the Headers property box. After the dynamic content list appears, select Expression.
+				In the expression editor, enter the following expression, and select OK:
+					triggerOutputs()['Headers']
+				In the Decode AS2 message action, the expression now appears as a token:
+				c. To get the expression token to resolve into the Headers token, switch between the designer and code view.
+				After this step, the AS2 Decode action looks like this example:
+
+		Add the Response action as a message receipt
+
+			To notify the trading partner that the message was received, you can return a response that contains an AS2 Message 
+			Disposition Notification (MDN) by using the Condition and Response actions. By adding these actions immediately 
+			after the AS2 action, the logic app workflow can continue processing if the AS2 action succeeds. Otherwise, if 
+			the AS2 action fails, the logic app workflow stops processing.
+
+			CONSUMPTION BASED LOGIC APP
+			
+				1. Under the AS2 Decode action, select New step.
+				2. Under the Choose an operation search box, select Built-in, if not already selected.
+				In the search box, enter condition. Select the Condition action. Now the condition shape appears,
+				including the paths that determine whether the condition is met.
+				3. Now specify the condition to evaluate. In the Choose a value box, enter the following expression:
+					@body('AS2_Decode')?['AS2Message']?['MdnExpected']
+				In the middle box, make sure the comparison operation is set to is equal to. In the right-side box, 
+				enter the value Expected.
+				4. Save your logic app workflow. To get the expression to resolve as this token, switch between the 
+				designer and code view.
+				5. Now specify the responses to return based on whether the AS2 Decode action succeeds or not.
+					a. For the case when the AS2 Decode action succeeds, in the True shape, select Add an action.
+					Under the Choose an operation search box, enter response, and select Response.
+					b. To access the AS2 MDN from the AS2 Decode action's output, specify the following expressions:
+					In the Response action's Headers property, enter the following expression:
+						@body('AS2_Decode')?['OutgoingMdn']?['OutboundHeaders']
+					In the Response action's Body property, enter the following expression:
+						@body('AS2_Decode')?['OutgoingMdn']?['Content']
+					c. To get the expressions to resolve as tokens, switch between the designer and code view:
+					d. For the case when the AS2 Decode action fails, in the False shape, select Add an action. Under the
+					Choose an operation search box, enter response, and select Response. Set up the Response action 
+					to return the status and error that you want.
+				6. Save your logic app workflow.
+
+			STANDARD LOGIC APP
+
+				1. Under the Decode AS2 message action, select Insert a new step (plus sign), and then select Add an action.
+				2. Under the Choose an operation search box, select Built-in, if not already selected. In the search box, 
+				enter condition. Select the Condition action.
+				Now the condition shape appears, including the paths that determine whether the condition is met.
+				3. Now specify the condition to evaluate. Select the Condition shape so that the details panel appears. 
+				In the Choose a value box, enter the following expression:
+					@body('Decode_AS2_message')?['AS2Message']?['MdnExpected']
+				In the middle box, make sure the comparison operation is set to is equal to. In the right-side box, enter the value Expected.
+				4. Save your logic app workflow. To get the expression to resolve as this token, switch between the designer and code view.
+				5. Now specify the responses to return based on whether the Decode AS2 message action succeeds or not.
+					a. For the case when the Decode AS2 message action succeeds, in the True shape, select the plus sign, and 
+					then select Add an action. On the Add an action pane, in the Choose an operation search box, enter response, 
+					and select Response.
+					b. To access the AS2 MDN from the AS2 Decode action's output, specify the following expressions:
+					In the Response action's Headers property, enter the following expression:
+						@body('Decode_AS2_message')?['OutgoingMdn']?['OutboundHeaders']
+					In the Response action's Body property, enter the following expression:
+						@body('Decode_AS2_message')?['OutgoingMdn']?['Content']
+					c. To get the expressions to resolve as tokens, switch between the designer and code view:
+					d. For the case when the Decode AS2 message action fails, in the False shape, select the plus sign, 
+					and then select Add an action. On the Add an action pane, in the Choose an operation search box, enter 
+					response, and select Response. Set up the Response action to return the status and error that you want.
+				6. Save your logic app workflow.
+
+	Add the decode X12 message action
+
+		CONSUMPTION BASED LOGIC APP
+			1. Under the Response action, select Add an action.
+			2. Under Choose an operation, in the search box, enter x12 decode, and select Decode X12 message.
+			3. If the X12 action prompts you for connection information, provide the name for the connection, 
+			select the integration account you want to use, and then select Create.
+			4. Now specify the input for the X12 action. This example uses the output from the AS2 action, 
+			which is the message content but note that this content is in JSON object format and is base64 encoded. 
+			So, you have to convert this content to a string.
+			In the X12 Flat file message to decode box, enter the following expression to convert the AS2 output:
+				@base64ToString(body('AS2_Decode')?['AS2Message']?['Content'])
+			5. Save your logic app workflow. To get the expression to resolve as this token, switch between the designer and code view.
+			6. Save your logic app workflow.
+			If you need additional steps for this logic app workflow, for example, to decode the message content and 
+			output that content in JSON object format, continue adding the necessary actions to your logic app workflow.
+
+		STANDARD LOGIC APP
+			1. Under the Response action, select the plus sign, and then select Add an action. On the Add an action pane,
+			under the Choose an operation search box, select Azure, if not already selected. In the search box, enter 
+			x12 decode, and select Decode X12 message.
+			2. If the X12 action prompts you for connection information, provide the name for the connection, 
+			select the integration account you want to use, and then select Create.
+			3. Now specify the input for the X12 action. This example uses the output from the AS2 action, 
+			which is the message content but note that this content is in JSON object format and is base64-encoded. 
+			So, you have to convert this content to a string.
+			In the X12 Flat file message to decode box, enter the following expression to convert the AS2 output:
+				@base64ToString(body('Decode_AS2_message')?['AS2Message']?['Content'])
+			4. Save your logic app workflow. To get the expression to resolve as this token, switch between the 
+			designer and code view.
+			5. Save your logic app workflow again.
+			If you need additional steps for this logic app workflow, for example, to decode the message content and output 
+			that content in JSON object format, continue adding the necessary actions to your logic app workflow.
+
+		You're now done setting up your B2B logic app workflow. In a real world app, you might want to store the
+		decoded X12 data in a line-of-business (LOB) app or data store. 
+
+
+
+
+
+
+
+

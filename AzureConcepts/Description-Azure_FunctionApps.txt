@@ -1,0 +1,517 @@
+﻿AZURE 
+
+SAAS ( 
+	PASS (
+		IAAS
+	)
+)
+
+SAAS - (Sits on top of paas) Azure Devops  
+PAAS - AppService, Function App (serverless paas) , Logic App (serverless paas) 
+IAAS - Virtual Desktop, Azure Disk Storage
+
+
+----------------------------------------------------------------------------------------------------------
+Serverless technology - 
+	Serverless tech enables us to deploy code without thinking of the configuration needed to work. So basically 
+	we are focussed on the task and not on the configuration. 
+	Basically in serverless tech there is a platform where we deploy the code i.e platform (infra is already ready).
+	Once deployed we will mainly focussed on the IP and OP. Rest of the infra is handled by the cloud.
+
+	Ex - Suppose we deploy our codes in AppService. For AppService we need to setup environment then deploy the code.
+	So it is a web hosting platform. But FunctionApp is build on top of AppService. Function App will have a code
+	deployed (no infra setup needed) which works on some events and do some work. Function App can call other services
+	that are either hosted in some other domains or the AppService.
+
+	So for Function App it is just we deploy event driven code which takes some input and internally if complex code 
+	needed it can call other services, and do the work and return some response.
+
+Azure Function Apps Vs Logic Apps
+
+1. Azure Function Apps is a serverless compute service whereas 
+	Azure Logic Apps is a serverless workflow integration platform
+
+2. Azure functions typically work as an event driven work flow. Multiple events can work on this Queue trigger, Timer trigger, Http trigger
+
+	Advantage of Serverless technology
+	1. Reduced Devops
+	2. Reduce time to market
+	3. Per action billing
+
+
+------------------------------------------------------------------------------------------------------------------
+
+Azure functions
+
+Common triggers - 
+
+	1. HTTP Trigger: This trigger allows you to expose your function as an HTTP endpoint. When an HTTP request is made 
+	to the specified URL, the function is triggered, and you can handle the request.
+
+	2. Timer Trigger: A timer trigger allows you to run a function on a predefined schedule. You can specify the schedule
+	using a CRON expression or simple intervals like every 5 minutes.
+
+	3. Blob Trigger: This trigger is activated when a new or updated blob is added to an Azure Blob Storage container. 
+	You can use it to process files or data as they are uploaded.
+
+	4. Queue Trigger: A queue trigger is used to process messages from an Azure Queue Storage queue. When a new message 
+	arrives in the queue, the function is triggered to process that message.
+
+	5. Event Hub Trigger: This trigger listens for new events in an Azure Event Hub. It's commonly used for processing
+	streaming data or event-driven workloads.
+
+	6. Service Bus Queue/Topic Trigger: Service Bus triggers react to messages arriving in Service Bus queues or topics. 
+	You can use this for building asynchronous messaging systems.
+
+	7. Durable Task Trigger: Durable Functions allow you to create workflows and stateful orchestration. The Durable Task 
+	Trigger can start an orchestration in response to an event.
+
+	8. GitHub/Webhook Trigger: You can trigger a function whenever a specific event occurs in a GitHub repository, such as
+	a code push or a new issue.
+
+	9. IoT Hub Trigger: This trigger is used to process messages from Azure IoT Hub. It's commonly used in IoT scenarios for 
+	processing device telemetry data.
+
+	10. Azure Logic App Trigger: You can use Azure Logic Apps to create complex workflows that include Azure Functions. The 
+	Logic App trigger can initiate your function as part of a Logic App workflow.
+	
+	11.Manual Trigger: While not an event-based trigger, you can also manually trigger functions for testing and debugging 
+	purposes using tools like the Azure portal or Azure CLI.
+
+
+The Azure function can be created in the Portal as well as from the code.
+
+NOTE - We have already written codes for Service Bus Queue, Topic and Queue Storage in the Azure Messaging file.
+
+We will show the code for HttpTrigger, and TimerTrigger
+
+
+------------------------------------------------------------------------------------------------------------------
+
+Pre-requisites for setting up function app
+1. Azure Core Tools - Providing framework to work with Azure Function
+2. Packages for code -
+	Microsoft.Azure.Functions.Worker
+	Microsoft.Azure.Functions.Worker.Sdk
+3. Azurite emulator - For WebJob Storage 
+
+To run from local we need to add another file local.settings.json
+{
+	"IsEncrypted": false,
+	"Values": {
+		"AzureWebJobStorage": "UseDevelopmentStorage=true",
+		"FUNCTION_WORKER_RUNTIME": "node"
+	}
+}
+
+-------------------------------------------------
+
+Use Case - HttpTrigger & Timer Trigger (For function app)
+
+	public class Function1
+	{
+		private readonly ILogger _logger;
+		public Function1(ILogger<Function1> logger)
+		{
+			_logger = logger;
+		}
+
+		[FunctionName("HttpTriggerFunc")]
+		public HttpResponseData Run
+		([HttpTrigger
+			(AuthorizationLevel.Anonymous, 
+			"get", "post",
+			Route = "MY_ROUTE"		//Only invoked to a particular route
+			)]HttpRequestData req)
+		{
+			var response = req.CreateResponse(HttpStatusCode.OK);
+
+			response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+			
+			response.WriteString("Welcome");
+
+			return response;
+
+		}
+
+		[FunctionName("TimerTriggerFunc")]
+		public static void Run([TimerTrigger("0 */5 * * * *", RunOnStartup = "False")] MyInfo Timer)
+		{
+			//Do some work
+		}
+
+		Here RunOnStartup = False that is when deployed and the function is started it will not be invoked once. It will be invoked as per the CRON statement
+
+	}
+
+
+	CRON STATEMENT
+	
+	A typical CRON statement is 0 */5 * * * * 
+	The fields are <second, minute, hour, day, month, and weekday>
+
+	Pattern - SEND ME to HIMACHAL DEHRADUN for MY WORK
+
+
+--------------------------------------------------------------------------------------------------------
+
+Stateless Functions - Typically the function app is stateless they dont hold the state of the action. That is they get the trigger
+					and perform an action. Typically to hold the state they will store data in some storage like Queue.
+
+Stateful functions - They hold the state of the action supported by the function app.
+
+
+Durable functions - 
+
+Durable Functions is an extension of Azure Functions that lets you write stateful functions in a serverless compute environment. 
+
+The primary use case for Durable Functions is simplifying complex, stateful coordination requirements in serverless applications.
+The following sections describe typical application patterns that can benefit from Durable Functions:
+	Function Chaining
+	Fan-out/Fan-in
+
+	* Function Chaining - In the function chaining pattern, a sequence of functions executes in a specific order. In this pattern, 
+	the output of one function is applied to the input of another function. The use of queues between each function ensures that 
+	the system stays durable and scalable, even though there is a flow of control from one function to the next.
+
+	* Fan-out/Fan-in - In the fan out/fan in pattern, you execute multiple functions in parallel and then wait for all functions to finish. 
+	The results of these functions can be passed to another function.
+
+
+WebHooks - It is a mode of communication which can trigger the Azure Function.
+	So for any application which support WebHook we will create a HttpTrigger and share the link of the httpTrigger to that application.
+	Typically WebHook will inform the Azure function for some activity. So when an activity occurs this will invoke the httpTrigger.
+	That is HttpTrigger Azure function will not poll (peeking whether the source is available) but the Source will invoke the HttpTrigger.
+
+
+-------------------------------------------------------------------------------------------------------
+
+Web Job vs Azure function
+
+	Azure WebJob
+
+	Azure WebJobs are a feature of Azure App Service that enable you to run background tasks or scheduled jobs alongside your web application.
+	WebJobs provide a way to execute code in the background, which can be useful for tasks like processing queues, sending emails, or performing
+	data cleanup.
+	There can be :
+	- Continuous web jobs - Working at a certain time interval
+	- Triggered web jobs - Work due to some events
+
+	Azure Function
+
+	They are serverless so better in terms of any triggered application.
+
+
+-----------------------------------------------------------------------------------
+
+Use case - Http Trigger Function App -
+
+Body 
+
+	public static class HttpExample
+	{
+		[FunctionName("HttpExample")]
+		// Request can be both get and post
+		public static async Task<IActionResult> Run(AuthorizationLevel.Anonymous, "get", "post", Route = null) HttpRequest req, ILogger log)
+		{
+			log.LogInfomation("Http Request received");
+
+			string req = req.Query["name"];
+		
+			string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+			dynamic data = JsonConvert.DeserializeObject(requestBody);
+			name = name ?? data?.name;
+			
+			string responseMessage = string.IsNullOrEmpty(name) ? 
+									"Http trigger executed successfully. Pass a name in the query string or in the request body."
+									: $"Hello, {name}. Http trigger function executed successfully.";
+
+			return new OkObjectResult(responseMessage);
+		}	
+	}
+
+Call :
+	Call 1 : (GET) 
+	localhost:8080/api/HttpExample
+
+	Response:
+	Http trigger executed successfully. Pass a name in the query string or in the request body.
+
+	Call 2 : (GET) 
+	localhost:8080/api/HttpExample?name=Raja
+
+	Response:
+	Hello, Raja. Http trigger function executed successfully.
+
+----------------------------------------------------------------------------------------------------------
+
+HTTP Trigger Authorization Levels Access
+1. Anonymous - No API key is required
+2. Function - A specific API key to that function is required (default setting)
+3. Admin - The master key for all functions within that function app is required.
+
+For Logging 
+There are 2 ways to view stream of log files
+1. Build-in log streaming - The App service platform lets you view a stream of application log files.
+2. Live Metrics Steam - When function app is connected to App Insights, we can see near real-time log data and other metrics in Azure portal App Insights.
+
+Azure Function Authentication Approach 
+1. Token Authorization or Token Based
+2. Azure Integration
+3. Managed Identity
+
+
+	For discusstion (example) let us take 4 sample endpoints -
+		a. HelloWorld
+		b. GetUsers
+		c. GetProducts
+		d. UpdateUser
+
+		Access -
+		i. Anonymous
+		ii.Function
+		iii.Admin
+
+
+1. Token Based Setup - The token has to be passed to the call as a co-parameter or in the header.
+
+	Types of token -
+	There are 3 types of token
+		At the function app level we have 2 tokens -
+		a. Host key token (HOST_KEY_TOKEN)
+		b. Admin key token (ADMIN_KEY_TOKEN)
+	
+		At the function app internal functions we have another token -
+		c. Function token (FUNCTION_TOKEN)
+
+	Usage Concept - 
+	If the authorization access is Function then we need to use either the HOST_KEY_TOKEN or the FUNCTION_TOKEN
+	If the authorization access is Admin then we need to use the ADMIN_KEY_TOKEN
+	
+				________________________
+				|						|
+				|	<HelloWorld_Func>	|
+				|						|
+				|	<GetUsers_Func>		|
+				|						|
+				|	<GetProducts_Func>	|
+				|						|
+				|	<UpdateUser_Func>	|
+				|						|
+				|						|
+				|						|
+				|						|
+				|	(HOST_KEY_TOKEN)	|
+				|						|
+				|						|
+				|	(ADMIN_KEY_TOKEN)	|
+				|						|
+				|						|
+				|						|
+				|	(FUNCTION_APP)		|
+				|_______________________|
+
+	Where to find the key in the Azure Portal ?
+		1. Go to the FunctionApp
+
+		2a. Under "Functions" blade -> App Keys
+		2b. There will be 2 keys : 
+			"_master" (ADMIN_KEY_TOKEN) and 
+			"default" (HOST_KEY_TOKEN)
+
+		3a. Under "Functions" blade -> Functions
+		3b. Functions -> Function Keys -> Click on the "default" (FUNCTION_TOKEN) key.
+
+	Use Case -
+
+	SETUP ->	
+														Function Definition
+						____________________________________________________________________________________________
+		Function		|	HelloWorld_Func		|	GetUsers_Func	|	GetProducts_Func	|	UpdateUser_Func		|
+	-----------------------------------------------------------------------------------------------------------------
+		Auth Level		|	Anonymous			|	Function		|	Function			|	Admin				|
+	-----------------------------------------------------------------------------------------------------------------					
+
+
+	USAGE ->
+														Function Definition
+						____________________________________________________________________________________________
+		TOKENS			|	HelloWorld_Func		|	GetUsers_Func	|	GetProducts_Func	|	UpdateUser_Func		|
+	-----------------------------------------------------------------------------------------------------------------
+		None			|	OK					|	ERROR			|	ERROR				|	ERROR				|
+	-----------------------------------------------------------------------------------------------------------------
+		GetUsers.Key	|	OK					|	OK				|	ERROR				|	ERROR				|
+	-----------------------------------------------------------------------------------------------------------------
+		GetProducts.Key	|	OK					|	ERROR			|	OK					|	ERROR				|
+	-----------------------------------------------------------------------------------------------------------------
+	Host/FunctionApp.Key|	OK					|	OK				|	OK					|	ERROR				|
+	-----------------------------------------------------------------------------------------------------------------
+		Admin			|	OK					|	OK				|	OK					|	OK					|
+	-----------------------------------------------------------------------------------------------------------------
+
+	Response
+		OK - 200 
+		ERROR - 401 Unauthorized (By default)
+
+
+2. Azure Integration Setup (using service principle) -
+
+	Here we can have -
+	a. Single tenant
+	b. Multi tenant
+	c. Fedarated (B2B / B2C) 
+
+	Pre-setup - We logged in as Service Principle. So, the Service Principle will be used to Call the Azure Function where Service Principle will be
+	authenticated by AD.
+
+	Here the step for setup (for Service Principle) -
+	a. Open the Azure Function Service in the Portal.
+	b. Click on Authentication on the LHS panel. Then on the page loaded -> Click on "Add Identity Provider" button. 
+	c. Creation of Identity Provider. (This identity provider will behave as an API endpoint - This concept is important). For the identiity details
+		-> For our purpose we set "Microsoft".
+		-> We create a new "App Registration".
+		-> A autosuggest name will appear for the App Registration.
+		-> Select the "Tenant" type.
+		-> Select type of authorization like we need authentication and what will be the response if the authentication fails.
+		With these details a new identity provider will be created.
+	d. Creation of App Role. Click on the "Identity" created. Now role will be added.
+		-> On clicking new page will be loaded. From LHS panel click on "App roles".
+		-> Add name for the App role.
+		-> Select the member types i.e for what resources this Identity can be used to access. 
+			[Ex- users/groups or Application]. We would select -> application.
+		-> Add a value to it. For now we will keep it same as the "name" for app role.
+		-> Add a description.
+	e. Creation of AD Clinet for "Service Principle". We will now go to App Registrations and create Client.
+		-> Click on "New Registrations"
+		-> Add a user-friendly name.
+		-> Select the "Tenent" type.
+		Once the App Registration is completed. We will add "Api Permission".
+		-> Click on "Api Permission" from LHS panel.
+		-> Click on Add Permission.
+		-> Click on My API. Select the listed API. 
+		
+		Note -
+			Here the API refers to the Identity Provider we have created above. We select the "Identity Provider" Api.
+			Select the Application Permission that we have created above for the Identity created.
+
+			Note - Now we need to Grant Admin Consent if that is requested.
+
+		Once the Grant Admin Consent (for the user) is successful we need to login as that user.
+		To login as that user we need CLIENT SECRET.
+
+	==========================================================================================================
+	
+	To create secret we need to click on the "Certificates and Secrets" from LHS panel. And then create the secret.
+
+	To access the Azure portal from local machine we need to add:
+	-> CLIENT SECRET - The Client Secret in the Environment Variable of the local machine.
+	-> CLIENT ID - Also need to add AD Clinet Application (client) ID to be added to the local machine.
+	-> TENANT ID - Also to maintain tenant information we need to add the Directory (tenant) ID to the local machine
+
+	So when we try to log-in to Azure Portal from local using Service Principle the CLIENT ID is the user id and CLIENT SECRET is the password.
+	Also the tenant Id is needed to maintain the tenant info.
+
+	So once the service principle is created we would try to access the Azure Function then internally for the valid data of 
+	CLIENT_ID/CLIENT_SECRET/TENANT_ID AAD will generate a token internally so the call can be established.
+
+3. Call using Managed Identity (very useful while using Microservice) 
+	
+	Setup - We are going to use the Azure Functions, Sql Server and managed identity.
+	Target - To achieve security (outbound req) for Azure Function.
+
+	Why do we need it?
+		Typically if we want to call any API (here http trigger Azure Func) we need a credential. For best practice we would not store credential
+		in the code rather use any config store (as secrets) in the cloud like Azure KeyVault. 
+	
+		We can completely remove the use of Azure Keyvault to store the secrets using the Managed Identity. With "Managed Identity" Azure can manage the
+		entire certificate lifecycle needed.
+
+		For example if we have four functions (CREATE, READ, UPDATE, DELETE) and all access the DB. Now with managed identity we can 
+		grant SQL privileges to the function identity. Only application with that identity will be able to the specific transaction 
+		with the database. So with Azure Manged Identity AAD will manage the security of the application.
+
+	Step 1 : Setup connections -
+	-> Create Azure SQL DB with properties serverless compute [For Managed Identity]
+	-> Create Azure Function (say ex - AZ_FUNC) [For Managed Identity]
+	-> Grant Sql Server Privilege. 
+		- CREATE USER <AZ_FUNC> FROM EXTERNAL PROVIDER
+		- ADD ROLE db_datareader ADD MEMBER <AZ_FUNC>
+		- ADD ROLE db_datawriter ADD MEMBER <AZ_FUNC>
+
+	So we will create a new Azure SQL Db (with an admin user). Then we will create the Azure functions 
+	(we will create two Azure Function one in C# and another in python).
+	Now for the Azure Function we will create a managed identity. 
+		-> So on the Azure Function from LHS panel select identity. On the page that will load click on 
+			toggle status switch to activate identity. A new Object (Principal) Id will be created.	
+			We will do this for both the function App.
+		-> Now for Azure SQL server from LHS panel select identity + save. This will make the Azure SQL DB 
+			ready for accepting the identity based request.
+		-> For Azure SQL Server again from LHS panel click on Networking.
+			- Add Client IP address. This will represent from which IP this will allow the call. 
+				Here IP will represent the IP of the Azure function. We also have the option to add a firewall rule.
+			- We also have to check on the check box which says "Allow Azure services and resources to access this server".
+
+	Now to Grant Identity based info of the Azure function to the Aure SQL server we need to open a new instance on the browser to login as Admin Account.
+	And then run the three SQL commands mentioned above (CREATE , ADD ROLE, ADD ROLE)
+
+	Step 2 : Creation of the CRUD API
+	-> Create DB Table
+	-> Create Data Binding
+	-> Deploy and Test
+
+	For our use case we will have a trigger to invoke the Azure Function and there will be input binding from SQL server and also 
+			output binding to SQL server.
+
+	Azure Function Call setup
+		- For our use case to call the Http Trigger Azure Function we are using auth level anonymous.
+		- Also the direction will be needed to be mentioned
+
+	SQL server Call setup
+		- For input binding (Fetching data from DB) we need to setup the query.
+		- For output binding (Upsert the DB) we need to setup.
+		So our Azure functions will be:
+			CREATE - Output binded
+			READ   - Input binded
+			UPDATE - Output binded
+			DELETE - Input binded
+		We need to mention the direction for the calls from the Azure Function while calling the DB.
+
+	While setting up the .net or Python code for the DB string it is mandatory to have this format below:
+		server=tcp:<server>:1433;...;Authentication=Active Directory Managed Identity; Database = <db>
+
+		Python:
+			Configuration -
+				PYTHON_ISOLATE_WORKER_DEPENDENCIES : 1
+				SqlConnectionString : server=tcp:<server>:1433;...;Authentication=Active Directory Managed Identity; Database = <db>
+
+			Requirement.txt
+				azure-functions==1.XX.XX
+
+			Hosts.json
+				"extensionBundle": {
+					"id": "Microsoft.Azure.Functions.ExtensionBundle.Preview",
+					"version": "[4.*, 5.0.0)"
+
+		.net:
+			Configuration -
+				SqlConnectionString : server=tcp:<server>:1433;...;Authentication=Active Directory Managed Identity; Database = <db>
+
+			packages -
+				dotnet add package Microsoft.Azure.WebJobs.Extentions.Sql --prerelease
+		
+			
+
+-------------------------------------------------------------------------------------------------------
+
+Azure FunctionApps are App Service Plan Based.
+
+
+
+
+
+		
+
+
+
+
+

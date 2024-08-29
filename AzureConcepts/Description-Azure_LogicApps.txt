@@ -1,0 +1,542 @@
+﻿Azure Function Apps Vs Logic Apps
+
+Azure Function Apps
+	- Is a serverless compute service. (Though we would need an AppService plan as a pre-requisite)
+	- More on coding side. 
+	- We have less connectors or bindings. But there is option to manually code it.
+
+Azure Logic Apps 
+	- Is a serverless workflow integration platform. 
+	- Less Coding. More oriented to implementation to business step with minimal or no-coding. Only integration based data needed.
+		This is preferred if we have high volume scenario (Need to verify).
+	- Multiple binding available. Multiple triggers/connectors.
+
+
+
+-------------------------------------------------------------------------------------------------------
+
+
+
+Type - It is a platform as a service offering (PAAS).
+
+Purpose - Workflow in the cloud.
+
+Every logic app works on 2 things Triggers and actions
+
+Use Case - Whenever we receive an email we should respond to it.
+
+Max no of logic apps ??
+
+Step 1. Create a azure logic apps.
+		-> Go to the logic app
+		-> Create new "Workflow"
+
+
+Step 2. Create a trigger. Recurrance trigger works by starting every N mins it will check.
+		Or We can have a mail box trigger. That is a particular email if received this will be triggered.
+
+		Once the trigger is in place we get a button "Add a Step". Click it new Action will come up.
+		-> Create a workflow to connect to SQL server (Need to configure) + We can also
+		have filters like which data will be passed to next action.
+		-> Another workflow to Trigger Email (Need to configure)
+	
+
+Note - For Http triggers we can simply call the end point and logic apps will work
+
+---------------------------------------------------------------------------
+
+Pre-requisites for setting up logic app
+1. Azure Core Tools - Providing framework to work with Azure Function
+2. Packages/Extension for code -
+	Azure Logic App Package (Standard)
+	Azure Logic App Package (Consumption-Based)
+	Logic App - Run Trigger
+3. Azurite emulator - For WebJob Storage 
+
+Note - For Stadard Logic app we can create both the Logic App + Work flow.
+But for Consumption Based Logic app the Infra has to be setup differently and the workflow can be created on a seperate repo.
+
+//To code from VSCode
+In the workflow folder -> workflow.json
+	-> We can do right click and open in designer mode -> will create workflow-designtime
+	-> We can create the workflow with all the connectors
+
+
+
+---------------------------------------------------------------------------
+
+Azure Logic Apps are generally secured using SAS Token (HTTP Triggers)
+
+-------------------------------------------------------------------
+
+Logic Apps are app service plan based.
+
+The logic app can be of "CONSUMPTION BASED PLAN" or "STANDARD PLAN".
+	a. CONSUMPTION BASED PLAN - It allows single workflow + No VNET integration + Pay-as-you go model. 
+	b. STANDARD PLAN - It allows multiple workflows + Option for VNET integration.
+
+----------------------------------------------------------------------------
+
+Creation of Logic App
+
+While creating the Logic App we will get the options -> Standard or Consumption. 
+	* Standard - It gives the option for VNET integration. Suitable for enterprise level application.
+	* Consumption - It is pay-as-you-go model based. No VNET integration provided.
+
+Inside the logic apps we have the Logic App Designer. Using Logic App Designer we can design the logic app.
+A typical logic app will have the basic blocks as-
+
+1. Trigger - We can have multiple triggers to invoke the logic apps. We can have service bus queue trigger.
+
+2. Workflow - It represents the flow of control between the nodes of the logic apps. We can think it represents 
+	the total steps to be followed in the logic app which include invoking the logic apps then the control to multiple 
+	services included in the logic apps. We can think it as the control/data working map of the logic apps.
+	Workflow type -
+	1. Stateless - Optimized for low latency, ideal for req-response and processing of IOT events. 
+	2. Stateful - Good for business transactional data. Optimized for high reliability.              
+
+3. Action - It represents a step in the workflow. Each subsequent operation that follows the trigger in the workflow.
+	There are multiple "actions" available. We need to choose the action which is needed.
+	For example (here we have shown 2 available actions) - 
+		"Call an Azure Function" action can be placed in the workflow. Once placed we need to add the details 
+								 of the Azure Function to be called.
+		"Read blob content" action in the workflow. Then add the details of the blob so that the blob storage can 
+								 be used.
+	So in another way we can think Action is a predefined standard code template which we can integrate in the workflow 
+	(by adding the details needed to the variables). This will improve the productivity, as code is pre-tested and we just 
+	need to add the details so that the workflow can communicate with the azure resource used by the action.
+
+4. Connector - They provide access to a service (azure/non-azure) from logic apps.
+	As we have the understanding of triggers and actions, we will be using them as bundle in a connector.
+	We can think logic app as a series of node. Each node will be invoked due to some trigger and will perform an action.
+	So, connector A connector has two parts - Triggers and Actions.
+		* Trigger - How the connector will get invoked.
+		* Action - How the connector will do processing.
+
+		For example - If we have "One Drive" connector. It will have:
+			Trigger - We can specify on what action the connector will get trigger. We will get the option and we need to choose.
+					We can get the option say a file is created on that one drive.
+			Action - We can have action like "Create file", "Convert File". Now if the trigger we choose was to on file created,
+					we can choose the action to convert the file.
+
+	a. Built-in Connectors - (Primarily to connect to other Azure Service in the same tenant. Offer high volume transfer.)
+		- They are single tenant based.
+		- Run within the workflow service host. As such it has seamless connection to azure networks including VNETS.
+		- These are connectors that come pre-installed with Azure Logic Apps. They are developed 
+		and maintained by Microsoft and cover a wide range of services such as Azure Blob Storage, 
+		Azure SQL Database, Office 365, etc. Built-in connectors offer basic functionality for 
+		interacting with these services directly within your logic app workflows. 
+		- While most built-in operations aren't associated with any service or system, some built-in operations are available
+		for specific services, such as Azure Functions, Azure Blob Storage, Azure App Service, Azure Blob Storage Connector, 
+		Azure SQL Database  and more. The availability for these built-in operations depends on whether you're working 
+		on a Consumption or Standard logic app workflow. 
+
+	b. Managed Connectors - (Primarily to connect to other Non-Azure Services that also include other Microsoft services. 
+		Also can connect to other Azure service in different tenant)
+		- They are run accross azure networks so they are not that seamless and might need additional configurations. 
+		- Meterred usage.
+		- On-Prem access through gateway.
+		- Managed connectors, also known as custom connectors, are connectors created and managed 
+		by third-party developers or your organization. They allow you to extend the capabilities of 
+		Logic Apps by integrating with custom APIs or services that aren't covered by the built-in connectors.
+		Managed connectors are typically created using Azure API Management and Azure Functions 
+		and can provide more tailored and specific functionality for your integration needs. 
+		- For example, you can start your workflow with a trigger or run an action that works with a service such as 
+		Office 365, Outlook, Salesforce, or file servers. 
+
+	Here are some key differences between the two:
+
+		Availability: Built-in connectors are readily available within Azure Logic Apps, 
+		whereas managed connectors need to be created and configured before they can be 
+		used in your logic app workflows.
+
+		Functionality: Built-in connectors cover a broad range of commonly used services and 
+		provide basic functionality for interacting with them. Managed connectors can be tailored
+		to specific use cases and can provide more advanced functionality by integrating with 
+		custom APIs or services.
+
+		Maintenance: Microsoft maintains and updates built-in connectors, ensuring compatibility 
+		and reliability. Managed connectors require ongoing maintenance by the connector owner or
+		organization to ensure they remain up-to-date and functional.
+
+		Flexibility: Managed connectors offer greater flexibility as they can be customized to fit 
+		your specific integration requirements. Built-in connectors provide standardized functionality
+		for common services but may not cover all use cases.
+
+		Security: When you use built-in connectors the information configured for the connector will
+		not be sent to public cloud for processing it will run natively in your Logic Apps. 
+		This makes it more secured. There are many differences for example authentication method, 
+		api connection file, and many more.
+
+	In summary, built-in connectors provide out-of-the-box integration with commonly used services, 
+	while managed connectors offer the flexibility to integrate with custom APIs or services tailored
+	to your specific needs. The choice between the two depends on your integration requirements
+	and the services you need to connect with in your logic app workflows.
+
+
+NOTE -
+1. We can think Logic Apps as a connected network of Connectors (which has triggers and actions).
+	This network can be thought as a workflow.
+		
+2. So in a LogicApps we can have multiple workflow.
+	We can think it as 
+	AZURE FUNCTIONS APPs ------------> contains more than one AZURE FUNCTIONS
+	AZURE LOGIC APPs ----------------> contains more than one WORKFLOW
+
+3. We can have parallel branch in our workflow. 
+
+4. We can also have connector with no trigger and action as Condition, Foreach, Switch etc.
+
+5. Typical Exception Handling - 
+	a. If we have called an API and that API fails. Here we can create parallel branch for next Connector.
+		The connectors can be set to RUN AFTER condition. 
+		1st parallel branch can run if previous run is succes.
+		2nd parallel branch can run if previous run is not success.
+	b. We can also use a connector where trigger we dont need to select and action can be selected as Condition. 
+		And we can add If and Else condition here.
+
+6. UseCase - Need to send an email whenever there is a file created in the blob storage.
+	Here we will need the following Connectors -
+	1. When Blob Created
+			|
+	2. Get Blob Content 
+			|
+	3. Office Outlook Send Email Connector 
+	(need to have a school, or work account as sender - this email may be the user account email)
+
+
+---------------------------------------------------------------------------
+
+For Interview purpose 
+
+We will deal with Http Trigger for a Logic app. So logic app gets invoked when an URL is called.
+
+
+---------------------------------------------------------------------------
+
+Let us create an example with Azure Function and Azure Logic Apps
+
+Step 1 : Create an Event Grid
+
+Step 2 : Create an Azure functions.
+	-> HttpTrigger + Authentical Level = Post 
+	-> Event Grid Reference Creation with Event Grid Message push to it
+
+Step 3 : Create an Azure logic app.
+	-> Create an event grid listener / trigger -> Select "Azure Event Grid" in the trigger
+	Add subscription 
+	Resource Type - Event Grid Topics
+	Resource Name - Used event grid name
+	-> Add other Actions
+
+----------------------------------------------------------------------------
+
+We can also design logic apps from Visual Studio.
+Open VS and select template for logic apps
+
+	-> On the LogicApp.json -> Select for the Visual Designer
+
+--------------------------------------------------------------------------
+
+Logic App Calling function App
+
+
+
+-------------------------------------------------------------------
+
+
+Logic Apps are app service plan based.
+
+The logic app can be of "Consumption Based Plan" or "Standard Plan".
+	a. Consumption Based Plan - allows to create a single workflow. 
+	b. Standard Plan - allows to create multiple workflows. 
+
+On opening the logic app we will get the option for 
+In consumption based plan we have instead of "Development Tools" we have "Workflows"
+
+Development Tools - (For Consumption Based Plan)
+	-> Logic App Designer - When clicked this will help creating the workflow visually.
+	-> Logic App Code View - When clicked this will help create the workflow using JSON.
+	-> API connectors - If the workflow using connectors. The details of the connectors can be managed from here.
+
+Settings -
+	-> Workflow settings - We have update the details of Inbound IP addresses, Integration Accounts etc.
+	-> Authorization Policy - Add the Azure AD authorization policies.
+	-> Access Keys - This is will be used if we call the Logic App using http call.
+--------------------------------------
+Workflows - (For Standard Plan)
+	-> Workflows - Here we will be creating workflows.
+	-> Connection - API, Service Provider conn. etc in the JSON format.
+	-> Parameters - Parametes for diff workflows.
+
+Artifacts - 
+	-> Schemas - If any schemas needed for the workflows. That will be uploaded here. 
+	-> Maps - If there is a map which have the information for the getting the source data and send to output. Ex- It can be xhlt map.
+
+-----------------------------------------------------------------
+
+For any FunctionApp or LogicApp we need the following dependent other resources (if needed).
+1. App Service Plan
+2. Log Analytics 
+3. Logic App - It could be standard or consumption based.
+4. Application Insights
+5. Storage Account
+
+------------------------------------------------------------------
+
+While defining the workflow -> 
+	a. We need to start with some trigger (which is a connecter part). 
+	b. Now for each connector we have the following part-
+		- Parameters - This represents any parameter we need to pass to the connector. It could be - Name, Type, Value. 
+			In case of Blob container. We need to add the Container Name, Blob Name then the other details (Name, Type, Value)
+		- Settings - Settings for the Key-value pair
+		- Code View - Connector shown as JSON code
+		- Run After - To create the sequence. It has the following details - <The previous step id> -> check box for isSuccessful, hasTimedOut, isSkipped, hasFailed
+		- About - This will show the details of the connector. It could be - Connector, Operation Note, Tags.
+
+------------------------------------------------------------------
+
+Use of parameters - 
+	- Parameters offer a wider range of use cases than app settings, such as support for large value sizes and complex objects)
+	- It can be thought as global variable for a workflow.
+
+------------------------------------------------------------------
+
+While creating a workflow it could be -
+	1. Stateful - 
+		- Optimised for high reliablity, ideal for process business transaction data.
+		- If the workflow is stateful then it uses the storage for maintaining data and state.
+		It stores all the sequential run and overall state.
+		- States are stored in some storage.(e.g storage account)
+		- Can handle message > 64 KB in size.
+
+	2. Stateless 
+		- Optimised for low latency, ideal for request-response and processing of IoT events.
+		- Suitable for low volume use-case, where we use short messages.
+		- States are not stored in some storage. Typically they would run on synchronous mode.
+		- Suitable for message <= 64 KB in size.
+		Use case - When we need to use built-in trigger(also like http req) 
+				+ need to run loop to process data + no additional storage + faster response.
+
+------------------------------------------------------------------
+
+About workflow connectors usage
+
+	1. If we have a stateless workflow we have the option in the "Overview" window to Enable/Disable "Debug Mode". If the Debug Mode is
+		enabled then we might see the "History".
+
+	2. To start a logic apps workflow, we can have a trigger or we can have a schedule/recurrance. 
+		There are few things we need to take into consideration while creating the start connector.
+		-> If we start with "Data Operation" connector (or similar to it any other connector) 
+			then we cannot use "Triggers" we have to use "Actions" only.
+		-> For "DataTime" connector we also dont have any "Triggers".
+		-> For "Schedule" connector we have "Recurrence" trigger. This will enable to have a schedule based trigger.
+		-> We can also have HTTP connector, Service Bus connector
+		-> We can also have connectors like "Variables" we generally have "Actions" only. This will act as an variable to store data. 
+		-> We can also have "Compose" connector. This is typically connectors which can be added to implement business logic data transformation.
+			Ex - We received firstName and lastName. Compose connector can be used to form Name - firstName + lastName.
+
+	3. To add parameters to the workflow 
+		-> Click on the "Parameter" button/link on the top menu of the workflow.
+		-> On the modal click on "Create Parameter".
+		-> Add details of the Name, Type, Value to the parameter. (NOTE - Here the value has to be provided). Here if we want we can pass value as GUID too.
+			On the values field we can have "Dynamic Content" or "Expression". For variable we have "Expression".
+			Here we can have different expressions including functions. To get the guid we have to use "guid()" and save. This will create guid. 
+		-> Once the parameter is added, we can link it to any "Variable" type connector.
+		->	a. Parameters are typically stored in the JSON code. They are stored as a JSON object in the parameter section of the workflow.
+				If suppose we have two parameters in the workflow then the parameters are stored as a JSON object. Ex.
+				{
+					"paramA":
+					{
+						"type": "String",
+						"value": "ABC"
+					},
+					"paramB":
+					{
+						"type": "Int",
+						"value": 10
+					}
+				}
+
+			b. If we want to fetch data to the paramater from the config (with the config name config_A) the structure would be:
+				{
+					"paramA": ...,
+					"paramB": ...,
+					"paramC":
+					{
+						"type": "String",
+						"value": "@appsetting('config_A')"
+					}
+				}
+				The value of the configuration will be stored to Settings -> Configuration. Here we need to add the configuration.
+
+----------------------------------------------------------------------------
+
+Use Case - Http Trigger with Logic App
+
+	Step 1. Use "request trigger" Connector.
+		-> Trigger - When http request is received.
+			Other details of the trigger.
+			- Parameter - URL generated after save.
+			- Request Body JSON schema - Need to set the JSON structure. If we have the original input JSON we can simply paste it here.
+				and that will be consumed/transformed to JSON schema.
+			- Add Parameter - 
+				Method - We need to add GET/PUT/POST/PATCH/DELETE. Default GET. Default if there is request body then it will be POST. 
+				Relative Path - For additional ROUTING path.
+
+		Once we save the workflow the URL will be generated with the added SAS (Shared access signature).
+
+	Step 2. Add "Compose" connector. (Will be used for forming the transformation object model)
+		-> Under the parameters.
+			-> We will be selecting the fields to be added. The data will be added as selected either "Expression" or "Dynamic content".
+				-> Expression - Expression is needed when we need to modify the content in different format. Ex - Modify date format. 
+				-> Dynamic content - It is needed when we need to add the data directly from previous connector. Ex - From the DTO we need some property to be used directly.
+				{
+					"customer_name" : concat(<expression for firstName>,' ',<expression for lastName>,
+					"customer_id" : <dynamic content for id>,
+					"order_id": <expression for guid()>,
+					"order_date": <expression for utcNow()>
+				}
+
+	Step 3. Add "Response" connector. (Will be used to send response)
+		-> Under parameter.
+			Status Code - 200
+			Header - <As needed>
+			Body - <Output of the upstream Compose connector>
+
+----------------------------------------------------------------------------
+
+Use Case - Service Bus with Logic App
+
+	Step 1. Use "request trigger" Connector.
+			-> Trigger - When http request is received.
+			-> Method - POST
+
+	Step 2. Add "Compose" connector. (Will be used for forming the transformation object model)
+		
+	Step 3. Add "Service Bus" connector.
+		-> Action - Send Message
+		-> Need to create the authentication type. It could be connection string or Active Directory OAuth or Managed Identity.
+	
+	Step 4. Add "Response" connector. (Will be used to send response)
+
+	To receive - We need to create a stateful workflow.
+
+	Step 1. Use "Service Bus" connector.
+		-> Trigger - When message is available in the queue.
+			Queue Name, Subscription Name, IsSessionEnabled*.
+
+	Step 2. Use "Compose" connector. (The normal compose is under data operation only)
+
+	Step 3. Use "Control" connector.
+		-> Use Action - Terminate
+		-> Select Status - Succeeded
+
+---------------------------------------------------------------------------
+
+Http Trigger Vs Request Trigger
+	
+
+---------------------------------------------------------------------------
+
+-> To send email we can use "SMTP" connector
+-> We also have SFTP feature connector on BLOB storage to upload files to Blob Storage using any SFTP client.
+
+--------------------------------------------------------------------------
+
+Use Case - "Sql Server" connector
+ 
+	Step 1. Use "recurrance" connector
+
+	Step 2. Use "sql server" connector
+		-> Add connection name, authentication type, connection string
+		-> Action "Get Rows" -> Select any table/sp/view
+		-> Action "Insert Row" -> Select table name and populate the template for the columns to be inserted.
+		-> Action "Execute Stored Procedure".
+
+---------------------------------------------------------------
+
+Use Case - "JavaScript" usage
+
+	Step 1. Use "recurrance" connector
+	
+	Step 2. Use "Compose" connector.
+		-> Define an array. [1,2,3,4,5]
+
+	Step 3. Use "Inline Code" connector
+		-> Action "Execute JavaScript" code
+		-> Run the code
+			
+			// returns the content of the array
+			return workflowContent.actions.Compose;
+
+			--------------------
+			or another code
+			--------------------
+			
+			// custom method
+			function sliceIntoChunks(arr, chunksize){
+				const res = [];
+				for (let i=0; i<arr.length; i+=chunksize){
+					const chunk = arr.slice(i, i+chunksize);
+					res.push(chunk);
+				}
+				return res;
+			}
+			const arr1 = workflowContent.actions.Compose;
+			return sliceIntoChunks(arr1, 3);
+	
+	Step 4. Use "Compose" connector.
+		-> Will be used to show output
+
+---------------------------------------------------------------
+
+Use Case - Data Operation
+	
+	Step 1. Use "recurrence" connector
+
+	Step 2. Use "variables" connector
+		Value -> Array of Json
+
+	Step 3. Use "Data operation" connector
+		-> Action "Filter Array"
+		-> From -> Mention the variable name
+		-> To fetch a field from the JSON -> item()?['<field_name>']
+
+	Step 4. Use Data operation "Parse Json" connector 
+		NOTE - As initial variable is just array so we have parsed json as an array
+
+	Step 5. Use "Compose"
+		NOTE - As previous connector sliced the json into multiple data block and foreach loop will appear.
+		This will be reading the data one by one
+
+	Step 6. Use data operation "Create CSV table"
+		-> From - Mention the data source
+		-> Columns - Automatic/custom
+
+	Step 6a. Let us create a parallel flow.
+		-> Use "Compose".
+		-> Need to use the expression -> xml(string(body('Parse_JSON')[0]))
+
+-------------------------------------------------------------------
+
+
+
+What is Azure Logic App Integration Account?
+-> Its a way to integrate enterprise apps to the Logic App. This helps to manage B2B artifacts
+Generally for integration accounts we use XML schema and similar mapper. There could be other mappers.
+
+To Use ->
+	1. Go to Azure Dashboard.
+	2. Search for Integration Account. Add Details like name, subscription, resource group etc.
+	3. In the integration account we can have components like -
+		a. Schemas 
+		b. Maps
+		c. Assemblies
+		d. Certificates
+		e. Partners
+		f. Agreements
+		g. Batch Configurations 
+
+At the Logic App -> Workflow Settings -> Select an integration account. Here add the integration account.
+

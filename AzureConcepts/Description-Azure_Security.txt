@@ -1,0 +1,361 @@
+﻿Azure Active Directory
+Graph API
+OpenIAM
+RadisCache
+SQL
+--------------------------------------------------------------------------------------------------------------------------
+
+What is service principal in Azure? Purpose
+
+	Parts of service principle -
+		Tenant Id, Client Id, Client Secret
+
+In Microsoft Azure, a service principal is a "security identity" that you can use to authenticate applications, 
+services, and tools to access specific resources within an Azure tenant. Essentially, a service principal is an
+application that you can grant permissions to, just like you would with a user account.
+
+Service principals are typically used in scenarios where you want to enable automated processes, scripts, 
+or applications to interact with Azure resources without requiring manual user intervention. They provide a 
+way for non-human entities to authenticate themselves and perform tasks within the Azure environment.
+
+Here are some key points about service principals in Azure:
+
+	1. Authentication: A service principal is authenticated using a client ID and client secret (or certificate) 
+	or managed identity. These credentials are used to obtain an access token that allows the service principal 
+	to access Azure resources.
+
+	2. Permissions: You can assign specific roles and permissions to a service principal, controlling what actions 
+	it can perform on resources. This follows the principal of least privilege, ensuring that the service principal 
+	only has the permissions it needs.
+
+	3. Access Control: Service principals can be assigned roles at different scopes, such as subscription, resource group, 
+	or individual resource level. This allows you to control exactly what the service principal can access.
+
+	4. Managed Identity: In addition to using client secrets, service principals can also use managed identities, 
+	which are a way to authenticate without explicit credentials. Managed identities are tightly integrated with 
+	"Azure Active Directory" and simplify the management of service principal credentials.
+
+	5. Applications and Automation: Service principals are often used by applications, scripts, and automation tools to 
+	access resources programmatically. This includes scenarios like deploying resources, managing virtual machines, 
+	interacting with storage accounts, and more.
+
+	6. Security: Service principals offer better security than using personal accounts for automation. 
+	They can be more easily rotated, isolated, and have their permissions tailored to specific tasks.
+
+Creating a service principal involves registering an application in your Azure Active Directory and assigning it the necessary 
+roles. You can create a service principal using Azure Portal, Azure CLI, PowerShell, or various SDKs.
+
+Here's a simplified outline of how you might create a service principal using Azure CLI:
+
+Register the application:
+
+bash
+Copy code
+az ad app create --display-name "MyApp" --password "MyPassword" --identifier-uris "https://myapp"
+Create the service principal:
+
+bash
+Copy code
+az ad sp create --id <application-id>
+Assign roles to the service principal:
+
+bash
+Copy code
+az role assignment create --assignee <service-principal-id> --role Contributor --scope <scope>
+Remember that securing your service principals and managing their permissions are critical steps to ensure the security of your Azure resources.
+
+
+
+--------------------------------------
+
+What is AAD?
+
+Ans -> It is a cloud based Identity and Access Management Service.
+In Azure AD Identity can be any user who has id/password, it can be any application or service which needs authentication.
+It helps the monitor access of Identity and resource management. These resources can be internal as well as external.
+
+Note - New name for Azure Active Directory (AAD) is Microsoft Entra
+
+External Resources - MMicrosoft 365, SAAS Application
+
+
+What is tenant?
+
+-Microsoft Entra Id organises objects like users and apps into groups called Tenants.
+-Tenants allow an administrator to set policies on the users within the organization and the apps that the organisation owns
+to meet the security and operational policies.
+
+Multi-tenant vs Single-tenant (Application who can sign-in?)
+
+-When an application is registered in the Microsoft Entra we can decide who can sign in. Application can register as 
+single-tenant or multi-tenant.
+	a. Single-tenant : 
+		-Here the application is available only in the tenant where they are registered in, also known as Home-Tenant.
+		-So the users of this tenant will only be able to access the application.
+		-This approach is recommended if the target audience is internal to the organization.
+		-Example - Users from PWC India can access application registered under PWC India Entra Id and no other users 
+		from other org can access.
+		
+	b. Multi-tenant :
+		-Here the application is available to both their home tenant and other Microsoft entra Id tenants.
+		-It means users from external organisations that use Microsoft Entra Id will be able to login and access the application.
+		-While configuring we can decide what will be the audience of such application. We can target user accounts in any 
+		Microsoft Entra ID directory or personal Microsoft accounts (Such as outlook.com)
+		-This approach is recommended if the target audience is business or educational customers (External users).
+		-Example - Users from PWC India as well as PWC US can access application registered under PWC India Entra Id.
+
+Login URL -
+	a. Single Tenant - 
+
+		https://login.microsoft.com/<tenant-Id>
+
+	b. Multi Tenant -
+
+		Corporate Accounts only
+		https://login.microsoft.com/organizations
+
+		All Accounts (can be used for corporate accounts only also)
+		https://login.microsoft.com/common	
+
+		For Customers (private)
+		https://login.microsoft.com/consumers
+
+
+Login Process (with CONSENT request)-
+
+	Consent Request - When the user first-time accesses the application, user must do a consent to Microsoft Entra to get the permissions.
+
+	a. Single Tenant -
+		-Use the Url to authenticate and continue the flow. Here user sents a consent req. If accepted user 
+		will be able to login and will be grant application specific permission. 
+
+	b. Multi Tenant -
+		Scenario - There is USER Tenant (Customer Tenant with SERVICE principal) and 
+		APPLICATION Tenant (Developer Tenant with APPLICATION ENTRY)
+		
+		-USER clicks on the Login link on the APPLICATION.
+		
+		-From APPLICATION a service call to https://login.microsoft.com/common (Check above URL section). 
+			Here the user details sents for a consent req to the APPLICATION TENANT 
+			(to get login and application specific permission).
+			Here the details of the user will be verified from the USER tenant.
+			NOTE - The user consent will be accepted if the application tenant config allows the user to consent (Pre-config is needed). 
+			That is if the config only allows admins then the user consent will not be accepted.
+			Similarly it can be configured if the user sends consent then Admin has to approve manually.
+		
+		-Once the USER is consented successfully a SERVICE principal will be generated in the USER tenant. 
+			NOTE - Concept of SERVICE principal can be thought as instance code (or TOKEN) having information of -
+			Applicationid in the Application's Tenant + User Login Success Consent 
+			So SERVICE principal has both the Application Info and User Info.
+			SERVICE principal is also called APP PROVISIONING.
+		-So once the SERVICE principal is created the user if again try to login now directly the SERVICE principal 
+		token will be checked.
+
+
+B2B (Business to Business) service of Microsoft Entra -
+	-Its a feature of Microsoft Entra to invite guest to collaborate with Corporate Organization.
+	-With this we can share (securely) company's application and services to external users, while maintaining control over corporate data.
+	-With this we can securely collaborate with guests who dont have any Microsoft entra id.
+
+	B2B collaboration - 
+	-Admin sends collaboration invitation link to GUEST. GUEST can have entra id or they might have 3rd party accounts like Google Account.
+	-GUEST redeem the invitation link by OTP.
+	-There are no credentials associated with B2B collaboration users.
+	-Guest users authenticate with their home organization or identity provider, and then our organization checks the guest user's eligibility
+	for B2B collaboration.
+	-Also we can use self-service sign-up user flows to let external users sign up for the application themselves.
+
+	Feature-
+	-B2B approache typically referring to Single-tenant application.
+	-Licensing cost is higher if B2B enabled.
+
+B2C - ??
+
+ADFS (Active Directory fedarated Service) - Update from video / notes
+
+
+
+----------------------------------------------------------------------------------------------------
+
+Managed Identities
+	They are identities assigned to Azure resources, such as Azure VM, Azure functions or Azure App Services. They are scoped to the 
+	lifecycle of Azure resources they are associated with and inherit permissions based on that resource's configuration.
+
+	Types
+	-System-Assigned Managed Identities 
+	-User-Assigned Managed Identities
+
+	System-Assigned Managed Identities - 
+		- Managed by Azure, automatically created and tied to the lifecycle of our Azure service instance. 
+		Automatically created when a resource is created.
+
+	User-Assigned Managed Identities -
+		A standalone Azure resource that can be assigned to more than one Azure Services, proving more flexibility.
+
+	Life cycle - Automatically created when we enable them on the Azure resouce. They are managed by Azure and do not need explicit creation or management of credentials.
+	
+Service Principle
+	It is AAD identities (unique ids) that represent application, services, or automation tasks. They can be scoped to specific Azure subscription,
+	resource groups or individual resources.
+
+	Life cycle - Service principal has seperate life cycle than that of the Azure resources. They are needed to be created explicitly, and their credentials 
+	(such as client secrets or certificates) need to be managed and rotated periodically for security.
+
+Security Principle ??
+
+
+Managed Identities vs Service principal 
+	Note - Service Principal can be thought as Service Account
+
+	Purpose -
+		- Managed Identities are typically used to establish authentication between one Azure Resource with another Azure resouce (on Azure Platform) at resource-level. 
+			Both the authenticated resources must be on the Azure Platform.
+
+		- Service Principal are typically used to establish authentication between Azure Platform Resource and a on-prem or local machine. 
+
+
+	Authentication
+		Managed Identities use AZURE AD tokens, while service principal uses application secrets or certificates.
+
+	Lifecycle Management
+		Managed Identities are managed by Azure, while service principals require manual rotation.
+
+	Authorization
+		Managed Identities can be granted permissions at the resource level, while Service principals use application-level permissions.
+
+	Use cases (this is dependent on common practices though we can have other ways also)
+		Managed Identities 
+		- WebApp accessing Azure DB.
+		- Virtual Machines accessing Azure Storage.
+		- Function App accessing KeyVault.
+
+		Service Principal
+		- Automated CI/CD pipeline.
+		- Azure Application accessing AZURE AD
+		- On_prem app integration with Azure.
+
+Benefits of using managed identities
+	- Improved security - Reduced risk of credential exposure and easier management of password.
+	- Simplified Integration - Seamless access to azure resources without need of manage credentials.
+	- Scalibiity and flexibility - Easily scale applications and services without authentication bottlenecks.
+	- Cost optimization - Eliminate the overhead of managing service accounts and credentials.
+
+----------------------------------------------------------------------------------------------------
+
+Roles vs claims vs policy
+
+Roles - Here we have two actors - Users and Functions. So if the user has certain role it can access the function. So the role encapsulates the users and the functions.
+Claims - They are key value pair. They typically used to maintain properties. Ex - email (key) with xxx@xxx.com (value)
+Policy - They are functions which check for a request made whether the user is eligible to access the resource in the request made.
+ 
+
+Claims (Details)
+We have the following concepts -
+1. Claims Principal
+2. Claims Identity 
+3. Claims
+
+Claims principal - It represents the user for whom we are identifying. Or we can say it represents the user which will login. 
+					Typically the Claims principal is stored in Cookies or Token (JWT).
+Claims identity - It represents all the info combined needed to validate the claims principal. That is we can think of multiple
+					properties which are needed to validate the claims principle.
+Claims - It represents each of the information piece which is needed to validate the Claims principle. Ex - Claims1 : Email - xxx@xxx.com/ Claim2 : Gender - Male
+
+Relation Explained
+
+	So we can think about a login flow to understand. An user is validated and a token has to be generated. Now in the metadata of the token we need to push some info like - email, role, exp time etc.
+		These info can be thought as CLAIMS. Ex - First Name, Last Name, Email, DOB
+	With all these properties or claims we will create an instance of CLAIMS IDENTITY. So Claims Identity has properties of Claims. Along with the claims we can also have information like 
+		the mode usage info like cookies or tokens. The additional info is called schemes. Ex - Aadhar Card, DL, Passport
+	Once we have the Claims identity created we need to push this identity to the token to represent the user metadata. We can have more than one claims identity to the token.
+		This token representation will be referred to as Claims principle which is the representation of the user. So a Claims principle can have more than one Claims Identity.
+		Ex - User with multiple claims identity like DL, Passport.
+
+CLAIMS PRINCIPLE |-----------------------------------------------|
+				 | CLAIMS IDENTITY with multiple CLAIMS property |
+				 |												 |
+				 |-----------------------------------------------|
+
+Note - Claims are user data and Roles are policy based data. So Claims and Roles are different. But in .net core Role is Claim type Role. (important concept)
+
+
+
+
+----------------------------------------------------------------------------------------------------
+
+
+Register an App to AAD
+
+-> Open Azure Active Directory
+-> Click "App Registration" -> New Registration -> 
+	Provide AppName
+
+
+
+
+
+----------------------------------------------------------------------------------------------------
+
+CONNECTING AZURE SQL SERVER USING MANAGED IDENTITY (VIA .NET CODE)
+
+This is a 3 step process.
+
+1. Changes in WebApp (AppService) And AAD
+
+	a. To grant the USER AUTHENTICATION in the AAD Sql Server.
+	
+		-> Go to Azure Portal -> Search -> Azure Active Directory Admins -> Set admin by selecting the user.
+
+		We have to make sure this particular AD has access to SQL Server.
+	
+		-> The IPs which will access the SQL Server must be white listed. The Devs Machine + AppService IP range.
+		This can be done by searching Azure Home  -> Search -> Firewall and Virtual Network.
+	
+	b. Now in the AppService we need to perform additional steps. 
+		Go To AppService -> From LHS list select "Identity" -> Turn On and Save.
+		This is important as this will create "Managed Identity". That is a service principal will be created for 
+		this AppService. This will create an "objectId".
+
+2. Changes at Azure Sql Server
+
+	a. Open the SQL Server. Connect as -> Server Name + Authenticaation as "Active Directory - Password" ->
+	Give credential of the user who will login (Typically AD Admin).
+	
+	b. Now create a User (for the target DB in the Azure SQL Server) with the same name as of the AppService (for which
+	we created the Managed Identity). [This step will connect the token].
+	CREATE USER <APPSERVICE> FROM EXTERNAL PROVIDER
+	ALTER ROLE db_datareader ADD MEMBER <APPSERVICE> (For read Access)
+	ALTER ROLE db_datawriter ADD MEMBER <APPSERVICE> (For write access)
+
+	This step will enable the AppService to access the DB without sepecifying any credentials
+
+3. Change at Code Side (For the code which will be deployed to appService)
+
+	a. In the .net code update the 
+		connectionString = "Server = <servername>; Database = <DbName>" //Credentials not needed
+	b. We will use nuget package "Azure.Identity"
+	and we will use
+
+		var clientId = <clientId of the AppService>.
+		var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions{ManagedIdentityClientId = clientId});
+		var token = credential.GetToken(.......); //Codes will be written
+		connectionString.AccessToken = token;
+
+		This connectionString will be used.
+
+----------------------------------------------------------------------------------------------------
+
+Hybrid Connectivity:
+
+VPN Gateway: Set up a VPN Gateway to establish a secure connection between your on-premises network
+and Azure Virtual Network. This allows your Azure resources to communicate securely with your on-premises 
+infrastructure.
+
+ExpressRoute: For higher throughput and lower latency, consider using Azure ExpressRoute to establish a
+private connection between Azure and your on-premises network.
+
+
+
+
+
+

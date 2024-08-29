@@ -1,0 +1,371 @@
+﻿------------------------------------------------------------------------------------------------------
+
+DEPENDENCY INVERSION PRINCIPLE (DIP)
+Between 2 classes One will be calling other class. That is CALLER CLASS and CALLED CLASS.
+Now as such there will be coupling between these two classes. That is huge dependency.
+If the CALLED CLASS gets changed then we might have to modify the CALLING CLASS or
+If some blocking happens in CALLED CLASS this will impact the CALLING CLASS too. 
+So to remove this dependency we need to decouple (with very limited dependency).
+This is called the DEPENDENCY INVERSION PRINCIPLE. 
+To be precise:
+	1. High-level modules should not depend on low-level modules.Both should depend on the abstraction.
+	2. Abstractions should not depend on details. Details should depend on abstractions.
+
+
+INVERSION OF CONTROL (IOC)
+Once the decoupling happens then how we are going to connect these classes making them loosely coupled.
+So to reduce the dependency we would try to invert the dependency flow or control of the flow
+from "CALLER -> CALLED" to "CALLED -> CALLER". So now the CALLED CLASS will determine how the flow should be.
+And the CALLER CLASS do not need to know about the flow.
+
+.net framework IOC packges - Ninject, Unity
+
+Q. What is dependency injection? How do you implement it?
+Ans ->
+	DEPENDENCY INJECTION
+	As we will be inverting the control we somehow need to hook the CALLED CLASS to the CALLER CLASS. This hooking
+	will be done by DEPENDENCY INJECTION. That is creating an abstract class point in the CALLER CLASS which will be invoked
+	only when needed. As it is an abstract class so the CALLER CLASS do not need to have any knowledge of the CALLED CLASS.
+	But this is forms a dependency so we call it DEPENDENCY INJECTION or a Dependency is hooked.
+
+	Dependency injection is the most popular method of implementing IOC. There are mainly three types of dependency injection:
+	Property Injection
+	Constructor Injection
+	Method Injection
+
+------------------------------------------------------------------------------------------------------
+
+HTTP Caching
+
+HTTP caching is a mechanism that allows web browsers, content delivery networks (CDNs), and web servers to 
+store copies of resources (such as images, stylesheets, and API responses) locally, thereby reducing the need 
+to repeatedly request the same resources from the origin server. 
+This helps improve the performance and efficiency of web applications by reducing network latency and server load. 
+HTTP caching is an essential part of web optimization strategies.
+
+
+There are several HTTP headers involved in controlling caching behavior:
+
+1. Cache-Control Header:
+
+	The Cache-Control header is the most important header for controlling caching behavior.
+	It includes various directives that specify how resources should be cached and for how long.
+	Common directives include:
+	a. public: Resources can be cached by both the browser and intermediate proxies.
+	b. private: Resources can only be cached by the browser and not by intermediate proxies.
+	c. max-age: Specifies the maximum amount of time (in seconds) that a resource can be cached.
+	d. no-cache: Instructs caches to revalidate the resource with the server before using the cached copy.
+	f. no-store: Instructs caches not to store the resource at all.
+
+2. Expires Header:
+
+	The Expires header specifies an absolute date and time when the resource will expire and should no longer be considered valid.
+	It is an older mechanism for controlling caching and is often used in combination with the Cache-Control header.
+
+3. ETag Header:
+
+	The ETag header provides a unique identifier for a version of a resource.
+	When a resource changes, the server updates the ETag value.
+	Clients can send the If-None-Match header with the current ETag value to check if their cached copy is still valid.
+
+4. Last-Modified Header:
+
+	The Last-Modified header indicates the date and time when the resource was last modified. When a resource is requested, 
+	the server compares the value of the If-Modified-Since header with the Last-Modified value to determine if the resource 
+	has changed.
+	HTTP caching operates on both the browser/client side and the server side. Browsers store cached resources in their 
+	local cache and use the cache for subsequent requests to the same resources. Servers and CDNs can also cache resources 
+	and return cached copies to clients, reducing the load on the origin server.
+
+	Using appropriate caching strategies can significantly improve the performance and responsiveness of web applications. 
+	However, it's important to carefully consider caching settings to avoid serving outdated content to users.
+
+------------------------------------------------------------------------------------------------------
+
+C# Polymorphism + Example
+
+Polymorphism is a key concept in object-oriented programming that allows objects of different classes to be treated as objects of a common 
+base class through inheritance. It enables code to work with objects in a more general way, making it easier to write flexible and extensible 
+code. 
+Polymorphism can occur at both compile time and runtime, and the two forms are known as compile-time polymorphism 
+and runtime polymorphism (also known as dynamic polymorphism).
+
+	Compile-Time Polymorphism (Static Polymorphism):
+
+	Compile-time polymorphism refers to the ability to choose between different methods or functions based on the number 
+	and types of parameters passed during compilation. This is achieved through two mechanisms: method overloading and operator overloading.
+
+	Runtime Polymorphism (Dynamic Polymorphism):
+
+	Runtime polymorphism refers to the ability to choose between different methods or functions at runtime based on the actual type 
+	of the object being referenced. This is achieved through method overriding and is often associated 
+	with inheritance and virtual/override keywords.
+
+----------------------------------------------------------------------------------------------------
+
+Method overloading and method overriding 
+
+They are two important concepts in object-oriented programming, particularly in C#. 
+They both involve defining methods with the same name, but they serve different purposes and have distinct behaviors. 
+Let's explore the differences between method overloading and method overriding:
+
+1. a. Method Overloading:
+
+Method overloading is the practice of defining multiple methods in the same class with the same name but different "parameter lists". 
+These methods can have different numbers or types of parameters. Method overloading is used to provide multiple ways to call a method 
+with different arguments.
+
+Key points about method overloading:
+
+-Methods must have the same name but different parameter lists (number or types of parameters).
+-Overloaded methods are part of the same class.
+-Overloading is determined at compile time based on the method's parameter types.
+-Overloaded methods can have different access modifiers and return types.
+-Overloaded methods can have different behaviors based on the parameters they accept.
+
+Example of method overloading:
+
+public class Calculator
+{
+    public int Add(int a, int b)
+    {
+        return a + b;
+    }
+
+    public double Add(double a, double b)
+    {
+        return a + b;
+    }
+}
+
+
+b. Operator overloading :
+
+By overloading operators, you can provide meaningful operations and comparisons for your custom types. 
+This can improve the readability and expressiveness of your code, especially when dealing with 
+custom data types.
+
+Here's an overview of operator overloading in C#:
+
+Supported Operators: C# supports overloading a predefined set of operators, 
+including 
+arithmetic operators (+, -, *, /, etc.), 
+comparison operators (<, >, <=, >=, ==, !=), 
+logical operators (&&, ||), and more.
+
+Syntax: To overload an operator, you define a public static method in your class or struct with the name operator 
+followed by the operator you want to overload. The method must specify the type(s) that you want to operate on 
+as parameters, and it returns the result of the operation.
+
+Operator Overloading Examples:
+
+public class Complex
+{
+    public double Real { get; set; }
+    public double Imaginary { get; set; }
+    
+    // Overloading the + operator
+    public static Complex operator +(Complex c1, Complex c2)
+    {
+        return new Complex
+        {
+            Real = c1.Real + c2.Real,
+            Imaginary = c1.Imaginary + c2.Imaginary
+        };
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Complex complex1 = new Complex { Real = 3, Imaginary = 4 };
+        Complex complex2 = new Complex { Real = 2, Imaginary = 5 };
+        
+        Complex result = complex1 + complex2; // Uses the overloaded + operator
+        Console.WriteLine($"Result: {result.Real} + {result.Imaginary}i");
+    }
+}
+
+In this example, the Complex class overloads the + operator to perform addition of two complex numbers.
+When you use the + operator with Complex instances, the custom implementation defined 
+in the operator + method is used.
+
+Remember the following points when working with operator overloading:
+
+Not all operators can be overloaded (e.g., you can't overload the && operator).
+You should follow conventions and expectations for how the operator should behave to avoid confusion.
+
+
+
+2. Method Overriding:
+
+Method overriding is a concept related to inheritance, particularly in the context of base classes and derived classes. 
+It allows a derived class to provide a "specific implementation for a method as per the derived class" that is already 
+defined in its base class. The method in the derived class must have the same name, return type, and parameters as the 
+method in the base class.
+
+Key points about method overriding:
+
+-Overriding is used to replace a method's implementation in a derived class while keeping the same method signature.
+-The overridden method must have the override modifier and match the base class method's signature.
+-Method overriding is determined at runtime based on the actual object type.
+-Overriding methods must have the same return type or a covariant return type (a more derived type).
+-*Access modifiers for an overridden method can't be more restrictive than the base class method's access modifier.
+
+Example of method overriding:
+
+public class Shape
+{
+    public virtual void Draw()
+    {
+        Console.WriteLine("Drawing a shape");
+    }
+}
+
+public class Circle : Shape
+{
+    public override void Draw()
+    {
+        Console.WriteLine("Drawing a circle");
+    }
+}
+
+In summary, method overloading allows you to define multiple methods with the same name in the same class but with 
+different parameter lists, while method overriding involves replacing the implementation of a base class method with 
+a specific implementation in a derived class.
+
+
+--------------------------------------------------------------------------------------------------
+
+C# Inheritance -
+
+Inheritance is a fundamental concept in object-oriented programming (OOP) that allows a new class to be based on an existing class, 
+inheriting its attributes (fields) and behaviors (methods). The class that is being inherited from is called the base class, 
+parent class, or superclass. 
+The class that inherits from the base class is called the derived class, child class, or subclass. 
+
+In C#, inheritance is used to create a hierarchy of classes and promote code reuse and extensibility.
+
+
+Here's how inheritance works in C#:
+
+Base Class (Superclass):
+
+The base class defines attributes (fields), methods, and properties that can be shared among multiple derived classes.
+It serves as a template for creating derived classes.
+The base class can be abstract or concrete (instantiable).
+
+Derived Class (Subclass):
+
+The derived class inherits attributes and methods from the base class.
+It can add additional attributes and methods, or override methods inherited from the base class.
+A derived class can only inherit from a single base class (single inheritance in C#).
+
+Here's an example of inheritance in C#:
+
+	// Base class
+	public class Animal
+	{
+		public string Name { get; set; }
+    
+		public void Eat()
+		{
+			Console.WriteLine($"{Name} is eating.");
+		}
+	}
+
+	// Derived class
+	public class Dog : Animal
+	{
+		public void Bark()
+		{
+			Console.WriteLine($"{Name} is barking.");
+		}
+	}
+
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			Dog dog = new Dog();
+			dog.Name = "Buddy";
+			dog.Eat();   // Inherited method from Animal class
+			dog.Bark();  // Method specific to Dog class
+		}
+	}
+
+In this example, the Animal class is the base class, and the Dog class is the derived class. 
+The Dog class inherits the Name property and Eat method from the Animal class and also adds a Bark method.
+
+Key concepts related to inheritance in C#:
+
+1. Access Modifiers: 
+	Inheritance affects the visibility of members (fields, methods, properties) inherited by the derived class. 
+	Members with protected access can be accessed by derived classes.
+
+2. Base Keyword: 
+	The base keyword is used to access members of the base class from within the derived class.
+
+3. Method Overriding: 
+	Derived classes can override methods of the base class to provide specialized implementations 
+	using the override keyword.
+
+4. Constructor Chaining: 
+	Constructors in the derived class can call constructors in the base class using the base keyword.
+
+Inheritance is a powerful mechanism that enables the creation of class hierarchies and facilitates code organization, reusability, 
+and extensibility. However, it's important to design inheritance relationships carefully to ensure that they make sense in the context 
+of your application's domain.
+
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+
+https://github.com/sudheerj/angular-interview-questions#what-is-angular-framework
+
+Check topics -> 
+Extract from Chat CPT
+Extract from Linkedin
+
+1. CLR CLS
+2. Dot net compile process
+3. Abstact class vs interface? Why interface method public
+4. What is Dependency injection how do we implement it .net core.
+5. Struct vs Class vs Record
+6. IOption vs
+7. Singleton vs Scoped vs Transient. Code syntax
+
+
+
+C# overloading vs overriding
+Polymorphism -> Overloading vs Overriding
+Static vs Private constructor
+Abstract vs Virtual Method
+What is diamond problem
+Inheritance in C#
+
+Method overriding with 2 base classes
+Operator Overloading
+Access modifiers in C#
+Constructor Chanining in Inheritance
+
+
+
+
+
+
+
+
+
+
+
+
+
+

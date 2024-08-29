@@ -254,3 +254,9 @@ Hence, any future request coming for the same action in that controller will be 
 
 
 
+Explain how to implement repository and unit of work patterns with EF Core.
+Implement a generic repository interface for common CRUD operations, abstracting away EF Core specifics.
+Implement a unit of work class to coordinate multiple repository operations within a single transaction.
+Inject these repositories and unit of work instances into your application services to keep your business logic decoupled from data access concerns.
+
+
