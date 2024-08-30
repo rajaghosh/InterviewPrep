@@ -8,19 +8,14 @@
 	Here’s a breakdown of how it typically works:
 
 		- User Requests Authentication: A user attempts to access a resource or service that requires authentication.
-		
 		- Redirect to Identity Provider: The user is redirected to an identity provider (like Azure AD) to log in.
-
 		- Authenticate User: The user logs in and the identity provider authenticates the user.
-		
 		- Redirect Back to Application: After authentication, the identity provider redirects the user back to your 
 		application using the callback URL provided during the setup.
 
 	Why Callback URLs are Important:
-
 		- Security: Callback URLs ensure that tokens or authentication codes are sent to the correct location. 
 		 This helps prevent interception and misuse.
-
 		- Application State: They allow the application to handle the response and potentially pass any state or 
 		additional parameters needed by the application.
 

@@ -1,17 +1,15 @@
 ﻿*********************************************************************************************************
-*********************************************************************************************************
-*********************************************************************************************************
-*********************************************************************************************************
-
 
 Azure AppInsights
 
-Purpose : Used for logging the telemetry data.
-Application Insights sends telemetry from your web application to the Azure portal so that you can analyze 
-the performance and usage of your application. The telemetry model is standardized, 
-so it's possible to create platform- and language-independent monitoring.
+Purpose : 
+
+	Used for logging the telemetry data. Application Insights sends telemetry from your web application 
+	to the Azure portal so that you can analyze the performance and usage of your application. The telemetry model is standardized, 
+	so it's possible to create platform- and language-independent monitoring.
 
 The following types of telemetry are used to monitor the execution of your app. 
+
 The Application Insights SDK from the web application framework automatically collects these three types:
 
 	1. Request: Generated to log a request received by your app. For example, the Application Insights web 
@@ -25,16 +23,17 @@ The Application Insights SDK from the web application framework automatically co
 
 Application Insights provides three data types for custom telemetry:
 
-Trace: Used either directly or through an adapter to implement diagnostics logging by using an 
-instrumentation framework that's familiar to you, such as Log4Net or System.Diagnostics.
+	a. Trace: Used either directly or through an adapter to implement diagnostics logging by using an 
+	instrumentation framework that's familiar to you, such as Log4Net or System.Diagnostics.
+	
+	b. Event: Typically used to capture user interaction with your service to analyze usage patterns.
 
-Event: Typically used to capture user interaction with your service to analyze usage patterns.
-
-Metric: Used to report periodic scalar measurements.
+	c. Metric: Used to report periodic scalar measurements.
 
 ----------------------------------------------------------------------------------------
 
 To Create -> Go to azure portal -> Create a Application Insights 
+
 There we have be TransactionSearch -> We can add some data and search
 
 This will have few config data
@@ -44,11 +43,11 @@ This will have few config data
 
 Implement with .net code
 
-For AppService (Important)
-	We will log data directly to AppInsights by enabling ApplicationInsights options in AppService
-	This will create a service principle from AppsService for the AppInsights
+	For AppService (Important)
+		We will log data directly to AppInsights by enabling ApplicationInsights options in AppService
+		This will create a service principle from AppsService for the AppInsights
 
-For .net core
+	For .net core
 	Step A. Automatic We can click on the solution -> Right click "Add Application Insights"
 	Step B. Custom ->
 
@@ -137,9 +136,14 @@ KQL - Basics (TBD)
 Search types - Traces, Event, Metric etc
 
 Ex - 
-1. traces 
-| order by timestamp desc
-| where message == "ABC"
+
+	1. traces 
+	| order by timestamp desc
+	| where message == "ABC"
+
+	2. CustomEvents
+	| where name contains "ABC"
+	| project abc
 
 -----------------------------------------------------------------------------
 
@@ -151,25 +155,25 @@ Limitation -
 
 Identifiers to check
 
-various identifiers used in Azure Application Insights, which is a monitoring and diagnostics service provided 
-by Microsoft Azure for applications. Let's break down each of these identifiers:
+	various identifiers used in Azure Application Insights, which is a monitoring and diagnostics service provided 
+	by Microsoft Azure for applications. Let's break down each of these identifiers:
 
-1. OperationId: The operationId is a unique identifier assigned to each individual operation or request 
-within your application. It helps you track the flow and performance of specific operations as they 
-move through different components of your application. This can be especially useful for diagnosing performance 
-bottlenecks or tracing the execution of a particular user request.
+	1. OperationId: The operationId is a unique identifier assigned to each individual operation or request 
+	within your application. It helps you track the flow and performance of specific operations as they 
+	move through different components of your application. This can be especially useful for diagnosing performance 
+	bottlenecks or tracing the execution of a particular user request.
 
-2. ParentOperationId: The parentOperationId is used in the context of distributed tracing. It indicates the identifier 
-of the parent operation that initiated the current operation. Distributed tracing is crucial for understanding 
-how different services or components interact with each other in a distributed architecture.
+	2. ParentOperationId: The parentOperationId is used in the context of distributed tracing. It indicates the identifier 
+	of the parent operation that initiated the current operation. Distributed tracing is crucial for understanding 
+	how different services or components interact with each other in a distributed architecture.
 
-3. InstrumentationKey: The instrumentationKey is a unique key associated with your Application Insights resource. 
-It's used to identify and send telemetry data from your application to the correct Application Insights instance. 
-You typically configure your application with this key to ensure that the monitoring data is sent to the correct destination.
+	3. InstrumentationKey: The instrumentationKey is a unique key associated with your Application Insights resource. 
+	It's used to identify and send telemetry data from your application to the correct Application Insights instance. 
+	You typically configure your application with this key to ensure that the monitoring data is sent to the correct destination.
 
-4. CorrelationId: The correlationId is an identifier that is often used to track and correlate activities across 
-different services or components. It helps to maintain the relationship between different logs, events, and traces 
-associated with a particular operation. This is crucial for troubleshooting and understanding the end-to-end flow of operations.
+	4. CorrelationId: The correlationId is an identifier that is often used to track and correlate activities across 
+	different services or components. It helps to maintain the relationship between different logs, events, and traces 
+	associated with a particular operation. This is crucial for troubleshooting and understanding the end-to-end flow of operations.
 
 
 
@@ -178,8 +182,6 @@ For FunctionApp we use invocatioonId
 
 
 
-*********************************************************************************************************
-*********************************************************************************************************
 *********************************************************************************************************
 *********************************************************************************************************
 
@@ -194,23 +196,22 @@ long term. That is generally they keep data which we know wont be changed freque
 
 Properties
 
-1. Azure Key Vault manages and stores data securely like passwords, certificates, and other credentials.
-2. It provides centralized storage in which we can manage our all credentials.
-3. There are many scenarios in which we store our sensitive information like database connection strings and passwords inside our codebase
-but that may cause in the future because sometimes wrong people can access it.
-4. Key Vault provides centralized storage and also, and we can monitor and keep track of access and usage of our secrets.
+	1. Azure Key Vault manages and stores data securely like passwords, certificates, and other credentials.
+	2. It provides centralized storage in which we can manage our all credentials.
+	3. There are many scenarios in which we store our sensitive information like database connection strings and passwords inside our codebase
+	but that may cause in the future because sometimes wrong people can access it.
+	4. Key Vault provides centralized storage and also, and we can monitor and keep track of access and usage of our secrets.
 
 Flow 
 
 	Application -> Key Vault Rest API -> Azure KeyVault
-
 	Inside AKV (Azure Key Vault) we have our KeyVault (which contain Certificate, Key, Secret)
 
 Steps to Implement -
 
-1. Use the Nuget Package - Microsoft.Extensions.Configuration.AzureKeyVault
+	1. Use the Nuget Package - Microsoft.Extensions.Configuration.AzureKeyVault
 
-2. Add environment variable in AppSettings.Json
+	2. Add environment variable in AppSettings.Json
 	
 	    {
             ................
@@ -221,49 +222,55 @@ Steps to Implement -
             }
         }
 
-3. Create IKeyVaultService and KeyVaultService. 
+	3. Create IKeyVaultService and KeyVaultService. 
     Provide lifetime in StartUp.cs under configureServices as Services.AddTransient()
     Or builder.services.AddTransient<>
 
-4. In the KeyVaultService  class
-    a. Get the data
-        KeyVaultEndPoint, 
-        KeyVaultTenantId,
-        KeyVaultClientId,
-        KeyVaultClientSecret
+	4. In the KeyVaultService  class
+		a. Get the data
+			KeyVaultEndPoint, 
+			KeyVaultTenantId,
+			KeyVaultClientId,
+			KeyVaultClientSecret
 
-    b. Create, SecretClient instance
+		b. Create, SecretClient instance
 
-            SecretClient _secretClient
-                = new SecretClient(
-                        new Uri(KeyVaultEndPoint),
-                        new ClientSecretCredential(KeyVaultTenantId, KeyVaultClientId, KeyVaultClientSecret)
-                    );
+				SecretClient _secretClient
+					= new SecretClient(
+							new Uri(KeyVaultEndPoint),
+							new ClientSecretCredential(KeyVaultTenantId, KeyVaultClientId, KeyVaultClientSecret)
+						);
 
-    c. Create Get() and Set()
-        async Task<string> Get(string keyName)
-        {
-            var secret = await _secretClient.GetSecretAsync(keyName);
-            return secret.Value.Value;
-        }
+		c. Create Get() and Set()
+			async Task<string> Get(string keyName)
+			{
+				var secret = await _secretClient.GetSecretAsync(keyName);
+				return secret.Value.Value;
+			}
 
-        async Task<string> Set(string keyName, string keyValue)
-        {
-            var secret = await _secretClient.SetSecretAsync(keyName, keyValue);
-            return secret.Value.Value;
-        }
+			async Task<string> Set(string keyName, string keyValue)
+			{
+				var secret = await _secretClient.SetSecretAsync(keyName, keyValue);
+				return secret.Value.Value;
+			}
 
 
 
-Cryptographic keys: Supports multiple key types and algorithms, and enables the use of software-protected and HSM-protected keys. 
-For more information, see About keys.
+Cryptographic keys: 
 
-Secrets: Provides secure storage of secrets, such as passwords and database connection strings. For more information, see About secrets.
+	Supports multiple key types and algorithms, and enables the use of software-protected and HSM-protected keys. 
+	For more information, see About keys.
 
-Certificates: Supports certificates, which are built on top of keys and secrets and add an automated renewal feature. Keep in mind when a 
-certificate is created, an addressable key and secret are also created with the same name. For more information, see About certificates.
-Azure Storage account keys: Can manage keys of an Azure Storage account for you. Internally, Key Vault can list (sync) keys with an Azure 
-Storage Account, and regenerate (rotate) the keys periodically. For more information, see Manage storage account keys with Key Vault.
+Secrets: 
+
+	Provides secure storage of secrets, such as passwords and database connection strings. For more information, see About secrets.
+
+Certificates: 
+
+	Supports certificates, which are built on top of keys and secrets and add an automated renewal feature. Keep in mind when a 
+	certificate is created, an addressable key and secret are also created with the same name. For more information, see About certificates.
+	Azure Storage account keys: Can manage keys of an Azure Storage account for you. Internally, Key Vault can list (sync) keys with an Azure 
+	Storage Account, and regenerate (rotate) the keys periodically. For more information, see Manage storage account keys with Key Vault.
 
 ----------------------------------------------------------------------------------------------------
 

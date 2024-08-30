@@ -1,67 +1,144 @@
-﻿Azure APIM - Azure API Management is the most reliable, scalable way to publish all the APIs in the centralized location.
-It will provide interface to manage the APIs.
+﻿Azure APIM - 
+
+Azure API Management is the most reliable, scalable way to publish all the APIs in the centralized location. It will provide interface 
+to manage the APIs.
 
 It has three components -
-1. Gateway
-2. Developer Portal
-3. API Management Plane
+	
+	1. Gateway
+	2. Developer Portal
+	3. API Management Plane
 
-1. Gateways -
-	The API gateway acts as a endpoint to connect to the backend services (the original service endpoint). 
-	1. This will accept the client req. which includes API keys, JWT token. 
-	2. This can implement usage quotas and rate limiting.
-	3. We can also have logs
+	1. Gateways -
+		The API gateway acts as a endpoint to connect to the backend services (the original service endpoint). 
+		1. This will accept the client req. which includes API keys, JWT token. 
+		2. This can implement usage quotas and rate limiting.
+		3. We can also have logs
 
-2. API Management Plane - 
-	This provide full access to API Management tools
-	1. We can configure API management services.
-	2. Here we can bundle APIs into "products".
-	3. We can setup policies for each APIs.
+	2. API Management Plane - 
+		This provide full access to API Management tools
+		1. We can configure API management services.
+		2. Here we can bundle APIs into "products".
+		3. We can setup policies for each APIs.
 
-3. Developer Portal - 
-	This will be used for the documentation of APIs.
-	1. Once created this portal can be shared with consumers. The consumers can subscribe to this portal and get the API 
-	keys.
+	3. Developer Portal - 
+		This will be used for the documentation of APIs.
+		1. Once created this portal can be shared with consumers. The consumers can subscribe to this portal and get the API 
+		keys.
 
 ------------------------------------------------------------------------------------------------------------
 	
 To publish an API. We are showing here a single way. We can have multiple otherways.
-1. Go to API (representation for API management plane)
-2. Here we will get "Add API". Then we can select "OpenAPI". This is for APIs which as all the operations
+
+	1. Go to API (representation for API management plane)
+	2. Here we will get "Add API". Then we can select "OpenAPI". This is for APIs which as all the operations
 	as per OPEN API specification (like GET, PUT, PATCH)
 		a. Open API specification -> The API url
 		b. Display Name -
 		c. Name - 
 		d. API URL suffix - The name that we need to put to the end of the APIM url
 			ex - if the APIM url is www.myapim.azure-api.net
-			then with URL suffix as myfirstapi -> APIM url is www.myapim.azure-api.net/myfirstapi
-	Once added APIM will import all the APIs as per Open API specifications.
+				then with URL suffix as myfirstapi -> APIM url is www.myapim.azure-api.net/myfirstapi
+		Once added APIM will import all the APIs as per Open API specifications.
 
 ------------------------------------------------------------------------------------------------------------
 
 OpenAPI integration to APIm. 
 
-Let us understand the flow:
-	1. Client request to APIm. We consider the client has valid credentials.
-	2. APIM validates whether the token is valid by sending to identity provider server. Identity server will refresh token
-		if expired. Then APIm will save this token. 
-	3. APIM will call the backend service.
+	Let us understand the flow:
 
-To perform the operation.
-	1. Go to AZURE AD, so that our applications can be exposed. Click on new registration. Add details of APIM
-		a. We need to add permission to this for 
-			a. APIM - As reader.
-			b. MS Graph API - As reader + writer.
-		b. We need to add secrets
-			a. Generate a new client secret.
+		1. Client request to APIm. We consider the client has valid credentials.
+		2. APIM validates whether the token is valid by sending to identity provider server. Identity server will refresh token
+			if expired. Then APIm will save this token. 
+		3. APIM will call the backend service.
 
+	To perform the operation.
 
-	2. Go to APIM -> API management plane.
-		a. Design -> Inbound Processing (middle tile) -> Add Policy
+		1. Go to AZURE AD, so that our applications can be exposed. Click on new registration. Add details of APIM
+			a. We need to add permission to this for 
+				a. APIM - As reader.
+				b. MS Graph API - As reader + writer.
+			b. We need to add secrets
+				a. Generate a new client secret.
 
 
-	For initial setup. We need to call the endpoint provided by Azure AD and generate the token. Using the token we can call 
-	the APIm.
+		2. Go to APIM -> API management plane.
+			a. Design -> Inbound Processing (middle tile) -> Add Policy
 
 
+		For initial setup. We need to call the endpoint provided by Azure AD and generate the token. Using the token we can call 
+		the APIm.
+
+
+-----------------------------------------------------------------------------------------------------------
+
+Azure API Management (API M) is a powerful service that allows organizations to publish APIs securely, reliably, and at scale. 
+Here are some key points about it:
+
+	Overview:
+		a. Azure API Management is a hybrid, multicloud management platform for APIs across all environments.
+		b. It supports the complete API lifecycle, from design and deployment to monitoring and analytics.
+		c. Use it to drive API consumption among internal teams, partners, and developers.
+		d. Benefit from business and log analytics available in the admin portal.
+	
+	Common Scenarios:
+		a. Unlocking Legacy Assets: APIs abstract and modernize legacy backends, making them accessible from new 
+		cloud services and applications.
+		b. API-Centric App Integration: APIs simplify and reduce the cost of app integration by providing standards-based, 
+		self-describing mechanisms.
+		c. Multi-Channel User Experiences: APIs enable user experiences across web, mobile, wearables, and IoT applications.
+		d. B2B Integration: APIs exposed to partners and customers facilitate business process integration and data exchange.
+	
+	Components:
+		a. API Gateway: Acts as a facade to backend services, allowing consistent configuration of routing, security,
+		throttling, caching, and observability.
+		b. Management Plane: Provides administrative capabilities for managing APIs, policies, and analytics.
+		c. Developer Portal: Allows developers to discover, explore, and consume APIs.
+
+-----------------------------------------------------------------------------------------------------------
+
+In APIM -> API section
+
+	1. APIs
+	2. Products - APIs are grouped under the different products. 
+	3. Subcription
+	4. Named Values
+	5. Backend
+	6. API logs
+
+-----------------------------------------------------------------------------------------------------------
+OPEN API addition (This is mostly used to upload API M file using YML)
+
+CLick on Open API -> To Add a new OPEN API definition
+
+	a. API Specification - Our API definition URL. Ex. this file can be in YML format
+	b. Display name - The name to be shown
+	c. Name - The name added to the link (Ex - https://<baseurl>/<name>)
+	d. Api Suffix -
+	e. Base Url - Url for our APIM
+
+	Once added -> We will be moved to design section 
+		1. By the name of the API that we added it will be shown on the left under ALL APIs. Once an API is selected all the operations
+		will be populated under DESIGN TAB
+		2. Then we have other blocks under DESIGN TAB.
+			a. ALL OPERATIONS -> Based upon the API name all the standard operations defined under Open API will be populated.
+			(They may or may not be operational). We also have other sections for each API endpoint/operations.
+			b. FRONT END -> INBOUND PROCESSING -> BACKEND -> OUTBOUND PROCESSING -> FRONT END
+			FRONT END -> This exposes the API to outside world for consumption.
+			INBOUND PROCESSING -> Here we can add some logic or we can call another specialized URL for further security validation
+			BACK END -> Actual our API that we are hosting
+			OUTBOUND PROCESSING -> Once our API provides result we can have logic to enhance the output and send to the data FRONT END for response
+		3. Under SETTINGS tab we can change settings 
+		4. Under TEST tab we can test APIs
+
+	Once we find the APIs look good we can bundle the API operations under a "PRODUCT"
+
+NOTE - We can have other API related resource like -> FunctionApp API, LogicApp API, AppService API.
+
+-----------------------------------------------------------------------------------------------------------
+
+Developer Portal
+
+Once we move to the Developer Portal section on LHS menu. We can click on portal overview. If its the fist time we need to publish
+it.
 

@@ -1,11 +1,13 @@
 ﻿Azure Function Apps Vs Logic Apps
 
 Azure Function Apps
+
 	- Is a serverless compute service. (Though we would need an AppService plan as a pre-requisite)
 	- More on coding side. 
 	- We have less connectors or bindings. But there is option to manually code it.
 
 Azure Logic Apps 
+
 	- Is a serverless workflow integration platform. 
 	- Less Coding. More oriented to implementation to business step with minimal or no-coding. Only integration based data needed.
 		This is preferred if we have high volume scenario (Need to verify).
@@ -15,43 +17,38 @@ Azure Logic Apps
 
 -------------------------------------------------------------------------------------------------------
 
-
-
 Type - It is a platform as a service offering (PAAS).
-
 Purpose - Workflow in the cloud.
-
-Every logic app works on 2 things Triggers and actions
+	Every logic app works on 2 things Triggers and actions
 
 Use Case - Whenever we receive an email we should respond to it.
 
 Max no of logic apps ??
 
-Step 1. Create a azure logic apps.
-		-> Go to the logic app
-		-> Create new "Workflow"
+	Step 1. Create a azure logic apps.
+			-> Go to the logic app
+			-> Create new "Workflow"
 
+	Step 2. Create a trigger. Recurrance trigger works by starting every N mins it will check.
+			Or We can have a mail box trigger. That is a particular email if received this will be triggered.
 
-Step 2. Create a trigger. Recurrance trigger works by starting every N mins it will check.
-		Or We can have a mail box trigger. That is a particular email if received this will be triggered.
-
-		Once the trigger is in place we get a button "Add a Step". Click it new Action will come up.
-		-> Create a workflow to connect to SQL server (Need to configure) + We can also
-		have filters like which data will be passed to next action.
-		-> Another workflow to Trigger Email (Need to configure)
-	
+			Once the trigger is in place we get a button "Add a Step". Click it new Action will come up.
+			-> Create a workflow to connect to SQL server (Need to configure) + We can also
+			have filters like which data will be passed to next action.
+			-> Another workflow to Trigger Email (Need to configure)
 
 Note - For Http triggers we can simply call the end point and logic apps will work
 
 ---------------------------------------------------------------------------
 
 Pre-requisites for setting up logic app
-1. Azure Core Tools - Providing framework to work with Azure Function
-2. Packages/Extension for code -
-	Azure Logic App Package (Standard)
-	Azure Logic App Package (Consumption-Based)
-	Logic App - Run Trigger
-3. Azurite emulator - For WebJob Storage 
+
+	1. Azure Core Tools - Providing framework to work with Azure Function
+	2. Packages/Extension for code -
+		Azure Logic App Package (Standard)
+		Azure Logic App Package (Consumption-Based)
+		Logic App - Run Trigger
+	3. Azurite emulator - For WebJob Storage 
 
 Note - For Stadard Logic app we can create both the Logic App + Work flow.
 But for Consumption Based Logic app the Infra has to be setup differently and the workflow can be created on a seperate repo.
@@ -60,8 +57,6 @@ But for Consumption Based Logic app the Infra has to be setup differently and th
 In the workflow folder -> workflow.json
 	-> We can do right click and open in designer mode -> will create workflow-designtime
 	-> We can create the workflow with all the connectors
-
-
 
 ---------------------------------------------------------------------------
 
@@ -72,6 +67,7 @@ Azure Logic Apps are generally secured using SAS Token (HTTP Triggers)
 Logic Apps are app service plan based.
 
 The logic app can be of "CONSUMPTION BASED PLAN" or "STANDARD PLAN".
+
 	a. CONSUMPTION BASED PLAN - It allows single workflow + No VNET integration + Pay-as-you go model. 
 	b. STANDARD PLAN - It allows multiple workflows + Option for VNET integration.
 
@@ -80,10 +76,11 @@ The logic app can be of "CONSUMPTION BASED PLAN" or "STANDARD PLAN".
 Creation of Logic App
 
 While creating the Logic App we will get the options -> Standard or Consumption. 
+
 	* Standard - It gives the option for VNET integration. Suitable for enterprise level application.
 	* Consumption - It is pay-as-you-go model based. No VNET integration provided.
 
-Inside the logic apps we have the Logic App Designer. Using Logic App Designer we can design the logic app.
+Inside the logic apps we have the Logic App Designer. Using Logic App Designer we can design the logic app. 
 A typical logic app will have the basic blocks as-
 
 1. Trigger - We can have multiple triggers to invoke the logic apps. We can have service bus queue trigger.
@@ -175,34 +172,35 @@ A typical logic app will have the basic blocks as-
 
 
 NOTE -
-1. We can think Logic Apps as a connected network of Connectors (which has triggers and actions).
-	This network can be thought as a workflow.
+
+	1. We can think Logic Apps as a connected network of Connectors (which has triggers and actions).
+		This network can be thought as a workflow.
 		
-2. So in a LogicApps we can have multiple workflow.
-	We can think it as 
-	AZURE FUNCTIONS APPs ------------> contains more than one AZURE FUNCTIONS
-	AZURE LOGIC APPs ----------------> contains more than one WORKFLOW
+	2. So in a LogicApps we can have multiple workflow.
+		We can think it as 
+		AZURE FUNCTIONS APPs ------------> contains more than one AZURE FUNCTIONS
+		AZURE LOGIC APPs ----------------> contains more than one WORKFLOW
 
-3. We can have parallel branch in our workflow. 
+	3. We can have parallel branch in our workflow. 
 
-4. We can also have connector with no trigger and action as Condition, Foreach, Switch etc.
+	4. We can also have connector with no trigger and action as Condition, Foreach, Switch etc.
 
-5. Typical Exception Handling - 
-	a. If we have called an API and that API fails. Here we can create parallel branch for next Connector.
-		The connectors can be set to RUN AFTER condition. 
-		1st parallel branch can run if previous run is succes.
-		2nd parallel branch can run if previous run is not success.
-	b. We can also use a connector where trigger we dont need to select and action can be selected as Condition. 
-		And we can add If and Else condition here.
+	5. Typical Exception Handling - 
+		a. If we have called an API and that API fails. Here we can create parallel branch for next Connector.
+			The connectors can be set to RUN AFTER condition. 
+			1st parallel branch can run if previous run is succes.
+			2nd parallel branch can run if previous run is not success.
+		b. We can also use a connector where trigger we dont need to select and action can be selected as Condition. 
+			And we can add If and Else condition here.
 
-6. UseCase - Need to send an email whenever there is a file created in the blob storage.
-	Here we will need the following Connectors -
-	1. When Blob Created
-			|
-	2. Get Blob Content 
-			|
-	3. Office Outlook Send Email Connector 
-	(need to have a school, or work account as sender - this email may be the user account email)
+	6. UseCase - Need to send an email whenever there is a file created in the blob storage.
+		Here we will need the following Connectors -
+		1. When Blob Created
+				|
+		2. Get Blob Content 
+				|
+		3. Office Outlook Send Email Connector 
+		(need to have a school, or work account as sender - this email may be the user account email)
 
 
 ---------------------------------------------------------------------------
@@ -263,28 +261,20 @@ Settings -
 	-> Workflow settings - We have update the details of Inbound IP addresses, Integration Accounts etc.
 	-> Authorization Policy - Add the Azure AD authorization policies.
 	-> Access Keys - This is will be used if we call the Logic App using http call.
---------------------------------------
-Workflows - (For Standard Plan)
-	-> Workflows - Here we will be creating workflows.
-	-> Connection - API, Service Provider conn. etc in the JSON format.
-	-> Parameters - Parametes for diff workflows.
-
-Artifacts - 
-	-> Schemas - If any schemas needed for the workflows. That will be uploaded here. 
-	-> Maps - If there is a map which have the information for the getting the source data and send to output. Ex- It can be xhlt map.
 
 -----------------------------------------------------------------
 
 For any FunctionApp or LogicApp we need the following dependent other resources (if needed).
-1. App Service Plan
-2. Log Analytics 
-3. Logic App - It could be standard or consumption based.
-4. Application Insights
-5. Storage Account
+	1. App Service Plan
+	2. Log Analytics 
+	3. Logic App - It could be standard or consumption based.
+	4. Application Insights
+	5. Storage Account
 
 ------------------------------------------------------------------
 
 While defining the workflow -> 
+
 	a. We need to start with some trigger (which is a connecter part). 
 	b. Now for each connector we have the following part-
 		- Parameters - This represents any parameter we need to pass to the connector. It could be - Name, Type, Value. 
@@ -297,12 +287,14 @@ While defining the workflow ->
 ------------------------------------------------------------------
 
 Use of parameters - 
+
 	- Parameters offer a wider range of use cases than app settings, such as support for large value sizes and complex objects)
 	- It can be thought as global variable for a workflow.
 
 ------------------------------------------------------------------
 
 While creating a workflow it could be -
+
 	1. Stateful - 
 		- Optimised for high reliablity, ideal for process business transaction data.
 		- If the workflow is stateful then it uses the storage for maintaining data and state.
@@ -520,13 +512,13 @@ Use Case - Data Operation
 
 -------------------------------------------------------------------
 
-
-
 What is Azure Logic App Integration Account?
--> Its a way to integrate enterprise apps to the Logic App. This helps to manage B2B artifacts
-Generally for integration accounts we use XML schema and similar mapper. There could be other mappers.
+
+	Its a way to integrate enterprise apps to the Logic App. This helps to manage B2B artifacts.
+	Generally for integration accounts we use XML schema and similar mapper. There could be other mappers.
 
 To Use ->
+	
 	1. Go to Azure Dashboard.
 	2. Search for Integration Account. Add Details like name, subscription, resource group etc.
 	3. In the integration account we can have components like -
@@ -540,3 +532,14 @@ To Use ->
 
 At the Logic App -> Workflow Settings -> Select an integration account. Here add the integration account.
 
+
+Workflows - (For Standard Plan)
+	-> Workflows - Here we will be creating workflows.
+	-> Connection - API, Service Provider conn. etc in the JSON format.
+	-> Parameters - Parametes for diff workflows.
+
+Artifacts - 
+	-> Schemas - If any schemas needed for the workflows. That will be uploaded here. 
+	-> Maps - If there is a map which have the information for the getting the source data and send to output. Ex- It can be xhlt map.
+
+-----------------------------------------------------------------

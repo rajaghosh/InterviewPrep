@@ -6,10 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Description-Azure_Additional.txt" />
     <None Remove="Description-Azure_APIM.txt" />
     <None Remove="Description-Azure_AppInsightAKV.txt" />
     <None Remove="Description-Azure_FunctionApps.txt" />
-    <None Remove="Description-Azure_IntegrationAccount_Details.txt" />
+    <None Remove="Description-Azure_IntegrationAccount.txt" />
+    <None Remove="Description-Azure_IntegrationAccount2.txt" />
     <None Remove="Description-Azure_IntegrationConcepts.txt" />
     <None Remove="Description-Azure_LogicApps.txt" />
     <None Remove="Description-Azure_Messaging.txt" />
@@ -17,10 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Description-Azure_Additional.txt" />
     <Content Include="Description-Azure_APIM.txt" />
     <Content Include="Description-Azure_AppInsightAKV.txt" />
     <Content Include="Description-Azure_FunctionApps.txt" />
-    <Content Include="Description-Azure_IntegrationAccount_Details.txt" />
+    <Content Include="Description-Azure_IntegrationAccount.txt" />
+    <Content Include="Description-Azure_IntegrationAccount2.txt" />
     <Content Include="Description-Azure_IntegrationConcepts.txt" />
     <Content Include="Description-Azure_LogicApps.txt" />
     <Content Include="Description-Azure_Messaging.txt" />

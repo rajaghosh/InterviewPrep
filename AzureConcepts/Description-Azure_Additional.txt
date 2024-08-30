@@ -1,0 +1,65 @@
+﻿Azure Advisor -
+
+	Its a service that will monitor other service and suggest the best practices.
+	For resources such as SQL, Web, VM we might need suggestions on Opertion Excellence, Security, Reliability, Performance and Cost.
+
+---------------------------------------------------------------------------------------
+
+Azure Cost Management + Billing -
+
+	This tool will analysis cost and suggest optimization on cost for a project required resources.
+	
+	1. On opening -> The dashboard will show. On the dashboard the cost on the basis of subscription will be shown.
+	
+	2. We can select the subscription. On opening on the LHS panel we can see 
+		Cost Management -> Cost analysis, Cost alerts, Budgets, Advisor Recommendations.
+		a. Cost analysis - High level view of the cost associated with the subscription in the current billing period, 
+		data granuality and grouping. 
+		b. Budgets - We can set some budget and will get notified if the cost exceeds the budget.
+		c. Cost Alerts - The alerts gets triggered when budget rule are met or violated.
+		d. Advisor Recommendations
+
+	3. We can also select a resource and check the similar parameters of Cost management.
+
+---------------------------------------------------------------------------------------
+
+Azure Monitor -
+
+	Alert Rule - We can write an alert rule based upon some metric.
+		a. A metric can be resource utilization or another can be based on data from AppInsights. Here we need to write KQL to fetch data.
+		b. Once the data is available we need to check the granuility i.e range of data on which the Alert Rule will run + the check frequency.
+		Ex - Granuility = 24 hours and Frequency of Evaluation = 5 mins. This will check the data in the range of 24 hours with the check logic 
+		checking every 5 mins
+		c. Once the check logic is set, we need to add Action Group to perform any real action. This can be mapped later also.
+		d. Need to add any Tags if needed. 
+		e. Save it. And the Alert rule is active.
+
+	Action Group - This represents a Action bundle. They will trigger some action for any Alert Rule invocation.
+		a. We can have notification for some Emails, Sms, Resource Manager role etc.
+		b. Also we can have action to invoke multiple other resources like Azure Function, ITSM, Automation Runbook, LogicApp, Webhook etc.
+		So if the Alert Rule is mapped to Action Group then when Alert is invoked the Action Group will either trigger Notification or Actions.
+
+	Alert Processing Rule - Alert processing rules allow you to apply processing on fired alerts. Alert processing rules are different from
+		alert rules. Alert rules generate new alerts that notify you when something happens, while alert processing rules modify the 
+		fired alerts as they're being fired to change the usual alert behavior.
+
+		You can use alert processing rules to add action groups or remove (suppress) action groups from your fired alerts.
+		They are helpful during scheduled maintenance.
+
+---------------------------------------------------------------------------------------
+
+Azure RBAC (Role Based Access Control)
+
+	- This works with priviledge identity management (PIM).
+	Here we have a concept of Security Principle. This can be attached to Users, Groups, Service Principle and Managed Identity.
+	Each user must have a role to access a resource. So each role is assigned with a security principle.
+	- Generally we can have reader and contributor/editor role. Apart from that we can have custom roles.
+	- Once the resource idetity (both the managed identity and the service principle) is added to a resource as reader or contributor
+	the resource will be able to read or update the resource.
+
+
+
+
+
+
+	
