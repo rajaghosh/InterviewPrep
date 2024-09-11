@@ -1,10 +1,11 @@
 ﻿-------------------------------------------------------------------------------------------------------------------------------
 
-Polyfill - In angular polyfill is a piece of code that allows our application to run in older version browsers that does not 
-	support certain features. 
+Polyfill - 
 
-	Polyfills.TS files is used for browser support. It will load a set of libraries which are used in application and are not 
-	supported by browsers by default to make an application work without any issues.
+	In angular polyfill is a piece of code that allows our application to run in older version browsers that does not support certain features. 
+
+	Polyfills.TS files is used for browser support. It will load a set of libraries which are used in application and are not supported by browsers 
+	by default to make an application work without any issues.
 
 	Install the necessary polyfill package using npm or yarn. For example, to install the core-js polyfill package, 
 	you can run the following command:
@@ -21,133 +22,188 @@ Package.json vs Angular.json
 
 How angular application loads into the browser?
 
-The main.ts file bootstraps the angular application by passing the AppModule as argument. In this AppModule, we tell angular, 
-there is AppComponent and angular now analyzes the AppComponent, reads the setup we pass here and therefore knows this selector 
-app-root and now angular is able to handle app-root in the index.html file.
+	The main.ts file bootstraps the angular application by passing the AppModule as argument. In this AppModule, we tell angular, 
+	there is AppComponent and angular now analyzes the AppComponent, reads the setup we pass here and therefore knows this selector 
+	app-root and now angular is able to handle app-root in the index.html file.
 
-Angular app work behind the scene -> Angular Flow / How Angular application loads in the browser / Angular bootstrapping process
+	Angular app work behind the scene -> Angular Flow / How Angular application loads in the browser / Angular bootstrapping process
 
-By flow, we mean how the files are called and in which sequence of files the app gets executed when we are running the application. 
+	By flow, we mean how the files are called and in which sequence of files the app gets executed when we are running the application. 
 
-Files we need to understand
+	Files we need to understand
 
-1. Angular.Json
+	1. Angular.Json
 
-It contains various properties and configurations.
-Demo structure
+	It contains various properties and configurations.
+	Demo structure
 
-        "options":{  
-            ......
-            "outputPath":"dist/hello-world",
-            "index":"src/index.html",
-            "main":"src/main.ts",  // THIS LINE
-            ......
-            ......
-            "polyfills":"src/polyfills.ts",
-            "tsConfig":"src/tsconfig.app.json",
-            "assets":[  
-               "src/favicon.ico",
-               "src/assets"
-             ],
-            "styles":[  
-               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-               "src/styles.css"
-             ],
-            "scripts":[],
-            "es5BrowserSupport":true
-        }
+			"options":{  
+				......
+				"outputPath":"dist/hello-world",
+				"index":"src/index.html",
+				"main":"src/main.ts",  // THIS LINE
+				......
+				......
+				"polyfills":"src/polyfills.ts",
+				"tsConfig":"src/tsconfig.app.json",
+				"assets":[  
+				   "src/favicon.ico",
+				   "src/assets"
+				 ],
+				"styles":[  
+				   "node_modules/bootstrap/dist/css/bootstrap.min.css",
+				   "src/styles.css"
+				 ],
+				"scripts":[],
+				"es5BrowserSupport":true
+			}
 
-This is the first file that is referenced by angular builder to look for all the paths and configurations 
-and to check the main file. The main file indicates the builder to start the application from there.
+	This is the first file that is referenced by angular builder to look for all the paths and configurations 
+	and to check the main file. The main file indicates the builder to start the application from there.
 
-2. Main.ts - Bootstrapping starts here
+	2. Main.ts - Bootstrapping starts here
 
-The main.ts acts as the entry point to the application. Main.ts helps in creating the browser environment
-for the application to run. This is done by:
+	The main.ts acts as the entry point to the application. Main.ts helps in creating the browser environment
+	for the application to run. This is done by:
 
-import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
+	import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
 
-After this, main.ts file call the function bootstrapModule(AppModule) which tells the builder to
-bootstrap the app.
+	After this, main.ts file call the function bootstrapModule(AppModule) which tells the builder to
+	bootstrap the app.
 
-platformBrowserDynamic().bootstrapModule(AppModule)
+	platformBrowserDynamic().bootstrapModule(AppModule)
 
-3. App.Module.ts 
+	3. App.Module.ts 
 
-We are bootstrapping the application with AppModule. AppModule is defined in Module.ts.
+	We are bootstrapping the application with AppModule. AppModule is defined in Module.ts.
 
-This is the module, created with the @NgModule decorator, which has declaration of all the components we are creating 
-within the app module so angular is aware of them. Here we also have other modules to be used in the app.
+	This is the module, created with the @NgModule decorator, which has declaration of all the components we are creating 
+	within the app module so angular is aware of them. Here we also have other modules to be used in the app.
 
-Sample :
+	Sample :
 
-        import { BrowserModule } from '@angular/platform-browser';
-        import { NgModule } from '@angular/core';
-        import { FormsModule } from '@angular/forms';
-        import { AppComponent } from './app.component';
-        import { TestComponent } from './test/test.component';
-        @NgModule({
-           declarations: [
-              AppComponent,
-              TestComponent
-           ],
-           imports: [
-              BrowserModule,
-              FormsModule
-           ],
-           providers: [],
-           bootstrap: [AppComponent]
-        })
-        export class AppModule { }
+			import { BrowserModule } from '@angular/platform-browser';
+			import { NgModule } from '@angular/core';
+			import { FormsModule } from '@angular/forms';
+			import { AppComponent } from './app.component';
+			import { TestComponent } from './test/test.component';
+			@NgModule({
+			   declarations: [
+				  AppComponent,
+				  TestComponent
+			   ],
+			   imports: [
+				  BrowserModule,
+				  FormsModule
+			   ],
+			   providers: [],
+			   bootstrap: [AppComponent]
+			})
+			export class AppModule { }
 
-4. App.Components.ts + App.Component.html
+	4. App.Components.ts + App.Component.html
 
-From App.Module.ts file the module asks to bootstrap the AppComponent.
-The AppComponent is in App.Component.ts file. This is the file which interacts with the html of the webpage and serves it with data.
-The component is made using @component decorator imported from '@angular/core'.
+	From App.Module.ts file the module asks to bootstrap the AppComponent.
+	The AppComponent is in App.Component.ts file. This is the file which interacts with the html of the webpage and serves it with data.
+	The component is made using @component decorator imported from '@angular/core'.
 
-The component has selector or custom tag to call the component. The initial selector is <app-root>
-It then has template or templateUrl which has html page. It also has styleUrls.
+	The component has selector or custom tag to call the component. The initial selector is <app-root>
+	It then has template or templateUrl which has html page. It also has styleUrls.
 
-Now Angular has all the info to be rendered.
+	Now Angular has all the info to be rendered.
 
-5. Index.html
+	5. Index.html
 
-In the index.html file we can the selector to load the content of the component.
+	In the index.html file we can the selector to load the content of the component.
 
 
-Summary :
+	Summary :
 
-Angular.json -> Main.ts -> App.Module.ts -> App.Component -> Index.html
+	Angular.json -> Main.ts -> App.Module.ts -> App.Component -> Index.html
 
 -------------------------------------------------------------------------------------------------------------------------------
 
-Subject vs Behaviour Subject
-
-	Behaviour Subject - A BehaviorSubject holds one value (so we actually need to initialize a default value). When it is subscribed
-	it emits that value immediately. A Subject on the other hand, does not hold a value.
-
-	What it actually means is that in Subject, the subscribers will only receive the upcoming value where as in BehaviorSubject
-	the subscribers will receive the previous value and also upcoming value.
-
-	BehaviorSubject keeps in memory the last value that was emitted by the observable. A regular Subject doesn't.
-
-	BehaviorSubject is like ReplaySubject with a buffer size of 1.
-
-	Summary -
+Subject vs Behaviour Subject vs ReplaySubject vs 
+Link - https://dev.to/revanth_oleti/difference-between-subject-and-behaviorsubject-9g6
 
 	Subject - Each Next subscriber receive only upcoming value.
 	BehaviourSubject - Each Next subscriber receive one previous value and upcoming value.
 	ReplaySubject - Each Next subscriber receive all previous value and upcoming value.
 	AsyncSubject - latest value when stream will close.
 
-	Link - https://dev.to/revanth_oleti/difference-between-subject-and-behaviorsubject-9g6
+	Comparison
 
+	a. A BehaviorSubject holds one value (so we actually need to initialize a default value). When it is subscribed it emits that value immediately.
+	A Subject on the other hand, does not hold a value.
+
+	b. What it actually means is that in Subject, the subscribers will only receive the upcoming value where as in BehaviorSubject the subscribers will 
+	receive the previous value and also upcoming value.
+
+	c. BehaviorSubject keeps in memory the last value that was emitted by the observable. A regular Subject doesn't. BehaviorSubject is like 
+	ReplaySubject with a buffer size of 1.
+		
 -------------------------------------------------------------------------------------------------------------------------------
 
 Angular route gaurds -
 	https://www.scaler.com/topics/angular/route-guard-in-angular/
 	There are others but popular interms of interview canActive and canDeactivate
+
+Route Gaurds in Angular 
+
+	Route Gaurds prevents unauthorized access to a specific route.
+	Note - We add route gaurd service instance to NgModule or AppModule in the "providers" array.
+
+	We have 4 types of route gaurds.
+	1. CanActivate
+	2. CanActivateChild
+	3. CanDeactivate
+	4. CanLoad
+
+	1. CanActivate -> (Helps in loading a route if that has permissions) 
+	This interface can be implemented to guard a route and decide whether to activate the route or not.
+	In case multiple guards are applied on the route, if all guards return true, then the route gets activated. If it returns
+	false, then the current ongoing navigation is canceled.
+
+	//Here we use CanActivate Interface to implement
+	export class PermissionGarud implements CanActivate{
+    
+		constructor(){
+		}
+
+		canActivate(route:): boolean {
+    
+		}
+	}
+
+
+	Note - CanActivate route guard in Angular is only called once when child routes are changed.
+
+	2. CanActivateChild -> (Helps in loading a child route if that has permission)
+	CanActivateChild is almost similar to the CanActivate interface. Suppose you wanted to guard all 
+	children's routes, you can easily add the CanActivate interface in all its children's routes. 
+	To be honest, that doesn't sound like an elegant solution. Keeping that in mind, Angular router API provided
+	a CanActivateChild interface that helps to guard children's routes based on the defined condition. 
+	So you would have to use the CanActivate along with the CanActivateChild option on the route level.
+
+	3. CanDeactivate -> (Helps in situation where user leaves a page)
+	This route guard is useful in situations where the user is navigating away from the specific screen. 
+	For example, you can use this guard on
+		1.User is leaving the edited form without saving it. We can show the "Do you want to save your changes?" 
+		modal to remind users to save changes.
+		2. We can also use this guard to prevent users from back-browser action in certain situations.
+
+	The CanDeactivate route guard in Angular is a bit different in implementation from the other route guards as it 
+	involves calling a method defined on the component class whenever the user tries to navigate away from the route.
+	Also, from this guard, you get early access to the next route state to see where it is navigating back to.
+
+	4. CanLoad -> (Prevents the loading of the Lazy Loaded Module)
+	There are various strategies to load angular modules. Lazy loading and eager loading are the two main kinds. 
+	Angular defaulted the strategy to eagerly loading modules. 
+	A lazy loading strategy helps to load modules lazily. Lazy loading cannot check whether to load modules based on permission. 
+	CanLoad route guard implementation can help here.
+
+	It helps to prevent loading modules conditionally. So that unnecessary piece of code is not loaded at all in the browser. 
+	By using this CanLoad route guard in angular, we would get performance benefits.
 
 -------------------------------------------------------------------------------------------------------------------------------
 
@@ -230,16 +286,16 @@ Q. How to update from one angular version to another
 
 Angular RxJs Library
 
-In Angular, the RxJS library (Reactive Extensions for JavaScript) is an essential and integral part of the framework. 
-Its purpose is to handle "asynchronous" data streams easily. (Async - Data coming out in small interval but not fixed interval gap).
-It could be anything like httpresponse etc.
+	In Angular, the RxJS library (Reactive Extensions for JavaScript) is an essential and integral part of the framework. 
+	Its purpose is to handle "asynchronous" data streams easily. (Async - Data coming out in small interval but not fixed interval gap).
+	It could be anything like httpresponse etc.
 
-RxJS is a library for composing "asynchronous" and "event-based" programs using observable sequences and is widely used in 
-Angular applications for managing asynchronous operations, handling events, and working with data streams.
+	RxJS is a library for composing "asynchronous" and "event-based" programs using observable sequences and is widely used in 
+	Angular applications for managing asynchronous operations, handling events, and working with data streams.
 
-Here are some key concepts and functionalities of RxJS in the context of Angular:
+	Here are some key concepts and functionalities of RxJS in the context of Angular:
 
-	* Observables: Observables are a fundamental part of RxJS. They represent a source of data or events that can be observed 
+	1. Observables: Observables are a fundamental part of RxJS. They represent a source of data or events that can be observed 
 	over time. In Angular, many built-in objects, such as HTTP requests and form inputs, return observables.
 
 		- An Observable is an object or data structure that represents a stream of data or events over time.
@@ -256,7 +312,7 @@ Here are some key concepts and functionalities of RxJS in the context of Angular
 		  observer.complete();
 		});
 
-	* Observer:	An Observer is an object or function that watches or listens to the values emitted by an Observable. It defines a set 
+	2. Observer:	An Observer is an object or function that watches or listens to the values emitted by an Observable. It defines a set 
 	of callback functions that are executed when specific events occur in the Observable's lifecycle. Observer typically consists of 
 	three callback functions:
 	
@@ -272,7 +328,7 @@ Here are some key concepts and functionalities of RxJS in the context of Angular
 		};
 
 
-	* Subscribing: Subscribing is the process of connecting an Observer to an Observable. It initiates the execution of the Observable 
+	3. Subscribing: Subscribing is the process of connecting an Observer to an Observable. It initiates the execution of the Observable 
 	and allows the Observer to receive values from it. When you subscribe to an Observable, you provide an Observer to handle the emitted 
 	values. Subscribing returns a Subscription, which represents the ongoing connection between the Observer and the Observable.
 		
@@ -283,7 +339,7 @@ Here are some key concepts and functionalities of RxJS in the context of Angular
 		subscription.unsubscribe();
 
 
-	* Operators: RxJS provides a rich set of operators that allow you to transform, filter, merge, and manipulate observables.
+	4. Operators: RxJS provides a rich set of operators that allow you to transform, filter, merge, and manipulate observables.
 	Common operators include map, filter, mergeMap (formerly flatMap), switchMap, debounceTime, and many more.
 
 	Ex -> Linq Select -> Map
@@ -292,7 +348,7 @@ Here are some key concepts and functionalities of RxJS in the context of Angular
 		  Linq FirstOrDefault -> Find
 
 
-	* Async Pipe: The async pipe is a built-in Angular feature that simplifies working with observables in templates. 
+	5. Async Pipe: The async pipe is a built-in Angular feature that simplifies working with observables in templates. 
 	It automatically subscribes to an observable and unwraps the data, making it available for rendering in the template.
 	This helps avoid manual subscription management.
 
@@ -310,13 +366,13 @@ Here are some key concepts and functionalities of RxJS in the context of Angular
 
 ----------------------
 	
-	
-	* What are observables and observers?
-	Ans -> So we have a http stream and a listener. To listen to this stream we need to convert it to observable object
-	So observable is a Rxjs object which emits some data stream. And the listener has to converted to an observer object to communicate.
+What are observables and observers?
 
-	So observable and observer are both Rxjs object which will communicate with each other.
-	Here observable is the asynchronous data stream and observer will subscribe to this data stream to communicate.
+	So we have a http stream and a listener. To listen to this stream we need to convert it to observable object. So observable is a Rxjs object 
+	which emits some data stream. And the listener has to converted to an observer object to communicate.
+
+	So observable and observer are both Rxjs object which will communicate with each other. Here observable is the asynchronous data stream and 
+	observer will subscribe to this data stream to communicate.
 
 	We can subscribe using subscribe() and unsubscribe using unsubscribe() methods.
 
@@ -642,48 +698,7 @@ Template reference variable
 
 --------------------------------------------------------------------
 
-Compilation AOT vs JIT
-
-ng build –prod OR ng build
-	
-	AOT Ahead of Time Compilation
-	
-	* The Angular Ahead-of-Time (AOT) compiler converts your Angular HTML and TypeScript code into efficient JavaScript code 
-	during the build phase before the browser downloads and runs that code.
-
-	Advantages of AOT:
-	- Highlights the compilation error, runtime error and exception before running on the browser 
-	hence the name Ahead Of Time (AOT).
-	
-	- If you use ng build in your projects to build your application if you notice the file size of vendor.bundle.js 
-	and vendor.bundle.js.map files in your build directory it will be in MBS which get downloaded to the Browsers 
-	and make our application too loaded.
-
-	But on the other hand, if you use the flag ng build –prod you will notice an excessive decrease of this files 
-	to 200 KBS means 100 or more times lesser in size.
-	Therefore I recommend you to use the AOT in the building of Angular Application by using --prod flag.
-
----------------------------------------------
-	
-	--prod- apply uglify and minify to reduce the bundle as well make angular work in production mode which
-	reduces runtime warnings given by angular compiler as well increase performance.
-	
-	--aot- generally when we serve angular project all the angular files are downloaded on browser and it will 
-	compile and execute the application on the browser but in aot entire application delivered to the browser 
-	is precompiled hence improves the performance
-
-	Command -> ng build --aot --prod --output-path=dist/my-app
-
-
-	build- will bundle files and put it in dist folder so that we can use those for deployment on servers.
-	serve- will run the application on lite server
-----------------------------------------------
-
-	Summary -
-
-		- In JIT the bundle size is larger, in AOT bundle size is small.
-	
-	Just-in-Time (JIT) Compilation:
+Just-in-Time (JIT) Compilation:
 
 	- Timing: In JIT compilation, the Angular code is compiled and generated in the browser at runtime, 
 	i.e., "just-in-time" when the application loads.
@@ -700,7 +715,7 @@ ng build –prod OR ng build
 	involves compilation in the browser. However, once running, the performance is generally acceptable for most
 	applications.
 
-	Ahead-of-Time (AOT) Compilation:
+Ahead-of-Time (AOT) Compilation:
 
 	- Timing: AOT compilation happens ahead of time, typically during the build process before deploying the application.
 
@@ -712,7 +727,48 @@ ng build –prod OR ng build
 	- Performance: AOT-compiled code often has faster startup times and improved runtime performance because it eliminates 
 	the need for in-browser compilation.
 
+--------------------------------------------------------------------
+
+Compilation AOT vs JIT
+
+	ng build –prod OR ng build
+	
+	AOT Ahead of Time Compilation - The Angular Ahead-of-Time (AOT) compiler converts your Angular HTML and TypeScript code into efficient JavaScript code 
+	during the build phase before the browser downloads and runs that code.
+
+	Advantages of AOT:
+	- Highlights the compilation error, runtime error and exception before running on the browser 
+	hence the name Ahead Of Time (AOT).
+	
+	- If you use ng build in your projects to build your application if you notice the file size of vendor.bundle.js 
+	and vendor.bundle.js.map files in your build directory it will be in MBS which get downloaded to the Browsers 
+	and make our application too loaded.
+
+	But on the other hand, if you use the flag ng build –prod you will notice an excessive decrease of this files 
+	to 200 KBS means 100 or more times lesser in size.
+	Therefore I recommend you to use the AOT in the building of Angular Application by using --prod flag.
+
+	--prod vs --aot
+	
+	--prod- apply uglify and minify to reduce the bundle as well make angular work in production mode which
+	reduces runtime warnings given by angular compiler as well increase performance.
+	
+	--aot- generally when we serve angular project all the angular files are downloaded on browser and it will 
+	compile and execute the application on the browser but in aot entire application delivered to the browser 
+	is precompiled hence improves the performance
+
+	Command -> ng build --aot --prod --output-path=dist/my-app
+
+
+	build- will bundle files and put it in dist folder so that we can use those for deployment on servers.
+	serve- will run the application on lite server
+
+	Summary -
+
+		- In JIT the bundle size is larger, in AOT bundle size is small.
+	
 -----------------------------------------------------------------------
+
 Is ng build --prod and ng build --aot same?
 
 	No, the --prod flag in Angular CLI does not enable Ahead-of-Time (AOT) compilation. The --prod flag is used to build 
@@ -745,54 +801,61 @@ Is npm start internally call ng serve?
 ----------------------------------------------------------------
 
 Purpose of Angular? 
-Angular is a popular open-source web application framework maintained by Google and a community of developers. It is designed to
-simplify and streamline the process of building dynamic, single-page web applications (SPAs).
+
+	Angular is a popular open-source web application framework maintained by Google and a community of developers. It is designed to
+	simplify and streamline the process of building dynamic, single-page web applications (SPAs).
+
+	Angular vs React
+
+	Angular being a framework can implement business rules efficiently and also call Services. But React is a library so though it can 
+	call Services with minimal logic implementation.
 
 ----------------------------------------------------------------
 
 Angular Routing
-Ans - Routing in Angular refers to the mechanism by which you can navigate between different views or components within a 
-single-page web application. Angular provides a powerful and flexible routing system that allows you to define routes, 
-handle navigation, and load components dynamically based on the URL. Here's a basic overview of how routing works in Angular:
+
+	Routing in Angular refers to the mechanism by which you can navigate between different views or components within a single-page web application. 
+	Angular provides a powerful and flexible routing system that allows you to define routes, handle navigation, and load components dynamically 
+	based on the URL. Here's a basic overview of how routing works in Angular:
 
 	1. Command to create new app with routing enabled
 
-	ng new my-app --routing
+		ng new my-app --routing
 
 	2. Configure Routes
 
-	In your Angular application, you define routes in the app-routing.module.ts file. This file is generated when you create 
-	a new project with routing enabled. You can configure routes using the RouterModule from @angular/router.
+		In your Angular application, you define routes in the app-routing.module.ts file. This file is generated when you create 
+		a new project with routing enabled. You can configure routes using the RouterModule from @angular/router.
 
-	// app-routing.module.ts
-	import { NgModule } from '@angular/core';
-	import { RouterModule, Routes } from '@angular/router';
-	import { HomeComponent } from './home.component';
-	import { AboutComponent } from './about.component';
+		// app-routing.module.ts
+		import { NgModule } from '@angular/core';
+		import { RouterModule, Routes } from '@angular/router';
+		import { HomeComponent } from './home.component';
+		import { AboutComponent } from './about.component';
 
-	const routes: Routes = [
-	  { path: '', component: HomeComponent },
-	  { path: 'about', component: AboutComponent },
-	];
+		const routes: Routes = [
+		  { path: '', component: HomeComponent },
+		  { path: 'about', component: AboutComponent },
+		];
 
-	@NgModule({
-	  imports: [RouterModule.forRoot(routes)],
-	  exports: [RouterModule],
-	})
-	export class AppRoutingModule {}
+		@NgModule({
+		  imports: [RouterModule.forRoot(routes)],
+		  exports: [RouterModule],
+		})
+		export class AppRoutingModule {}
 
 	3. Create Route Links:
 
-	In your templates, you can create links to navigate to different routes using the routerLink directive. For example:
+		In your templates, you can create links to navigate to different routes using the routerLink directive. For example:
 
-	<!-- app.component.html -->
-	<nav>
-	  <a routerLink="/">Home</a>
-	  <a routerLink="/about">About</a>
-	</nav>
-	<router-outlet></router-outlet>
+		<!-- app.component.html -->
+		<nav>
+		  <a routerLink="/">Home</a>
+		  <a routerLink="/about">About</a>
+		</nav>
+		<router-outlet></router-outlet>
 
-	The <router-outlet></router-outlet> tag is where the routed components will be displayed.
+		The <router-outlet></router-outlet> tag is where the routed components will be displayed.
 
 	You can use route guards to control access to specific routes based on conditions like authentication or user roles.
 
@@ -811,41 +874,40 @@ Lazy Loading in Angular
 
 Constructor vs ngOnInit
 
-In the context of Angular, "constructor" and "ngOnInit" are two different methods used in Angular components to perform 
-initialization tasks, but they serve distinct purposes and are called at different times during the component's lifecycle.
+	In the context of Angular, "constructor" and "ngOnInit" are two different methods used in Angular components to perform initialization tasks, 
+	but they serve distinct purposes and are called at different times during the component's lifecycle.
 
-Constructor:
+	Constructor:
 
-	The constructor is a standard TypeScript method that is automatically invoked when an instance of a class is created.
-	It is part of the component's class and is not specific to Angular. It's a fundamental part of object-oriented programming.
-	The constructor is typically used to perform basic setup tasks for the component, such as initializing properties or injecting dependencies (using constructor parameters).
-	It is executed before Angular has fully initialized the component, which means that certain Angular features may not be available or fully configured within the constructor.
-	Example:
+		The constructor is a standard TypeScript method that is automatically invoked when an instance of a class is created.
+		It is part of the component's class and is not specific to Angular. It's a fundamental part of object-oriented programming.
+		The constructor is typically used to perform basic setup tasks for the component, such as initializing properties or injecting dependencies 
+		(using constructor parameters). It is executed before Angular has fully initialized the component, which means that certain Angular features
+		may not be available or fully configured within the constructor.
+		Example:
 
-	typescript
-	Copy code
-	constructor(private myService: MyService) {
-		// This is where you can inject dependencies and perform basic setup.
-	}
+		constructor(private myService: MyService) {
+			// This is where you can inject dependencies and perform basic setup.
+		}
 
-ngOnInit:
+	ngOnInit:
 
-	ngOnInit is a lifecycle hook specific to Angular components.
-	It is part of the OnInit interface in Angular and is used to perform initialization tasks that require access to Angular-specific features.
-	ngOnInit is called after the constructor and after Angular has initialized the component and its input properties.
-	It is a good place to start asynchronous operations, fetch data from a server, or perform any other initialization that relies on Angular's infrastructure.
-	Example:
+		ngOnInit is a lifecycle hook specific to Angular components.
+		It is part of the OnInit interface in Angular and is used to perform initialization tasks that require access to Angular-specific features.
+		ngOnInit is called after the constructor and after Angular has initialized the component and its input properties.
+		It is a good place to start asynchronous operations, fetch data from a server, or perform any other initialization that relies on Angular's infrastructure.
+		Example:
 
-	typescript
-	Copy code
-	ngOnInit(): void {
-		// This is where you can perform Angular-specific initialization tasks.
-		this.myService.getData().subscribe(data => {
-			// Process data after it's fetched asynchronously.
-		});
-	}
-In summary, the constructor is a standard TypeScript method used for basic setup and dependency injection, while ngOnInit is an Angular-specific lifecycle hook used for Angular-specific initialization tasks. You should use them appropriately based on your component's needs, keeping in mind that ngOnInit is more suitable for tasks that depend on Angular's lifecycle and features.
+		ngOnInit(): void {
+			// This is where you can perform Angular-specific initialization tasks.
+			this.myService.getData().subscribe(data => {
+				// Process data after it's fetched asynchronously.
+			});
+		}
 
+	In summary, the constructor is a standard TypeScript method used for basic setup and dependency injection, while ngOnInit is an Angular-specific
+	lifecycle hook used for Angular-specific initialization tasks. You should use them appropriately based on your component's needs, keeping in mind
+	that ngOnInit is more suitable for tasks that depend on Angular's lifecycle and features.
 
 ----------------------------------------------------------------------------------
 
@@ -960,12 +1022,12 @@ Angular Guards  and Interceptors (Access with Authorization and Authentication)
 
 Router vs Activated Router
 
-Angular Router is a service that presents a particular component view for a given URL. The Router interprets the URL in
-the browser and handles navigation to the configured component. After the end of each successful navigation lifecycle,
-the router builds a tree of ActivatedRoute objects that make up the current state of the router.
+	Angular Router is a service that presents a particular component view for a given URL. The Router interprets the URL in
+	the browser and handles navigation to the configured component. After the end of each successful navigation lifecycle,
+	the router builds a tree of ActivatedRoute objects that make up the current state of the router.
 
-AcivatedRoute in an injectable service that provides access to information about a route associated with a component such
-as the route path and URL parameters in the component.
+	AcivatedRoute in an injectable service that provides access to information about a route associated with a component such
+	as the route path and URL parameters in the component.
 
 ----------------------------------------------------------------------------------
 Services (to share common logic)and DI in angular using Providers

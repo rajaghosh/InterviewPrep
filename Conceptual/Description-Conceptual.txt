@@ -194,46 +194,247 @@ called a statement Terminator, but in VB.NET each statement should not end with 
 
 ------------------------------------------------------------------------------------------------------
 
-Reflection - It is inspection of an Assembly at runtime and checking what are the usable members the assembly contains.
+Reflection 
 
-Reflection in C# is a powerful feature that allows you to inspect and interact with the metadata of types,
-objects, and assemblies at runtime. It provides the ability to examine and manipulate the structure and 
-behavior of your code dynamically. Reflection is commonly used for tasks like creating instances of types, 
-invoking methods, accessing properties, and more, without knowing the details at compile time.
+	Reflection in C# is a powerful feature that allows you to inspect and interact with the metadata of assemblies, types, and members at runtime.
+	Reflection is commonly used for tasks like creating instances of types, invoking methods, accessing properties, and more, without knowing the 
+	details at compile time.
+	Here are some key aspects of reflection in C#:
 
-Ex - Type type = typeof(MyClass);
-	int i = 10;
-	Type type2 = i.GetType(); 
+		1. Reflection enables you to:
+			a. Inspect Metadata: Examine the contents of an assembly, such as its types, methods, properties, and fields.
+			b. Create Instances: Dynamically create instances of types.
+			c. Invoke Methods: Call methods on objects dynamically.
+			d. Access Fields and Properties: Get or set the values of fields and properties.
 
-You can use reflection to obtain information about a type, such as its name, methods, properties, 
-fields, and attributes.
+		2. Common Uses of Reflection
+			a. Dynamic Type Discovery: Useful in scenarios where types are not known at compile time.
+			b. Late Binding: Allows invoking methods on objects dynamically.
+			c. Metadata Inspection: Tools like Visual Studio use reflection to provide IntelliSense.
+			d. Custom Attributes: Retrieve custom attributes applied to types and members.
 
-While reflection is powerful, it comes with some trade-offs:
+		3. Example: Here’s a simple example demonstrating how to use reflection to inspect a type and invoke a method:
+			using System;
+			using System.Reflection;
 
-1. Performance: Reflection can be slower compared to direct method calls or property access since it involves 
-runtime lookups and checks.
-2. Compile-Time Safety: Reflection bypasses many compile-time checks, so errors might only be discovered at runtime.
-3. Security: Reflection can potentially allow access to private members and methods that would be otherwise inaccessible.
+			public class Example
+			{
+				public void SayHello()
+				{
+					Console.WriteLine("Hello, world!");
+				}
+			}
+
+			class Program
+			{
+				static void Main()
+				{
+					// Get the type of the Example class
+					Type type = typeof(Example);
+
+					// Create an instance of the Example class
+					object instance = Activator.CreateInstance(type);
+
+					// Get the MethodInfo object for the SayHello method
+					MethodInfo method = type.GetMethod("SayHello");
+
+					// Invoke the SayHello method on the instance
+					method.Invoke(instance, null);
+				}
+			}
+
+		4. Advanced Features
+			Custom Attributes: Define and retrieve custom metadata.
+			Assembly Loading: Load assemblies at runtime and inspect their contents.
+			Dynamic Method Invocation: Call methods dynamically using MethodInfo.
+
+		5. When to Use Reflection
+			Dynamic Scenarios: When you need to work with types that are not known at compile time.
+			Frameworks and Libraries: Useful in building frameworks that need to inspect and manipulate code.
+	
+		6. Performance Considerations
+			Reflection can be slower than direct code invocation due to the overhead of inspecting metadata and invoking members dynamically. 
+			Use it judiciously, especially in performance-critical applications.
+
+	NOTE - Late binding is often implemented using reflection. When you use late binding, the runtime uses reflection to find and invoke the appropriate 
+	methods or access properties on the object.
+
+	While reflection is powerful, it comes with some trade-offs:
+
+		1. Performance: Reflection can be slower compared to direct method calls or property access since it involves 
+		runtime lookups and checks.
+		2. Compile-Time Safety: Reflection bypasses many compile-time checks, so errors might only be discovered at runtime.
+		3. Security: Reflection can potentially allow access to private members and methods that would be otherwise inaccessible.
 
 ------------------------------------------------------------------------------------------------------
+
+Late Binding (Involves the involvement of reflection)
+
+	Late binding in C# refers to the process of resolving and invoking methods or accessing properties of an object at runtime, 
+	rather than at compile-time. This allows for more dynamic and flexible code, especially when the exact type of the object is not known
+	until the program is running.
+
+	Characteristics -
+		a. Runtime Resolution: The type of the object and the methods or properties it contains are determined at runtime.
+		b. Flexibility: Allows for more flexible code, as you can work with objects whose types are not known until runtime.
+		c. Dynamic Objects: Often involves the use of the dynamic keyword or reflection to achieve late binding.
+
+	NOTE - Typically late binding can be achieved using dynamic keyword or using reflection implementation directly.
+	When you use late binding, the runtime uses reflection to:
+		a. Inspect Metadata: Determine the types, methods, properties, and fields of an object.
+		b. Invoke Methods: Dynamically call methods on objects.
+		c. Access Members: Get or set the values of fields and properties.
+	
+	Performance Considerations -
+		a. Slower Execution: Late binding can be slower than early binding because it involves runtime type checking and method resolution.
+		b. Use Cases: Ideal for scenarios where flexibility is more important than performance, such as working with COM objects, dynamic 
+		languages, or plugins.
+
+------------------------------------------------------------------------------------------------------
+
+Early Binding Vs Late Binding
+
+	Early Binding -
+		a. Compile-Time Resolution: The type of the object and the methods or properties it contains are determined at compile-time.
+		b. Type Safety: The compiler checks for the existence of methods and properties, ensuring type safety and reducing runtime errors.
+		c. Performance: Faster execution because method calls are resolved at compile-time.
+		d. IntelliSense Support: Provides full IntelliSense support in IDEs like Visual Studio, showing available methods and properties.
+		e. Usage: Commonly used in scenarios where the types are known at compile-time.
+
+	Late Binding -
+		a. Runtime Resolution: The type of the object and the methods or properties it contains are determined at runtime.
+		b. Flexibility: Allows for more dynamic and flexible code, especially useful when working with types not known until runtime.
+		c. Performance: Slower execution due to the overhead of resolving methods and properties at runtime.
+		d. No Compile-Time Type Checking: The compiler does not check for the existence of methods and properties, which can lead to runtime 
+		errors if they are not found.
+		e. Usage: Often used in scenarios involving dynamic types, COM objects, or reflection.
+
+------------------------------------------------------------------------------------------------------
+
 Var vs Dynamic
 
- * Var - It is early binded. So when value is assigned compiler will be able to detect the metadata like what kind of value 
- it contains.
- * Dynamic - It is late binded. It is binded during runtime. So what value has been assigned would not be evaluated by compiler.
- Even if some error will be assigned to it say 
- dynamic a = "ABC";
- int t = a.length //It must be a.Length (Caps L)
- this would not be any error during compile time but during run-time there would be exceptions.
+	In C#, both var and dynamic (keywords) are used to declare variables without explicitly specifying their types, but they have distinct 
+	differences in how they operate:
+
+	1. Var - It is early binded. So when value is assigned compiler will be able to detect the metadata like what kind of value 
+	it contains.
+		a. Statically Typed: The type of the variable is determined at compile-time based on the assigned value.
+		b. Type Safety: Once the type is inferred, it cannot be changed. The compiler enforces type checking.
+		c. IntelliSense Support: Provides full IntelliSense support in Visual Studio, showing available methods and properties.
+		d. Usage: Commonly used for local variables where the type is obvious from the right-hand side of the assignment.
+		e. Code: 
+
+			var number = 10; // Inferred as int
+			var text = "Hello"; // Inferred as string
+
+			// Compiler error if you try to assign a different type
+			// number = "World"; // Error: Cannot implicitly convert type 'string' to 'int'
+
+	2. Dynamic - It is late binded. It is binded during runtime. So what value has been assigned would not be evaluated by compiler.
+		a. Dynamically Typed: The type of the variable is determined at runtime, allowing for more flexibility.
+		b. No Compile-Time Type Checking: The compiler does not check the type, which can lead to runtime errors if the operations are invalid.
+		c. No IntelliSense Support: Limited IntelliSense support, as the type is not known until runtime.
+		d. Usage: Useful in scenarios where the type is not known until runtime, such as working with COM objects, dynamic languages, or reflection.
+		e. Code: 
+			
+			dynamic number = 10; // Initially an int
+			number = "Hello"; // Now a string
+
+			// No compile-time error, but runtime error if invalid operation
+			// number.NonExistentMethod(); // Runtime error: 'string' does not contain a definition for 'NonExistentMethod'
+
+			----------------------------------------------------------
+
+			//Even if some error will be assigned to it say 
+			
+			dynamic a = "ABC";
+			int t = a.length //It must be a.Length (Caps L)
+			//this would not be any error during compile time but during run-time there would be exceptions.
  
- NOTE - dynamic can be used as function parameters, var cant be used as function parameter
+	Difference -
+		a. Type Determination: var is determined at compile-time, while dynamic is determined at runtime.
+		b. Type Safety: var ensures type safety at compile-time, whereas dynamic allows for more flexibility but at the cost of potential runtime errors12.
+		c. IntelliSense: var provides full IntelliSense support, while dynamic does not.
+		d. Method Parameters: Dynamic can be used as function parameters, var cant be used as function parameter
+
+	More on dynamic usage -
+		Yes, the dynamic keyword in C# internally uses reflection. Here’s a bit more detail:
+
+		How dynamic Uses Reflection
+		
+		Runtime Type Resolution: When you use the dynamic keyword, the actual type of the variable is resolved at runtime. This involves 
+		inspecting the metadata of the type, which is a core aspect of reflection.
+
+		Method Invocation: When you call a method on a dynamic object, the runtime uses reflection to find and invoke the appropriate method.
+		This allows for late binding, where the method to be called is determined at runtime rather than compile-time.
+
+	Additional advantage of Dynamics -
+		Simplicity: Using dynamic simplifies the code, making it more readable and maintainable compared to using reflection directly.
+		Performance: While dynamic uses reflection, it also includes some optimizations like caching method calls to improve performance
+
+------------------------------------------------------------------------------------------------------
+
+Method Overriding - 
+
+	NOTE - Reflection is not required for Method Overriding but it can be used. Method Overriding uses Vtable Lookup and does not use Late Binding. 
+
+	Method overriding in C# does not inherently use reflection. Instead, it is a feature of object-oriented programming where a derived class provides a 
+	specific implementation of a method that is already defined in its base class. This is done at compile-time and does not involve reflection.
+
+	Method overriding in C# is indeed a form of dynamic polymorphism, but it does not involve late binding. Instead, it uses a mechanism 
+	called virtual method dispatch or vtable lookup, which is resolved at runtime but is not the same as late binding.
+
+	Dynamic Polymorphism and Method Overriding
+		a. Dynamic Polymorphism: Allows a method to behave differently based on the object that invokes it. This is achieved through method overriding.
+		b. Virtual Methods: The base class method must be marked with the virtual keyword, and the derived class method must use the override keyword.
+
+	Runtime Resolution
+		a. Virtual Method Table (vtable): When a method is overridden, the runtime uses a vtable to determine which method implementation to call.
+		This lookup happens at runtime, allowing the correct method to be invoked based on the actual object type.
+
+		b. Not Late Binding: Although the method resolution occurs at runtime, it is not considered late binding because the method signatures are known
+		at compile-time, and the vtable mechanism is used for dispatch.
+
+	Reflection and Method Overriding
+		While method overriding itself does not use reflection, you can use reflection to inspect and invoke overridden methods at runtime. 
+		Here’s how you can do it:
+
+		Example Using Reflection to Invoke an Overridden Method:
+			using System;
+			using System.Reflection;
+
+			public class BaseClass
+			{
+				public virtual void Display()
+				{
+					Console.WriteLine("BaseClass Display");
+				}
+			}
+
+			public class DerivedClass : BaseClass
+			{
+				public override void Display()
+				{
+					Console.WriteLine("DerivedClass Display");
+				}
+			}
+
+			class Program
+			{
+				static void Main()
+				{
+					BaseClass obj = new DerivedClass();
+					MethodInfo method = obj.GetType().GetMethod("Display");
+					method.Invoke(obj, null); // Output: DerivedClass Display
+				}
+			}
 
  ------------------------------------------------------------------------------------------------------
 
  Const vs Readonly
 
- Const - for unchangable value added at compile time.
- Readonly - for unchangable value added at run time.
+	Const - for unchangable value added at compile time.
+	Readonly - for unchangable value added at run time.
  
  ------------------------------------------------------------------------------------------------------
 
@@ -298,77 +499,97 @@ Var vs Dynamic
 
 ------------------------------------------------------------------------------------------------------
 
- Garbage Collector - It is a background process which runs in the background and cleans unreferenced managed objects from memory.
+ Garbage Collector
+ 
+	Summary - GC cleans unreferenced memory of Managed Objects. If there is any unmanaged objects like files then we have to manually
+	write code to clean it. Unmanaged objects are typically cleaned using destructors. 
+
+	It is a background process which runs in the background and cleans unreferenced managed objects from memory.
 	It will clean objects once objects are out of scope.
+
 	Garbage collector does not work on premitive types as it does not work on Stack. (These primitive types will be automatically
 	cleaned once they go out of scope).
 
+	GC cleans when - Managed resources are those which are pure .net objects and these objects are controlled by .net CLR. They are cleaned by GC.
+	GC does not clean when - Unmanaged resources are those which are not managed by .net CLR like Files,Conn objects (for DB) etc. They are not cleaned by GC.
 
-	 Managed resources are those which are pure .net objects and these objects are controlled by .net CLR. They are cleaned by GC.
-	 Unmanaged resources are those which are not managed by .net CLR like Files,Conn objects (for DB) etc. They are not cleaned by GC.
+	Note - Total Memory of .net application = Managed Memory + Unmanaged Memory + Stack memory
 
-	 Note - Total Memory of .net application = Managed Memory + Unmanaged Memory + Stack memory
+	GC generations - They are logical buckets and each bucket defines how old the objects are. They are GC0, GC1, and GC2
+	So,
+		GC0 - It contains short lived objects.
+		GC1 - It contains intermediate lived objects.
+		GC2 - It contains long lived objects.
+		Purpose - Having generations have good performance effect. So objects in GC0 will be visited by GC more than the objects in GC2.
 
-	 GC generations - They are logical buckets and each bucket defines how old the objects are. They are GC0, GC1, and GC2
-	 So,
-	 GC0 - It contains short lived objects.
-	 GC1 - It contains intermediate lived objects.
-	 GC2 - It contains long lived objects.
-	 Purpose - Having generations have good performance effect. So objects in GC0 will be visited by GC more than the objects in GC2.
-
-
-	Note - Managed code will be cleaned by GC. And for unmanaged code we need to explicitly clean them by using Destructors 
-	or related processes.
-
+	Note - Managed code will be cleaned by GC. And for unmanaged code we need to explicitly clean them by using Destructors or related processes.
+	
 	"Destructor" -> ~Constructor() Name -
-	Here the unmanaged code gets cleaned. The Destructor is called implicitly by the .NET Framework’s Garbage collector 
-	and therefore programmer has no control as when to invoke the destructor. An instance variable or an object is eligible for 
-	destruction when it is no longer reachable.
+		Here the unmanaged code gets cleaned. The Destructor is called implicitly by the .NET Framework’s Garbage collector 
+		and therefore programmer has no control as when to invoke the destructor. An instance variable or an object is eligible for 
+		destruction when it is no longer reachable.
 
-	1. When we have Destructor in our code the GC has to work more and will have to do more trips to clean.
-	2. A Destructor has no return type and has exactly the same name as the class name (Including the same case).
-	3. A Destructor does not accept any parameters and modifiers.
-
-	So if we have a destructor then GC will give priority to cleaning based upon the destructor first, then it will clean rest of the 
-	references not specified in destructor.
-
-	So, having an empty destructor is bad as it may push unused references of GC0 to GC1 and so on.
-
+		1. When we have Destructor in our code the GC has to work more and will have to do more trips to clean.
+		2. A Destructor has no return type and has exactly the same name as the class name (Including the same case).
+		3. A Destructor does not accept any parameters and modifiers.
+	
+	Issues with destructors -
+		When destructors are written in the code it cleans unmanaged objects. But when the destructors are supposed to be called its not controlled by 
+		programmers rather it is invoked when the object is no more used.
+		This invocation is done by a periodical check from GC. So GC has to peek and check whether destructors has to be invoked. So this delays GC own tasks.
+		So if we have a destructor then GC will give priority to cleaning based upon the destructor first, then it will clean rest of the references to be cleaned by GC.
+	
+		So, having an empty destructor is bad as it may push unused references of GC0 to GC1 and so on.
+	
 	"Finalize" - It is same as destructor internally Destructor calls Finalize.
-
-	Q. Explain Dispose pattern?
-
-	When we have an empty destructor then we use IDisposable interface. (This fixes the issue of empty destructor)
-
-	public class SomeClass : IDisposable{
-
-		~SomeClass(){
+	
+	Q. Explain Dispose pattern? - This fixes the issue of GC peeking multiple times to invoke destructor
+	
+		This will tell the flow not to prioritize call the destructor call (first) and the unreferenced managed code will be handled (as the normal flow). 
+		With this message GC will claim the unreferenced managed objects as without waiting for the Destructor.
+		 
+		Here GC.SuppressFinalize is used, it is a method in C# that is used to prevent the garbage collector from calling the finalizer (destructor) of an object.
+		This is particularly useful in the implementation of the Dispose pattern to optimize resource cleanup.
+	
+		public class SomeClass : IDisposable{
+	
+			~SomeClass(){
+			}
+	
+			public void Dispose(){
+				//Code to clean
+				GC.SuppressFinalize(this);
+			}
+	
 		}
-
-		public void Dispose(){
-			//Code to clean
-			GC.SuppressFinalize(this);
+	
+		public class CallingClass{
+	
+			public void MyFunct1(){
+				SomeClass obj = new SomeClass();
+				//Some work
+				obj.Dispose();	//Calling dispose of the class
+			}
+	
 		}
+	
+		NOTE - 
+			Why Use GC.SuppressFinalize?
+			Performance Optimization: Calling GC.SuppressFinalize improves performance by preventing the garbage collector from adding the
+			object to the finalization queue, which can be an expensive operation.
+			
+			Resource Management: Ensures that resources are released in a timely manner without waiting for the garbage collector to call the finalizer.
 
-	}
+		Advantage -
 
-	public class CallingClass{
-
-		public void MyFunct1(){
-			SomeClass obj = new SomeClass();
-			//Some work
-			obj.Dispose();	//Calling dispose of the class
-		}
-
-	}
-
-	This will tell the flow not to prioritize call the destructor call (first) and the unreferenced managed code will be handled (as the normal flow). 
-	With this message GC will claim the unreferenced managed objects as without waiting for the Destructor.
-
+		a. Deterministic Cleanup: Ensures resources are released as soon as they are no longer needed.
+		b. Performance: Reduces the overhead associated with finalizers by allowing explicit resource cleanup.
+		c. Reliability: Provides a structured approach to resource management, reducing the risk of resource leaks.
+	
 	******************************************
 	Here we have an important Concept - Why do use "using" statement for using unmanaged code such as network connections?
 
-	Because implementing "using()" will define a scope, once the flow goes outside this scope then objects will be disposed automatically.
+	Because implementing "using()" will define a scope, once the flow goes outside this scope then objects will be disposed automatically. 
 
 	So we modify the code above
 
@@ -384,82 +605,82 @@ Var vs Dynamic
 	******************************************
 
 	Q. Can we force Garbage Collector to run?
-	Yes by calling GC.Collect();
+		Yes by calling GC.Collect();
 
-	Note - GC.Collect() can be placed anywhere in the code as required but it is a good practice if we have a Dispose() method 
-	then call GC.Collect() after the Dispose();
+		Note - GC.Collect() can be placed anywhere in the code as required but it is a good practice if we have a Dispose() method 
+		then call GC.Collect() after the Dispose();
 
-	Also GC.Collect() - Simple call
-	GC.Collect(0) - Call gen 0 
-	GC.Collect(1) - Call gen 1
-	GC.Collect(2) - Call gen 2
+		Also GC.Collect() - Simple call
+		GC.Collect(0) - Call gen 0 
+		GC.Collect(1) - Call gen 1
+		GC.Collect(2) - Call gen 2
 
-	Note - It is recommended not to explicitly call GC.Collect() if not needed. As it will be smartly called.
+		Note - It is recommended not to explicitly call GC.Collect() if not needed. As it will be smartly called.
 
 	Q. How can we detect a bad memory and its source of issue?
 
-	Ans - We will use performance profiler.
-	We will check how .net objects are allocated.
-	We need to check which portion of the code has huge memory allocation and then class needs to be refactored.
+		Ans - We will use performance profiler.
+		We will check how .net objects are allocated.
+		We need to check which portion of the code has huge memory allocation and then class needs to be refactored.
 
 	Q. What is memory leak?
-	Its a situation where memory used by the application is not returned to the OS even when the application exits.
+		Its a situation where memory used by the application is not returned to the OS even when the application exits.
 
-	Concept - Total Memory of .net application = Managed Code + Unmanaged Code + Stack mem
-		We also have primitive variables but they will be released from Stack once they are out of scope
+		Concept - Total Memory of .net application = Managed Code + Unmanaged Code + Stack mem
+			We also have primitive variables but they will be released from Stack once they are out of scope
 
 	Q. Can a .net application have memory leak as we already have a Garbage Collector?
-	We can still have memory leaks for unmanaged codes as GC does not work explicitly on unmanaged code.
+		We can still have memory leaks for unmanaged codes as GC does not work explicitly on unmanaged code.
 
 	Q. Explain Strong references vs Weak references?
-	Concept - Object created -> Object Removed -> After some time GC runs. So there is some Delta before the GC actually collects.
+		Concept - Object created -> Object Removed -> After some time GC runs. So there is some Delta before the GC actually collects.
 
-	"Strong reference" - It is a normal object. i.e once its reference is not needed it will be claimed by GC. 
-	Here even if there is some time (Delta) before the next GC run the object is not accessible during this delta.
+		"Strong reference" - It is a normal object. i.e once its reference is not needed it will be claimed by GC. 
+		Here even if there is some time (Delta) before the next GC run the object is not accessible during this delta.
 
-	"Weak reference" - It is a object which permits the garbage collector to collect itself while still 
-	allowing the application to access the object till the next GC run (during this delta). So here the object marks itself for 
-	GC collect but will be available during the delta before the actual GC run.
+		"Weak reference" - It is a object which permits the garbage collector to collect itself while still 
+		allowing the application to access the object till the next GC run (during this delta). So here the object marks itself for 
+		GC collect but will be available during the delta before the actual GC run.
 
-	Ex - 
+		Ex - 
 
-	public class MyClass{
+		public class MyClass{
 	
-		static WeakReference weak = new WeakReference(null);
+			static WeakReference weak = new WeakReference(null);
 
-		public void Func1()
-		{
-			var obj = new SomeClass();
+			public void Func1()
+			{
+				var obj = new SomeClass();
 
-			weak.Target = obj; 
-			//weak.IsAlive	//If the obj is alive then we will access it.
-		}
-	}
-
-
-	Ex - 
-
-	class Program
-	{
-		static WeakReference weakRef = new WeakReference(null);
-
-		static void Main(string[] args){
-
-			Func1(); //SomeClass is called
-	
-			while(1==1){
-				SomeClass gc = new SomeClass(); //SomeClass is called again - Provoking GC when the reference ends
-				Console.WriteLine(weakRef.IsAlive);	//Checking if still this object is available
+				weak.Target = obj; 
+				//weak.IsAlive	//If the obj is alive then we will access it.
 			}
 		}
 
-		static void Func1(){
-			SomeClass t = new SomeClass();
-			weakRef.Target = t;
+
+		Ex - 
+
+		class Program
+		{
+			static WeakReference weakRef = new WeakReference(null);
+
+			static void Main(string[] args){
+
+				Func1(); //SomeClass is called
+	
+				while(1==1){
+					SomeClass gc = new SomeClass(); //SomeClass is called again - Provoking GC when the reference ends
+					Console.WriteLine(weakRef.IsAlive);	//Checking if still this object is available
+				}
+			}
+
+			static void Func1(){
+				SomeClass t = new SomeClass();
+				weakRef.Target = t;
+			}
+
+
 		}
-
-
-	}
 
 	Q. When we will use weak reference?
 	Ans - Caching, object pooling. Wherever object creation is resource intensive caching and pooling can improve performance.
@@ -1423,45 +1644,47 @@ losing the original stack trace of the exception.
 
 STATIC CONSTRUCTOR
 
-C# supports two types of constructors, a class constructor (static constructor) and an instance constructor (non-static constructor).
+	C# supports two types of constructors, a class constructor (static constructor) and an instance constructor (non-static constructor).
 
-Static constructor is used to initialize static data members as soon as the class is referenced the first time, whereas an instance
-constructor is used to create an instance of that class with the <new> keyword. A static constructor does not take access modifiers 
-or have parameters and can't access any non-static data member of a class.
+	Static constructor is used to initialize static data members as soon as the class is referenced the first time, whereas an instance
+	constructor is used to create an instance of that class with the <new> keyword. 
 
-Since static constructor is a class constructor, it is guaranteed to be called as soon as we refer to that class or by creating 
-an instance of that class.
+	A static constructor does not take access modifiers or have parameters and can't access any non-static data member of a class.
 
-You may say, why not initialize static data members where we declare them in the code? Like this,
+	Since static constructor is a class constructor, it is guaranteed to be called as soon as we refer to that class or by creating 
+	an instance of that class.
 
-	private static int id = 10;
-	private static string name = "jack";
+	Use case of Static Constructor -
 
-Static data members can certainly be initialized at the time of their declaration but there are times when value of one static member 
-may depend upon the value of another static member. In such cases we definitely need some mechanism to handle conditional initialization 
-of static members. To handle such a situation, C# provides static constructor.
+	You may say, why not initialize static data members where we declare them in the code? Like this,
 
+		private static int id = 10;
+		private static string name = "jack";
 
-	using System;
-	namespace Constructor {
+	Static data members can certainly be initialized at the time of their declaration but there are times when value of one static member 
+	may depend upon the value of another static member. In such cases we definitely need some mechanism to handle conditional initialization 
+	of static members. To handle such a situation, C# provides static constructor.
 
-		class Test {
-			//Declaration and initialization of static data member
-			private static int id = 5;
-			public static int Id {
-				get {
-					return id;
+		using System;
+		namespace Constructor {
+
+			class Test {
+				//Declaration and initialization of static data member
+				private static int id = 5;
+				public static int Id {
+					get {
+						return id;
+					}
+				}
+				public static void print() {
+					Console.WriteLine("Test.id = " + id);
+				}
+				static void Main(string[] args) {
+					//Print the value of id
+					Test.print();
 				}
 			}
-			public static void print() {
-				Console.WriteLine("Test.id = " + id);
-			}
-			static void Main(string[] args) {
-				//Print the value of id
-				Test.print();
-			}
 		}
-	}
 
 ------------------------------------------------------------------
 

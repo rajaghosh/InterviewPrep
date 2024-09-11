@@ -57,8 +57,29 @@ Azure RBAC (Role Based Access Control)
 	- Once the resource idetity (both the managed identity and the service principle) is added to a resource as reader or contributor
 	the resource will be able to read or update the resource.
 
+---------------------------------------------------------------------------------------
 
+Service Principle 
 
+	System Assigned vs User Defined
+
+---------------------------------------------------------------------------------------
+
+Access/ Security Concepts
+
+	API key -
+
+	Function Key -
+
+	Security Principle -
+
+	Service Principle - 
+
+	PIM -
+
+	Personal Access Token -
+
+	Setting up login to an app in the Azure AD using password
 
 
 

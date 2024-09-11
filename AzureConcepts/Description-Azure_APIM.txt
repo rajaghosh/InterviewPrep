@@ -97,6 +97,16 @@ Here are some key points about it:
 
 -----------------------------------------------------------------------------------------------------------
 
+Concept (imp) - API here refers to a group of service endpoints. In terms of .net WebAPI we can think it as a controller which has multiple action methods.
+Action Methods are the service endpoints to the API (or controller).
+
+	Controller -> API
+	Action Methods -> Endpoint Methods
+
+Further each of the API can be bundled to a Product or they can be stored individually.
+
+-----------------------------------------------------------------------------------------------------------
+
 In APIM -> API section
 
 	1. APIs
@@ -137,8 +147,145 @@ NOTE - We can have other API related resource like -> FunctionApp API, LogicApp 
 
 -----------------------------------------------------------------------------------------------------------
 
+Users (For Developer Portal) -
+
+	Entities who can access the APIm from the Developer Portal.
+
+-----------------------------------------------------------------------------------------------------------
+
+Groups (For Developer Portal) -
+
+	They are the access levels. When adding an user we need to add userId and password to it.
+	// When a new user is added its default group access is "developer".
+
+-----------------------------------------------------------------------------------------------------------
+
+Subcription to the APIs of the APIM (It is not same as Azure Subscription)
+
+	It refers to which API can be used by which group.
+	So to access the developer portal we can have different groups. Each groups will have their own access levels. Now to access the developer portal
+	each of the groups needs to generate a subscription key and then map to the product.
+
+	So subscription will be in the combination of API/Group of APIs/Products/Users.
+
+-----------------------------------------------------------------------------------------------------------
+
+Products in APIM
+
+	Products are bundle of APIs. APIs can be bundled to a product or they can be stored individually.
+	
+To create the product->
+
+	In the portal under APIs section -> Select Products -> Click on Add
+	Fill the following
+		a. Display Name -
+		b. id
+		c. Description
+		d. Protection Level (this is not mentioned as an option but at Overview level they are protection levels)
+			i.Published - check it to publish the product on the portal
+			ii. Requires Subscription - check it to make sure product is accessible using a subscription
+			iii.Requires Approval - Only if the admin approves then the valid user can access this Product. When a new user is added 
+			with a subscription it needs an approval from the admin before the user can access the product with the subscription key.
+		e. Subscription count limit - How many subscription request can be added to access this product. This is not considering the Group level subscription 
+		but the user level subscription request. If no limit set then there is no restriction about how many request we can add.
+		f. APIs - Attach the APIs for this product.
+
+	Once the Product is created we can open the product and check its details. On the LHS panel.
+		a. Settings - Here we can update all the above settings.
+		b. APIs - Manage any API to the "product". Click on the "Add" button to add any existing APIs. Once added all the operations available to the API is 
+		included to the Product.
+		c. Policies - If we want to add dedicated policy to this Product we can add it here.
+		The policies can be updated in the XML format. The policies can be:
+			i.	Inbound
+			ii.	Backend
+			iii.Outbount
+			iv.	On-Error
+			
+		Here we already have snippets to add a policy. We can use the snippets to add the policies. We can have policies like : 
+			- rate-limiting -> How many calls in a renewal peiod, 
+			- quota,
+			- ip-filter,
+			- query parameters,
+			- header,
+			- CORS,
+			- Cache-responses,
+			- validate content,
+			- validate parameters,
+			- validate jwt,
+			- custom policies
+		d. Access Control - Who can have the access to the Product. Default setting is "Administrator". That is anyone with Administrator role can only access it.
+		To expose the API to any other access we can add any other role/group.
+			
+			NOTE - To check what role (here role is represented by Group) the audience who will access the product has.
+			At the APIm level (not at "product" level)
+				1. Under "developer portal" (LHS menu) -> We can select Users or Groups.
+				2. Here Groups represent a role. And each groups has Members. These members are the Users.
+				Generally the built-in groups are:
+					a. Administrators
+					b. Developers
+					c. Guests (Least authorization level)
+				We can also have custom groups also with custom access control.
+			
+			NOTE - At Product Level -> To make sure if we want to expose as per role so we need to add specific role. Ex - By default its administrator. 
+			So anyone who will try to access this product must have administrator access + they have to login to check it. 
+			To relax the access we can use "Guest" role. With Guest role anyone can access the Product (without even logging at the Developer Portal).
+		
+			NOTE - Even if we access a Product with Guest role but while accessing an API we will need subuscription to that API. 
+			// When an User with "Administrator" role tries to access the APIs the subscription key will be autogenerated.
+
+		e. Subscription - Showing the Group based subscription key. By default administrator subscription key will be pre-populated.
+
+
+-----------------------------------------------------------------------------------------------------------
+
 Developer Portal
 
-Once we move to the Developer Portal section on LHS menu. We can click on portal overview. If its the fist time we need to publish
-it.
+	1. It is an interface which is exposed to have the documentation related to the APIs configured in the APIM. We can access this portal to get details about
+	the APIs and how to use them. The documentation will be autocreated with details like URL, Subscription Key etc and also we can test the APIs from this portal.
+
+	NOTE - The developer portal can be used with or without being logged into. 
+	Now to check the APIs from API or Product those artifacts have to be pubished + have the proper role assigned to them.
+	If any API or Product is configured with access/role to GUEST then we need not log-in to the Portal but still read the API details. 
+	For higher access/role we will need to login to the portal to get the details.
+
+	NOTE - Once we move to the Developer Portal section on LHS menu. We can click on portal overview. If its the fist time we need to publish
+	it. By default when we click open it, it will be opened in the edit mode. 
+
+	2. Here we can access our APIs from either "APIs" or "Products" tab.
+	So the users can directly subscribe to the API and then consume the APIs using the "API key".
+	
+	3. So this developer portal will be used to showcase as a portal to outside user as a readonly portal to read details of the API services.
+	Basically, on the developer portal we will showcase our APIs with the related use notes (data only contains how to use or readyonly data like how to use).
+
+	4. Here the details of the API showcase is based on the priviledge/authorization level of user who has logged-in.
+	So if a "user1" User is added to the developer portal and trying to access ABC product. Say, currently for a ABC product 
+	the developer group is not added -> Then the user1 will not be able to check the check the APIs for then ABC product.
+		To create the access for this user (with user specific subscription keys) we can have:
+			a. Go to the ABC product (from developer portal)
+			-> Click on "Subscribe" button. 
+			-> Again a new view with "Subscribe to the Product" will open, here click on "Confirm" button.
+			-> Once the "Confirm" button is clicked a new view will open. Here Subscription key and other keys will be generated.
+			-> We can use the subscription key to access the APIs.
+			b. Go to APIm portal 
+			-> Select the ABC product and under the subscription option add the subscription for the developer.
+		NOTE - If the ABC product has the "requires approval" option activated then we have to again manually approve the subcription as admin.
+
+-----------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -192,7 +192,12 @@ Http Req -> Middleware -> Controller -> Action Method Execution -> Result Execut
     EmptyResult	 	                            When action does not return values
 
 
--------------------------
+-----------------------------------------------------------------------------------------
+    
+    NOTE - In MVC we can have action method overloading, only if the Methods are associated with different VERBS.
+
+-----------------------------------------------------------------------------------------
+
 Routing in MVC .net core
 
 	1. Conventional Routing - This routing will use default match URL with controller + action method (depending upon the route specified at controller/action method level).
@@ -561,6 +566,45 @@ Detailed
             Constructor Injection
             Method Injection
 
+
+---------------------------------------------------------------------------------------------------
+
+Response Cache -
+    
+    Response caching is a technique used to store the results of a request-response cycle so that subsequent requests for
+    the same resource can be served from the cache rather than generating the response from scratch. This can significantly
+    improve the performance of web applications by reducing the load on the server and speeding up response times for clients.
+
+    Key Concepts of Response Caching - 
+        a. HTTP Headers: Response caching is controlled by HTTP headers that specify how responses should be cached. Common headers
+        include Cache-Control, Expires, and ETag.
+        b. ResponseCache Attribute: In ASP.NET Core, the ResponseCache attribute is used to set response caching headers. This attribute
+        can be applied to controller actions to specify caching behavior1.
+        c. Response Caching Middleware: ASP.NET Core also provides middleware for response caching. This middleware can cache server 
+        responses based on HTTP cache headers and implement standard HTTP caching semantics1.
+        d. Cache-Control Directives: Some common Cache-Control directives include:
+            - public: Indicates that the response can be cached by any cache.
+            - private: Indicates that the response is intended for a single user and should not be stored by shared caches.
+            - no-cache: Forces caches to submit the request to the origin server for validation before releasing a cached copy.
+            - no-store: Prevents the cache from storing any part of the request or response2.
+    
+    Benefits of Response Caching -
+        a. Reduced Server Load: By serving cached responses, the server doesn’t need to process and generate the same response multiple
+        times.
+        b. Improved Performance: Clients receive responses faster because they are served from the cache rather than being generated anew.
+        c. Scalability: Helps in handling a large number of requests efficiently by reducing the processing required for each request.
+
+    Code Template -
+        using Microsoft.AspNetCore.Mvc;
+
+        public class HomeController : Controller
+        {
+            [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Client)]
+            public IActionResult Index()
+            {
+                return View();
+            }
+        }
 
 ---------------------------------------------------------------------------------------------------
 

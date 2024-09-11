@@ -26,141 +26,144 @@ without changing much of its composition.
 
 -------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------
-Singleton Design Pattern - (Creational Design Pattern) - This pattern is used when we need to ensure that only one 
-object of a particular class need to be created. 
-All further References to the objects are referred to the same underlying instance created. 
+Singleton Design Pattern - (Creational Design Pattern) -
+    
+    This pattern is used when we need to ensure that only one object of a particular class need to be created. 
+    All further References to the objects are referred to the same underlying instance created. 
 
-Advantages of Singleton - 
-a. Singleton controls concurrent access to the resource.
-b. It ensures that there is only one object available across the application in a controlled state.
+    Advantages of Singleton - 
+    a. Singleton controls concurrent access to the resource.
+    b. It ensures that there is only one object available across the application in a controlled state.
 
-Implementation Guidelines - 
-1. Ensure that only one instance of the class exists.
-2. Provide global access to that instance by:
-	a. Declaring all constructors of the class to be private.
-	b. Providing static method that returns a reference to the instance
-	c. The instance is stored as a private static variable.
+    Implementation Guidelines - 
+    1. Ensure that only one instance of the class exists.
+    2. Provide global access to that instance by:
+	    a. Declaring all constructors of the class to be private.
+	    b. Providing static method that returns a reference to the instance
+	    c. The instance is stored as a private static variable.
 
-It gets very important when we want to instanciate a single logic scope for all the object instanciation.
-Ex - Suppose there are several users. For each users we can have same resource allocation. Say we need some configuration data fetch from DB
-for mail sending. Now this config data will be same for every users. So only one instance initiation will be enough.
+    It gets very important when we want to instanciate a single logic scope for all the object instanciation.
+    Ex - Suppose there are several users. For each users we can have same resource allocation. Say we need some configuration data fetch from DB
+    for mail sending. Now this config data will be same for every users. So only one instance initiation will be enough.
 
-So real world usage of Singleton is:
-1. Logging
-2. Managing a connection or a pool of connections to DB.
-3. Printer Spooling
-4. File
-5. Configuration
-6. Cache
-7. Session Based Shopping Cart
+    So real world usage of Singleton is:
+    1. Logging
+    2. Managing a connection or a pool of connections to DB.
+    3. Printer Spooling
+    4. File
+    5. Configuration
+    6. Cache
+    7. Session Based Shopping Cart
 
-One important concept is 
+    One important concept is 
 
-Static vs Singleton Class
-1. Static is a Keyword and Singleton is a design pattern.
-2. Static classes can only contain static members.
-3. Singleton is an object creational pattern with one instance of the class. It can implement interfaces, inherit from other class and it aligns
-with OOP concepts.
+    Static vs Singleton Class
+    1. Static is a Keyword and Singleton is a design pattern.
+    2. Static classes can only contain static members.
+    3. Singleton is an object creational pattern with one instance of the class. It can implement interfaces, inherit from other class and it aligns
+    with OOP concepts.
 
 
-Why do we need to use SEALED class and PRIVATE constructor while creating a Singleton Class?
-Ans -> 
-We all know a singleton class can have a single instance only. That is either directly i.e Class A creating instance of SingletonClass
-or by inheriting i.e Child Class B creating instance of SingletonClass must be restricted.
+    Why do we need to use SEALED class and PRIVATE constructor while creating a Singleton Class?
 
-So we have used SEALED so that it could not be inherited and PRIVATE constructor so that instance cannot be created directly.
-Now this combination is a must so that a NESTED DERIVED class cannot be used to create an instance of the Singleton Class directly.
+    Ans -> 
+    We all know a singleton class can have a single instance only. That is either directly i.e Class A creating instance of SingletonClass
+    or by inheriting i.e Child Class B creating instance of SingletonClass must be restricted.
 
-Example
+    So we have used SEALED so that it could not be inherited and PRIVATE constructor so that instance cannot be created directly.
+    Now this combination is a must so that a NESTED DERIVED class cannot be used to create an instance of the Singleton Class directly.
 
-//public sealed class MySingleton
-public class MySingleton
-{
-	private MySingleton(){
-	
-	}
+    Example
 
-	//My NestedDerived Class
-	public class NestedDerived : MySingleton{
-	
-	}
-}
-
-public class ClassA{
-	NestedDerived obj = new NestedDerived();
-}
-
-In the above code we have removed the SEALED keyword. Now we can create the instance indirectly via the NESTED DERIVED class.
-So the combination of SEALED + PRIVATE is needed.
------------
-Sample Code
-
-	public sealed class Singleton1
+    //public sealed class MySingleton
+    public class MySingleton
     {
+	    private MySingleton(){
+	
+	    }
 
-        private static int counter = 0;//This is not mandatory and have been used to just validate
-        private Singleton1() //This declaration is important as we want our constructor to be private, else a new instance can be created
+	    //My NestedDerived Class
+	    public class NestedDerived : MySingleton{
+	
+	    }
+    }
+
+    public class ClassA{
+	    NestedDerived obj = new NestedDerived();
+    }
+
+    In the above code we have removed the SEALED keyword. Now we can create the instance indirectly via the NESTED DERIVED class.
+    So the combination of SEALED + PRIVATE is needed.
+    -----------
+    Sample Code
+
+	    public sealed class Singleton1
         {
-            counter++;
-            Console.WriteLine("Counter Value -> " + counter);
-        }
 
-        //This will be instantiated only once.
-        private static Singleton1 _instanceVariable = null; //Basically this is actually the instance variable which will be responsible for all the tasks to be done with this class.
-
-        public static Singleton1 GetInstance //Static Property, this will be used to communicate with outside 
-        {
-            get 
+            private static int counter = 0;//This is not mandatory and have been used to just validate
+            private Singleton1() //This declaration is important as we want our constructor to be private, else a new instance can be created
             {
-                if (_instanceVariable == null)
-                    _instanceVariable = new Singleton1();
-                return _instanceVariable;
+                counter++;
+                Console.WriteLine("Counter Value -> " + counter);
+            }
+
+            //This will be instantiated only once.
+            private static Singleton1 _instanceVariable = null; //Basically this is actually the instance variable which will be responsible for all the tasks to be done with this class.
+
+            public static Singleton1 GetInstance //Static Property, this will be used to communicate with outside 
+            {
+                get 
+                {
+                    if (_instanceVariable == null)
+                        _instanceVariable = new Singleton1();
+                    return _instanceVariable;
+                }
+            }
+
+            //Derived Nested Class - Instance of the Singleton1 class can be created from
+            //DerivedSingleton class so we have made Singleton Class Sealed
+            //public class DerivedSingleton : Singleton1
+            //{
+
+            //}
+
+            public void PrintDetails(string message)
+            {
+                Console.WriteLine(message);
             }
         }
 
-        //Derived Nested Class - Instance of the Singleton1 class can be created from
-        //DerivedSingleton class so we have made Singleton Class Sealed
-        //public class DerivedSingleton : Singleton1
-        //{
+	    Calling -
 
-        //}
-
-        public void PrintDetails(string message)
+	    public class Singleton1Helper
         {
-            Console.WriteLine(message);
-        }
-    }
+            public static void PrintEmployee1Details()
+            {
+                /*
+                 * Assuming Singleton is created from employee class
+                 * we refer to the GetInstance property from the Singleton class
+                 */
+                Singleton1 fromEmployee = Singleton1.GetInstance;
+                fromEmployee.PrintDetails("From Employee");
+            }
 
-	Calling -
-
-	public class Singleton1Helper
-    {
-        public static void PrintEmployee1Details()
-        {
-            /*
-             * Assuming Singleton is created from employee class
-             * we refer to the GetInstance property from the Singleton class
-             */
-            Singleton1 fromEmployee = Singleton1.GetInstance;
-            fromEmployee.PrintDetails("From Employee");
+            public static void PrintStudent1Details()
+            {
+                /*
+                * Assuming Singleton is created from student class
+                * we refer to the GetInstance property from the Singleton class
+                */
+                Singleton1 fromStudent = Singleton1.GetInstance;
+                fromStudent.PrintDetails("From Student");
+            }
         }
-
-        public static void PrintStudent1Details()
-        {
-            /*
-            * Assuming Singleton is created from student class
-            * we refer to the GetInstance property from the Singleton class
-            */
-            Singleton1 fromStudent = Singleton1.GetInstance;
-            fromStudent.PrintDetails("From Student");
-        }
-    }
 
 
 -------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------
 
 Aggregate Root Design Pattern - 
+
 	- It is an aggregate relationship that references all other methods or classes via a single class.
 	- So this single class would be a single entry point or the aggregate root.
 	- It will be implemented where we want to treat 1:N as a single logical unit.
@@ -169,6 +172,7 @@ Aggregate Root Design Pattern -
 -------------------------------------------------------------------------------------------------------------
 
 Iterator Design Pattern 
+
 	- It helps to loop through data in Aggregate Root condition. 
 	- Iterator is a behavioral design pattern 
 	- that lets you traverse elements of a collection without exposing its underlying representation (list, stack, tree, etc.).
@@ -177,6 +181,7 @@ Iterator Design Pattern
 -------------------------------------------------------------------------------------------------------------
 
 Adapter Design Pattern 
+
 	- Also called Wrapper Class Pattern.
 	- This design pattern allows 2 dissimilar classes to interact using 2 different "Interface" having similar communication endpoints.
 	- This comes under "Structural Design Pattern" as this combines the capability of 2 independent interfaces.
@@ -184,6 +189,7 @@ Adapter Design Pattern
 -------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------
 Factory Design Pattern - Creational Design Pattern 
+
 	- Design an interface for creating objects. But let the sub-class determine which classes to instanciate.
 	- Here we will create object without providing creational logic to the client.
 
@@ -191,6 +197,7 @@ Factory Design Pattern - Creational Design Pattern
 -------------------------------------------------------------------------------------------------------------
 
 Abstract Factory Design Pattern 
+
 	- It is a creational design pattern. Here we can have several factory patterns. Each Factory Implementation 
 	Interface is listed in a Super Interface. So if we have N factory interfaces all of the interface link 
 	will be declared inside the Abstract Factory Super Interface. No during execution we will have a choice 
@@ -200,6 +207,7 @@ Abstract Factory Design Pattern
 -------------------------------------------------------------------------------------------------------------
 
 Repository Design Pattern
+
 	- Repository Design Pattern in C# is used to create an Abstraction Layer between the Data Access Layer 
 	and Business Logic Layer to perform the CRUD operations against the underlying database. 
 	We also discussed that the Repository Design Pattern pattern can be implemented in the following two ways.
@@ -221,11 +229,83 @@ Repository Design Pattern
 		So, before implementing both generic and specific repositories let us first understand the implementation guidelines. 
 		That means when to use Generic and when to use Specific and when to use both generic and specific in an application.
 
+-------------------------------------------------------------------------------------------------------------
+Chain of responsibilty pattern (Microservice Related)
 
+    The Chain of Responsibility is a behavioral design pattern that allows a request to be passed along a chain of handlers. 
+    Each handler in the chain decides whether to process the request or pass it to the next handler. This pattern promotes 
+    loose coupling between the sender and receiver of a request, making the system more flexible and easier to maintain.
 
+    Key Characteristics:
+        a. Loose Coupling: The sender doesn’t need to know which handler will process the request.
+        b. Dynamic Chain: Handlers can be added or removed at runtime.
+        c. Single Responsibility Principle: Each handler has a single responsibility.
+        d. Sequential Order: Requests are processed in a predefined order.
+        e. Fallback Mechanism: Unhandled requests can be managed by a default handler.
 
+    CODE ->
 
+        abstract class Handler
+        {
+            protected Handler successor;
 
+            public void SetSuccessor(Handler successor)
+            {
+                this.successor = successor;
+            }
+
+            public abstract void HandleRequest(int request);
+        }
+
+        class ConcreteHandler1 : Handler
+        {
+            public override void HandleRequest(int request)
+            {
+                if (request < 10)
+                {
+                    Console.WriteLine($"{this.GetType().Name} handled request {request}");
+                }
+                else if (successor != null)
+                {
+                    successor.HandleRequest(request);
+                }
+            }
+        }
+
+        class ConcreteHandler2 : Handler
+        {
+            public override void HandleRequest(int request)
+            {
+                if (request >= 10 && request < 20)
+                {
+                    Console.WriteLine($"{this.GetType().Name} handled request {request}");
+                }
+                else if (successor != null)
+                {
+                    successor.HandleRequest(request);
+                }
+            }
+        }
+
+        class Client
+        {
+            static void Main()
+            {
+                Handler h1 = new ConcreteHandler1();
+                Handler h2 = new ConcreteHandler2();
+                h1.SetSuccessor(h2);
+
+                int[] requests = { 5, 14, 22, 18, 3 };
+
+                foreach (int request in requests)
+                {
+                    h1.HandleRequest(request);
+                }
+            }
+        }
+
+    NOTE - In this example, ConcreteHandler1 handles requests less than 10, while ConcreteHandler2 handles requests between 10 and 20.
+    Requests outside these ranges are passed along the chain until a handler processes them or the chain ends.
 
 
 

@@ -2,66 +2,68 @@
 
 EF Core - 
 	
-In EF Core is a ORM to communicate with DB.
-Here we have 2 appraches to communicate between Domain Classes and DB
+    In EF Core is a ORM to communicate with DB. Here we have 2 appraches to communicate between Domain Classes and DB.
+        a. Here we create models (Domain Class) 
+        b. Refer those class instance in the DBContext class by using DBSet<>
 
--> Here we create models (Domain Class) 
--> Refer those class instance in the DBContext class by using DBSet<>
+    1. Code-First Approach 
+	    -> We need to make sure DB connection is proper.
+	    -> Create migration script -> Add-Migration "<MigrationFileName>" -context <DBContextname>
+	    -> A migration file will be created and DB will be updated as per the data.
 
-1. Code-First Approach 
-	-> We need to make sure DB connection is proper.
-	-> Create migration script -> Add-Migration "<MigrationFileName>" -context <DBContextname>
-	-> A migration file will be created and DB will be updated as per the data.
+    2. DB-First Approach
+	    -> We need to make sure DB connection is proper.
+	    -> Create DB object in the DB (Not by code)
+	    -> Now if we already have DB classes we can run scaffold command pull DB objects into classes
+	    Scaffold-DBContext "<DBConnection>" Microsoft.EntityFrameworkCore.SqlServer -OutputDir EFModels
+	    This will create Model Classes in EFModels Folder
 
-2. DB-First Approach
-	-> We need to make sure DB connection is proper.
-	-> Create DB object in the DB (Not by code)
-	-> Now if we already have DB classes we can run scaffold command pull DB objects into classes
-	Scaffold-DBContext "<DBConnection>" Microsoft.EntityFrameworkCore.SqlServer -OutputDir EFModels
-	This will create Model Classes in EFModels Folder
+-------------------------------------------------------------------------------------
 
-*Run command in Package Manager Console
+Setting up EF Core for development environment
+    
+    *Run command in Package Manager Console
 
-NuGet packages -
-	Microsoft.EntityFrameworkCore.SqlServer
-	Microsoft.EntityFrameworkCore.Tools
-	Microsoft.EntityFrameworkCore.Design
+    NuGet packages -
+	    Microsoft.EntityFrameworkCore.SqlServer
+	    Microsoft.EntityFrameworkCore.Tools
+	    Microsoft.EntityFrameworkCore.Design
 
 	
-DBContext Class -
-It is the main co-ordinator between the services and DB.
-1. Managing DB Connection.
-2. Configuring entries and the reln between them
-3. CRUD Operations. (Here method of Repo will use the references)
-4. Transaction Management Support
+    DBContext Class -
+    It is the main co-ordinator between the services and DB.
+    1. Managing DB Connection.
+    2. Configuring entries and the reln between them
+    3. CRUD Operations. (Here method of Repo will use the references)
+    4. Transaction Management Support
 
-public class MyContext : DbContext
-{
-	public DbSet<Class1> Employees {get; set;}
+    public class MyContext : DbContext
+    {
+	    public DbSet<Class1> Employees {get; set;}
 
-	protected override void OnConfiguring(DbContextOptionsBuilder builder)
-	{
-		if(!builder.IsConfigured)
-		{
-			builder.UseSqlServer("<DBConnection>")
-		}
-	}
+	    protected override void OnConfiguring(DbContextOptionsBuilder builder)
+	    {
+		    if(!builder.IsConfigured)
+		    {
+			    builder.UseSqlServer("<DBConnection>")
+		    }
+	    }
 
-}
+    }
 
 
-DbSet<T> - Represents a collection for a given entity within the model and is 
-the gateway to perform database operations against an entity.
+    DbSet<T> - Represents a collection for a given entity within the model and is 
+    the gateway to perform database operations against an entity.
 
-Fluent API - By using the fluent API we can override the default conventions in 
-Entity Framework Core. This will provide more configuration options.
+    Fluent API - By using the fluent API we can override the default conventions in 
+    Entity Framework Core. This will provide more configuration options.
 
 --------------------------------------------------------------
 
 EF Core Migration File Methods
 
-The Up() method consists of commands that will be executed when we apply this migration. 
-As an opposite action, the Down() method will execute commands when we remove this migration 
+    The Up() method consists of commands that will be executed when we apply this migration. 
+    As an opposite action, the Down() method will execute commands when we remove this migration 
 
 
 
@@ -161,102 +163,356 @@ How to implement LazyLoading in EFCore
 
 MVC related questions
 
-1. ViewBag vs ViewData vs TempData 
+    1. ViewBag vs ViewData vs TempData 
 
-ViewData - 
-- It is Key-Value Dictionary collection	
-- ViewData is a dictionary object and it is property of ControllerBase class.
-- ViewData is Faster than ViewBag
-Ex - ViewData["Message"] = "ASP.NET Core!";
+    ViewData - 
+    - It is Key-Value Dictionary collection	
+    - ViewData is a dictionary object and it is property of ControllerBase class.
+    - ViewData is Faster than ViewBag
+    Ex - ViewData["Message"] = "ASP.NET Core!";
 
-ViewBag - 
-- It is a type object   
-- ViewBag is Dynamic property of ControllerBase class.
-- ViewBag is slower than ViewData
-Ex - ViewBag.Name = HttpContext.Session.GetString(SessionName);
-     ViewBag.Age = HttpContext.Session.GetInt32(SessionAge);
+    ViewBag - 
+    - It is a type object   
+    - ViewBag is Dynamic property of ControllerBase class.
+    - ViewBag is slower than ViewData
+    Ex - ViewBag.Name = HttpContext.Session.GetString(SessionName);
+         ViewBag.Age = HttpContext.Session.GetInt32(SessionAge);
 
-TempData - 
-- It is Key-Value Dictionary collection.
-- TempData is a dictionary object and it is property of controllerBase class.
+    TempData - 
+    - It is Key-Value Dictionary collection.
+    - TempData is a dictionary object and it is property of controllerBase class.
 
 ---------------------------------------------
 
 2. What is ignoreRoutes?
 
-routes.IgnoreRoute("Employee/");
+    routes.IgnoreRoute("Employee/");
 
-This will prevent any user accessing that particular route.
+    This will prevent any user accessing that particular route.
 
 3. What is [NonAction]?
 
-This disables the public action method from accessing.
+    This disables the public action method from accessing.
 
 4. What is RoutePrefix vs Route?
 
-RoutePrefix attribute is used to specify the common route prefix at the controller level. 
-It eliminates common route prefix on every controller method. Route attribute is used to 
-specify the route at the method level in controller. Each method in controller has its own unique route.
+    RoutePrefix attribute is used to specify the common route prefix at the controller level. 
+    It eliminates common route prefix on every controller method. Route attribute is used to 
+    specify the route at the method level in controller. Each method in controller has its own unique route.
 
-    Code without RoutePrefix attribute: 
+        Code without RoutePrefix attribute: 
 
-        You can see prefix "api/students" is repeating with each method in controller.
+            You can see prefix "api/students" is repeating with each method in controller.
 
-        public class StudentsController : ApiController
-        {
-            [Route("api/students/{id}")]
-            public Student Get(int id) 
+            public class StudentsController : ApiController
+            {
+                [Route("api/students/{id}")]
+                public Student Get(int id) 
 
-            [Route("api/students/{id}/courses")]
-            public IEnumerable<string> GetStudentCourses(int id)
-        }
+                [Route("api/students/{id}/courses")]
+                public IEnumerable<string> GetStudentCourses(int id)
+            }
 
-    Code with RoutePrefix attribute: 
+        Code with RoutePrefix attribute: 
     
-        You can see RoutePrefix eliminate the use of prefix at method level by using it at controller level
+            You can see RoutePrefix eliminate the use of prefix at method level by using it at controller level
 
-        [RoutePrefix("api/students")]
-        public class StudentsController : ApiController
-        {
-            [Route("{id}")]
-            public Student Get(int id) 
+            [RoutePrefix("api/students")]
+            public class StudentsController : ApiController
+            {
+                [Route("{id}")]
+                public Student Get(int id) 
 
-            [Route("{id}/courses")]
-            public IEnumerable<string> GetStudentCourses(int id)
-        }
+                [Route("{id}/courses")]
+                public IEnumerable<string> GetStudentCourses(int id)
+            }
 
 5. Hackable URL
 
-A hackable URL is a URL where there's a clear pattern or template for constructing the URL. 
-As an example, if I present to you the URL http://foo.ploeh.dk/products/1234, it's easy to guess
-that this is a resource representing a product with the SKU of 1234. If you know the SKU of another product, 
-it's easy to 'hack' the URL to produce e.g. http://foo.ploeh.dk/products/5678.
+    A hackable URL is a URL where there's a clear pattern or template for constructing the URL. 
+    As an example, if I present to you the URL http://foo.ploeh.dk/products/1234, it's easy to guess
+    that this is a resource representing a product with the SKU of 1234. If you know the SKU of another product, 
+    it's easy to 'hack' the URL to produce e.g. http://foo.ploeh.dk/products/5678.
 
 6. Partial View
 
-A view that is sharable.
-Partial view in ASP.NET MVC is a special view that renders a portion of view content. 
-It is just like a user control of a web form application. Partial can be reusable in multiple views. 
-It helps us to reduce code duplication. In other word a partial view enables us to render a view within the parent view.
+    A view that is sharable.
+    Partial view in ASP.NET MVC is a special view that renders a portion of view content. 
+    It is just like a user control of a web form application. Partial can be reusable in multiple views. 
+    It helps us to reduce code duplication. In other word a partial view enables us to render a view within the parent view.
 
 7. Areas
 
-The large ASP.NET MVC application includes many controllers, views, and model classes. So it can be difficult to
-maintain it with the default ASP.NET MVC project structure. ASP.NET MVC introduced a new feature called Area for 
-this. Area allows us to partition the large application into smaller units where each unit contains a separate 
-MVC folder structure, same as the default MVC folder structure. 
+    The large ASP.NET MVC application includes many controllers, views, and model classes. So it can be difficult to
+    maintain it with the default ASP.NET MVC project structure. ASP.NET MVC introduced a new feature called Area for 
+    this. Area allows us to partition the large application into smaller units where each unit contains a separate 
+    MVC folder structure, same as the default MVC folder structure. 
 
 8. Output Cache
 
-The output cache enables you to cache the content returned by a controller action.
-Output caching basically allows you to store the output of a particular controller in the memory. 
-Hence, any future request coming for the same action in that controller will be returned from the cached result. 
+    The output cache enables you to cache the content returned by a controller action.
+    Output caching basically allows you to store the output of a particular controller in the memory. 
+    Hence, any future request coming for the same action in that controller will be returned from the cached result. 
 
+----------------------------------------------------------------------------------------------------------------------------------------
 
+Unit of Work Pattern
+    
+    The Unit of Work (UoW) pattern in Entity Framework Core (EF Core) is a design pattern that helps manage transactions and ensure 
+    data consistency across multiple operations. It groups one or more operations (like insert, update, delete) into a single transaction,
+    ensuring that all operations either complete successfully or fail altogether. This is particularly useful in scenarios where data
+    integrity is crucial.
 
-Explain how to implement repository and unit of work patterns with EF Core.
-Implement a generic repository interface for common CRUD operations, abstracting away EF Core specifics.
-Implement a unit of work class to coordinate multiple repository operations within a single transaction.
-Inject these repositories and unit of work instances into your application services to keep your business logic decoupled from data access concerns.
+    Key Concepts of the Unit of Work Pattern
+        a. Transaction Management: The UoW pattern provides a way to manage transactions, allowing you to commit a batch of operations 
+        only if all of them succeed. If any operation fails, the whole transaction can be rolled back.
+        b. Consistency: It ensures that the database remains consistent despite errors that might occur during the execution of any part 
+        of the transaction1.
+        c. Connection Management: UoW handles the connection to the database, ensuring that all operations use the same database context,
+        which is important for EF Core performance and consistency1.
+
+    Why Use the Unit of Work Pattern?
+        Without the Unit of Work pattern, if you have multiple repositories working with their own instances of the DbContext, you might 
+        face issues where one repository’s changes are saved while another’s are not, leading to data inconsistency. The Unit of Work
+        pattern solves this by providing a single DbContext instance for all repositories, ensuring that all changes are saved together.
+
+    Implementing the Unit of Work Pattern in EF Core
+        
+        Step 1: Define the Unit of Work Interface
+        Create an interface for the Unit of Work that includes methods for saving changes and accessing repositories:
+
+            public interface IUnitOfWork : IDisposable
+            {
+                IRepository<T> Repository<T>() where T : class;
+                void Save();
+            }
+        
+        Step 2: Implement the Unit of Work
+        Implement the Unit of Work interface:
+
+            public class UnitOfWork : IUnitOfWork
+            {
+                private readonly DbContext _context;
+                private readonly Dictionary<Type, object> _repositories = new Dictionary<Type, object>();
+
+                public UnitOfWork(DbContext context)
+                {
+                    _context = context;
+                }
+
+                public IRepository<T> Repository<T>() where T : class
+                {
+                    if (!_repositories.ContainsKey(typeof(T)))
+                    {
+                        _repositories[typeof(T)] = new Repository<T>(_context);
+                    }
+                    return (IRepository<T>)_repositories[typeof(T)];
+                }
+
+                public void Save()
+                {
+                    _context.SaveChanges();
+                }
+
+                public void Dispose()
+                {
+                    _context.Dispose();
+                }
+            }
+
+        Using the Unit of Work Pattern
+        Step 3: Register Services in Dependency Injection
+        Register the Unit of Work and DbContext in the Startup.cs file:
+
+            public void ConfigureServices(IServiceCollection services)
+            {
+                services.AddDbContext<YourDbContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+                services.AddScoped<IUnitOfWork, UnitOfWork>();
+            }
+
+        Step 4: Use the Unit of Work in Your Application
+        Inject the IUnitOfWork into your services or controllers and use it to perform data operations:
+
+            public class YourService
+            {
+                private readonly IUnitOfWork _unitOfWork;
+
+                public YourService(IUnitOfWork unitOfWork)
+                {
+                    _unitOfWork = unitOfWork;
+                }
+
+                public void SomeOperation()
+                {
+                    var repository = _unitOfWork.Repository<YourEntity>();
+                    var entities = repository.GetAll();
+                    // Perform operations
+                    _unitOfWork.Save();
+                }
+            }
+
+    Benefits
+        a. Separation of Concerns: Business logic is separated from data access logic.
+        b. Testability: Easier to mock repositories and unit of work for testing.
+        c. Maintainability: Changes in the data access layer do not affect the business logic.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+Q. Explain how to implement repository and unit of work patterns with EF Core.
+
+    Implementing the Repository and Unit of Work patterns with Entity Framework Core (EF Core) can help you achieve a clean separation 
+    of concerns, making your code more maintainable and testable. Here’s a step-by-step guide on how to implement these patterns:
+
+    Repository Pattern
+    The Repository pattern is used to abstract the data access layer, providing a collection-like interface for accessing domain objects.
+
+        Step 1: Define the Repository Interface
+        First, create a generic repository interface that defines the basic CRUD operations:
+
+            public interface IRepository<T> where T : class
+            {
+                IEnumerable<T> GetAll();
+                T GetById(int id);
+                void Add(T entity);
+                void Update(T entity);
+                void Delete(T entity);
+            }
+
+        Step 2: Implement the Repository
+        Next, implement the repository interface using EF Core:
+
+            public class Repository<T> : IRepository<T> where T : class
+            {
+                private readonly DbContext _context;
+                private readonly DbSet<T> _dbSet;
+
+                public Repository(DbContext context)
+                {
+                    _context = context;
+                    _dbSet = context.Set<T>();
+                }
+
+                public IEnumerable<T> GetAll()
+                {
+                    return _dbSet.ToList();
+                }
+
+                public T GetById(int id)
+                {
+                    return _dbSet.Find(id);
+                }
+
+                public void Add(T entity)
+                {
+                    _dbSet.Add(entity);
+                }
+
+                public void Update(T entity)
+                {
+                    _dbSet.Attach(entity);
+                    _context.Entry(entity).State = EntityState.Modified;
+                }
+
+                public void Delete(T entity)
+                {
+                    if (_context.Entry(entity).State == EntityState.Detached)
+                    {
+                        _dbSet.Attach(entity);
+                    }
+                    _dbSet.Remove(entity);
+                }
+            }
+
+    Unit of Work Pattern
+    The Unit of Work pattern is used to manage transactions, ensuring that all operations within a transaction are completed 
+    successfully before committing.
+
+        Step 3: Define the Unit of Work Interface
+        Create an interface for the Unit of Work that includes methods for saving changes and accessing repositories:
+
+            public interface IUnitOfWork : IDisposable
+            {
+                IRepository<T> Repository<T>() where T : class;
+                void Save();
+            }
+
+        Step 4: Implement the Unit of Work
+        Implement the Unit of Work interface:
+
+            public class UnitOfWork : IUnitOfWork
+            {
+                private readonly DbContext _context;
+                private readonly Dictionary<Type, object> _repositories = new Dictionary<Type, object>();
+
+                public UnitOfWork(DbContext context)
+                {
+                    _context = context;
+                }
+
+                public IRepository<T> Repository<T>() where T : class
+                {
+                    if (!_repositories.ContainsKey(typeof(T)))
+                    {
+                        _repositories[typeof(T)] = new Repository<T>(_context);
+                    }
+                    return (IRepository<T>)_repositories[typeof(T)];
+                }
+
+                public void Save()
+                {
+                    _context.SaveChanges();
+                }
+
+                public void Dispose()
+                {
+                    _context.Dispose();
+                }
+            }
+
+    Using the Patterns
+
+        Step 5: Register Services in Dependency Injection
+        Register the Unit of Work and DbContext in the Startup.cs file:
+
+            public void ConfigureServices(IServiceCollection services)
+            {
+                services.AddDbContext<YourDbContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+                services.AddScoped<IUnitOfWork, UnitOfWork>();
+            }
+
+        Step 6: Use the Unit of Work in Your Application
+        Inject the IUnitOfWork into your services or controllers and use it to perform data operations:
+
+            public class YourService
+            {
+                private readonly IUnitOfWork _unitOfWork;
+
+                public YourService(IUnitOfWork unitOfWork)
+                {
+                    _unitOfWork = unitOfWork;
+                }
+
+                public void SomeOperation()
+                {
+                    var repository = _unitOfWork.Repository<YourEntity>();
+                    var entities = repository.GetAll();
+                    // Perform operations
+                    _unitOfWork.Save();
+                }
+            }
+
+    Benefits
+        a. Separation of Concerns: Business logic is separated from data access logic.
+        b. Testability: Easier to mock repositories and unit of work for testing.
+        c. Maintainability: Changes in the data access layer do not affect the business logic.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+Q. Implement a generic repository interface for common CRUD operations, abstracting away EF Core specifics.
+Q. Implement a unit of work class to coordinate multiple repository operations within a single transaction.
+Q. Inject these repositories and unit of work instances into your application services to keep your business logic decoupled from data access concerns.
 
 

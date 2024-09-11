@@ -341,6 +341,7 @@ Call :
 ----------------------------------------------------------------------------------------------------------
 
 Http Trigger Input vs Output Binding Direction
+
 	In Azure Functions, bindings play a crucial role in connecting your function to external resources. Let’s explore the differences between 
 	input bindings and output bindings:
 
