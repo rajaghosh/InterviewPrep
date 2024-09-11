@@ -4,8 +4,7 @@ Session, State, Security Management .net core
 
 Session Management
 	
-What is the purpose of Session?
-
+	What is the purpose of Session?
 	The HTTP protocol is, by default, stateless. But sometimes, it’s essential to hold user data while users 
 	are browsing our website.
 	Sessions are a mechanism for storing and managing user-specific data on the server side across multiple 
@@ -13,20 +12,20 @@ What is the purpose of Session?
 	their interaction with a web application, allowing you to store and retrieve data associated with a 
 	particular user’s session.
 
-Session work as Follows:
-	1. First, the client (Web Browser) will send the HTTP Request to the Server.
-	2. Once the server receives the request, it will process it and generate the response. 
-		Along with the generated response, it will create a SessionId and then send that SessionId in the 
-		Response header using the cookie. At the same time, the SessionId will also be stored on the server 
-		cache as a key with the required values. 
-	3. Once the client receives the response, from the next request onwards (as long as the session has not expired), 
-		the client will send the HTTP Request along with the cookie (cookie containing the SessionId) in the request header.
-	4. Once the server receives the request, it will check the cookie, get the SessionId from the Cookie, 
-		fetch the data from the server cache based on the SessionId, and accordingly process the request.
+	Session work as Follows:
+		1. First, the client (Web Browser) will send the HTTP Request to the Server.
+		2. Once the server receives the request, it will process it and generate the response. 
+			Along with the generated response, it will create a SessionId and then send that SessionId in the 
+			Response header using the cookie. At the same time, the SessionId will also be stored on the server 
+			cache as a key with the required values. 
+		3. Once the client receives the response, from the next request onwards (as long as the session has not expired), 
+			the client will send the HTTP Request along with the cookie (cookie containing the SessionId) in the request header.
+		4. Once the server receives the request, it will check the cookie, get the SessionId from the Cookie, 
+			fetch the data from the server cache based on the SessionId, and accordingly process the request.
 
 How To Use Session in ASP.NET Core?
-	The package 
 	
+	The package 
 	Microsoft.AspNetCore.Session 
 	
 	offers a middleware component for managing the Session in ASP.NET Core Web Application. 

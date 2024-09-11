@@ -1,49 +1,52 @@
 ﻿----------------------------------------------------------------------------------------------------
 
-"launchSettings.json" link to Azure AppService Configuration - 
-In dot net core when deployed in Azure App Service whatever config settings present "launchSettings.json" file.
-Json can be configured individually in the "Configuration" option of AppService. So LaunchSettings.json
+Concepts of Config of .net Core to Azure AppService
 
-Middleware - It is a method which can intercept a Httprequest/Httpresponse and then do some work and provide response.
-Typically total of all middlewares combined + some other methods form the .net core pipeline.
+	"launchSettings.json" link to Azure AppService Configuration - 
 
-The order of the Middleware is important.
+	In dot net core when deployed in Azure App Service whatever config settings present "launchSettings.json" file.
+	Json can be configured individually in the "Configuration" option of AppService. So LaunchSettings.json
 
-Middlewares are chained one after another, so they have choice whether to work with the request or pass it to next middleware 
-component. (And also to perform work before and after the next component).
+	Middleware - It is a method which can intercept a Httprequest/Httpresponse and then do some work and provide response.
+	Typically total of all middlewares combined + some other methods form the .net core pipeline.
 
-In the startup class the ConfigureServices() is not mandatory but Configure() is mandatory.
+	The order of the Middleware is important.
 
-Typically the flow is 
-Request -> Middleware -> Controller -> Middleware -> Response
+	Middlewares are chained one after another, so they have choice whether to work with the request or pass it to next middleware 
+	component. (And also to perform work before and after the next component).
 
-Generally order of Middleware is 
-	ExceptionHandler
-	HSTS
-	HttpsRedirection
-	Static Files
-	Routing
-	CORS
-	Authentication
-	Authorization
-	Session
-	RazorFiles
-	Custom Middlewares
+	In the startup class the ConfigureServices() is not mandatory but Configure() is mandatory.
+
+	Typically the flow is 
+	Request -> Middleware -> Controller -> Middleware -> Response
+
+	Generally order of Middleware is 
+		ExceptionHandler
+		HSTS
+		HttpsRedirection
+		Static Files
+		Routing
+		CORS
+		Authentication
+		Authorization
+		Session
+		RazorFiles
+		Custom Middlewares
 
 ----------------------------------------------------------------------------------------------------
 
 Settings File
 
-appsettings.json
-	Stores configurations that are needed when the application is running, such as database connection strings, 
-	file paths, and XML Web service URLs.
-	It can have different versions like - appsettings.Development.json, which will be region specific data. 
+	appsettings.json
+		Stores configurations that are needed when the application is running, such as database connection strings, 
+		file paths, and XML Web service URLs.
+		It can have different versions like - appsettings.Development.json, which will be region specific data. 
 
-launchsettings.json
-	Stores configurations that are needed to start or launch the application, such as the application URL and port number.
-	It also allows you to set the environment for local machine development, and environment values set in launchsettings.json 
-	override values set in the system environment. This is particularly useful when we are deploying to Azure AppService. 
-	Whatever the values hold in this file will be updated in the AppService -> Configuration block. 
+	launchsettings.json
+		Stores configurations that are needed to start or launch the application, such as the application URL and port number.
+		It also allows you to set the environment for local machine development, and environment values set in launchsettings.json 
+		override values set in the system environment. This is particularly useful when we are deploying to Azure AppService. 
+		Whatever the values hold in this file will be updated in the AppService -> Configuration block. 
 
 ----------------------------------------------------------------------------------------------------
 
@@ -206,78 +209,53 @@ How to read configs from Configs file in .net core?
 
 ----------------------------------------------------------------------------------------------------
 
-App.Run() - (Also called terminal middleware)
-	To execute a basic middleware, from the Configure() we have an instance of "IApplicationBuilder" as app.
-	so, we have a method app.Run() - this will execute any incoming request.
+Request Delegate
 
-	ex : app.Run(await p => await p.Response.WriteAsync("Hello World!"));
+	Request delegate is a delegate which handles httprequest and is used to build the request pipeline. So a httpRequest is coming inside the configure() 
+	and then it is visiting middleware1 -> middleware2 -> last middleware and response -> middleware2 -> middleware1
+	This flow forms the request pipeline.
 
-	So with help of delegate we are executing and returing a response. The above example can be thought as an inline middleware
-	as we have returned inline.
+	Ex - The Run method is an extension method on IApplicationBuilder and accepts a parameter of RequestDelegate. The RequestDelegate is a delegate method 
+	which handles the request. The following is a RequestDelegate signature.
 
-	So the app.Run() receives a httprequest and it does not know about next middleware.
-	This middleware where we get end result as called terminal middlewares as the request/response operation stops here.
-	Typically we use app.Run() to indicate end of pipeline.
+	Method Signature:
+		public delegate Task RequestDelegate(HttpContext context);
+
+	Now request delegate handle request pipeline using the extension methods Use(), Run(), and Map()
+
+	In .net core middleware we have delegate(run, use, and map) assembled into an application pipeline to handle requests and responses. Middleware is a chain
+	to pass the request to the next component or not and also perform work before and after the next component.
+
+----------------------------------------------------------------------------------------------------
+
+Request Delegate Extension Methods
+
+	1. app.Run() - (Also called terminal middleware)
+
+	The Run() extension method will terminate the middleware chaining. No other middlewares will run after this. This should be placed at the end of the pipeline.
+
+	To execute a basic middleware, from the Configure() we have an instance of "IApplicationBuilder" as app. so, we have a method app.Run() - this will execute 
+	any incoming request.
+		ex : app.Run(await p => await p.Response.WriteAsync("Hello World!"));
+
+	So with help of delegate we are executing and returing a response. The above example can be thought as an inline middleware as we have returned inline.
+
+	So the app.Run() receives a httprequest and it does not know about next middleware. This middleware where we get end result as called terminal middlewares 
+	as the request/response operation stops here. Typically we use app.Run() to indicate end of pipeline.
 
 	So, app.Run() //1 - Will be invoked and pipeline will exit
 		app.Run() //2 - Will not work.
 
 	Run() is an extension method
 
-App.Use() - (Used for middleware chaining)
-	ex:
+	--------------------------------------------------
 
-		app.Use(async(context, next) => {
-			Console.WriteLine("1-Before Request");
-			await next();
-			Console.WriteLine("3-After Request");
-		});
+	2. app.Use() - (Used for middleware chaining)
+	To introduce a new middleware. The Use() extension method will execute the next middleware or line in sequence.
 
-		app.Run(aync context => {
-			Console.WriteLine("2-In app.Run");
-			await context.Response.WriteAsync("Hello World!");
-		});
-
-
-	Here we have 2 o/p - 
-	a. On the webpage -> Hello World!
-	b. On the console -> 
-		1-Before Request
-		2-In app.Run
-		3-After Request
-
-	So we can find "middleware chaining" here.
-	Note - Here next() and next.Invoke() and next(context) and next.Invoke(context) are same.
-
-	So we can think of 1st middleware is adding to next middleware. 
-
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-
-Definition for Interview purpose -
-
-Q. What is a request delegate?
-Request delegate is a delegate which handles httprequest and is used to build the request pipeline. 
-So a httpRequest is coming inside the configure() and then it is visiting
-middleware1 -> middleware2 -> last middleware and response -> middleware2 -> middleware1
-This flow forms the request pipeline.
-
-Ex - The Run method is an extension method on IApplicationBuilder and accepts a parameter of RequestDelegate. 
-	The RequestDelegate is a delegate method which handles the request. The following is a RequestDelegate signature.
-
-	Method Signature:
-	public delegate Task RequestDelegate(HttpContext context);
-
-
-Now request delegate handle request pipeline using the extension methods Use(), Run(), and Map()
-
-
-In .net core middleware we have delegate(run, use, and map) assembled into an application pipeline to handle requests and responses. 
-Middleware is a chain to pass the request to the next component or not and also perform work before and after the next component.
-
-	1. app.Use() - To introduce a new middleware. The Use() extension method will execute the next middleware or line in sequence.
 	Typically the format is 
 	
+	Ex 1: 
 		app.Use({
 			//Some work-1
 			next();
@@ -291,157 +269,305 @@ Middleware is a chain to pass the request to the next component or not and also 
 	
 		});
 
-	So o/p is:
-	Some work-1
-	Some work-2
-	Some work-3
+		So o/p is:
+		Some work-1
+		Some work-2
+		Some work-3
 
+	Ex 2:
+		app.Use(async(context, next) => {
+			Console.WriteLine("1-Before Request");
+			await next();
+			Console.WriteLine("3-After Request");
+		});
+
+		app.Run(aync context => {
+			Console.WriteLine("2-In app.Run");
+			await context.Response.WriteAsync("Hello World!");
+		});
+
+		Here we have 2 o/p - 
+		a. On the webpage -> Hello World!
+		b. On the console -> 
+			1-Before Request
+			2-In app.Run
+			3-After Request
+
+	So we can find "middleware chaining" here.
+	
+	Note - Here next() and next.Invoke() and next(context) and next.Invoke(context) are same.
+	
+	So we can think of 1st middleware is adding to next middleware. 
+	
 	By convention all available Middlewares with Use prefix are using Use() extension method. Ex-> app.UseRouting();
 
-	Another important concept is if we have a app.Use() with no next() and a app.Run() then app.Run() will not execute
-	app.Use({
-		//No next();
-	});
-	app.Run({
+		Another important concept is if we have a app.Use() with no next() and a app.Run() then app.Run() will not execute
+		app.Use({
+			//No next();
+		});
+		app.Run({
 	
-	});
+		});
 	Here app.Run() will not be hit and request will produce response from app.Use() only.
 
-
-	2. app.Run() - The Run() extension method will terminate the middleware chaining. No other middlewares will run after this.
-	This should be placed at the end of the pipeline.
+	--------------------------------------------------
 
 	3. app.Map() - The Map() extension method will be used to match request delegates based upon request URL path.
 
-	app.Use({aync (context, next) =>
-	{
-		await context.Response.WriteAsync("Output1");
-		await next();
-	});
-	app.Map("/myPath", a => {
-		a.Run(async(context) => {
-			await context.Response.WriteAsync("Output2");	
-		})
-	});
+		app.Use({aync (context, next) =>
+		{
+			await context.Response.WriteAsync("Output1");
+			await next();
+		});
+		app.Map("/myPath", a => {
+			a.Run(async(context) => {
+				await context.Response.WriteAsync("Output2");	
+			})
+		});
 
 	Here if our request url has /myPath then only the next middleware will run.
 
-**************************************************************************************************************************
+----------------------------------------------------------------------------------------------------------------------
 
-Creating a Custom Middleware - (Conventional Way)
+Custom Middleware Implementation
 
-	We can have multiple ways to create custom middlewares. We are writing the simple version here. 
-	The middleware will be used to put custom logic on httpRequest
+	Approaches -
+		a. Conventional Custom Middleware. UseCase/Advantage - Conventional Middleware has "Singleton" service lifetime.
+		b. IMiddleware implementation. UseCase/Advantage - IMiddleware implementation gives us way to have "Scoped" or "Transient" lifetimes.
+
+	When to use Conventional vs IMiddleware approach?
+
+		Using IMiddleware Interface:
+
+			The IMiddleware interface is a convenient way to create reusable middleware components. When you implement the IMiddleware interface, 
+			you define a single method called InvokeAsync that performs the middleware's functionality. The middleware is automatically instantiated 
+			by the dependency injection system, making it easy to manage its dependencies.
+
+			Use IMiddleware when:
+				* You want to encapsulate the middleware logic in a reusable component.
+				* You prefer a more structured approach to dependency injection for middleware. (DI in the startup.cs)
+
+
+		Using Conventional Approach (Also Called Func<HttpContext, Func<Task>, Task> Delegate Approach):
+
+			This approach involves using a delegate to create middleware functions. This is a simpler and more flexible way to create middleware since 
+			you directly work with delegate functions that take HttpContext and a continuation delegate (representing the next middleware in the pipeline).
+
+			Use the delegate approach when:
+				* You need more control over the construction and instantiation of the middleware.
+				* You want to keep the middleware logic concise and avoid creating full-blown classes.
+
+	-----------------------------------------------------------
+
+	Implementation - Conventional with params
+
+		Step 1 : Create middleware class
+
+			public class CustomMiddlewareParams
+			{
+				private readonly RequestDelegate _next;
+				private readonly string _paramValue;
+
+				public CustomMiddlewareParams(RequestDelegate next, string paramValue)
+				{
+					_next = next ?? throw new ArgumentNullException(nameof(next));
+					_paramValue = paramValue ?? throw new ArgumentNullException(nameof(paramValue));
+				}
+
+				public async Task InvokeAsync(HttpContext context)
+				{
+					// Middleware logic here that uses _paramValue
+					await context.Response.WriteAsync($"Parameter value: {_paramValue}");
+					await _next(context);
+				}
+			}
+
+		Step 2 : Create Extension Methods
+
+			public static class CustomMiddlewareParamsExtensions
+			{
+				public static IApplicationBuilder UseCustomMiddlewareParams(
+					this IApplicationBuilder builder, string paramValue)
+				{
+					return builder.UseMiddleware<CustomMiddlewareParams>(paramValue);
+				}
+			}
+
+		Step 3 :
+	
+			Register in the startup.cs class
+
+			public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+			{
+				// Other middleware and configuration
+
+				app.UseCustomMiddlewareParams("Hello from param!");
+
+				// Other middleware and configuration
+			}
+
+	-----------------------------------------------------------
+	
+	Implementation - Using IMiddleware 
+
+		Step 1 : Create custom middleware with IMiddleware Interface
+			public class CustomMiddleware : IMiddleware
+			{
+				private readonly string _paramValue;
+
+				public CustomMiddleware(string paramValue)
+				{
+					_paramValue = paramValue;
+				}
+
+				public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+				{
+					// Middleware logic here that uses _paramValue
+					await context.Response.WriteAsync($"Parameter value: {_paramValue}");
+					await next(context);
+				}
+			}
+
+		Step 2 : Register the middleware in startup.cs
+
+			public void ConfigureServices(IServiceCollection services)
+			{
+				// Other service registrations
+
+				// Register your middleware with the required parameter
+				services.AddScoped<IMiddleware>(provider =>
+				{
+					// You can resolve other dependencies here if needed
+					var paramValue = "Hello from param!";
+					return new CustomMiddleware(paramValue);
+				});
+
+				// Other service registrations
+			}
+
+			public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+			{
+				// Other middleware and configuration
+
+				app.UseMiddleware<CustomMiddleware>();
+
+				// Other middleware and configuration
+			}
+
+----------------------------------------------------------------------------------------------------------------------
+
+Usage of Custom Middleware
+
+	------------------------------------------------------------
+	a. CONVENTIONAL WAY (FUNC DELEGATE)
+
+	Creating a Custom Middleware - (Conventional Way) We can have multiple ways to create custom middlewares. We are writing the simple version here. 
+	The middleware will be used to put custom logic on httpRequest.
 
 	1. Create a Middleware Folder -> CustomMiddleware.cs file
 
-	public class CustomMiddleware
-	{
-		private readonly RequestDelegate _next;
-
-		public CustomMiddleware(RequestDelegate next)
+		public class CustomMiddleware
 		{
-			_next = next;
-		}
+			private readonly RequestDelegate _next;
 
-		//Standard format (Important to keep it like this)
-		public Invoke(httpContext context)
-		{
-			//Do our task
+			public CustomMiddleware(RequestDelegate next)
+			{
+				_next = next;
+			}
 
-			return _next(context);
+			//Standard format (Important to keep it like this)
+			public Invoke(httpContext context)
+			{
+				//Do our task
+
+				return _next(context);
+			}
 		}
-	}
 
 	2. In the startup.cs class
 	After all the middleware executed in Configure()
 	
-	Configure()
-	{
-		app.UseMiddleware<CustomMiddleware>();
-	}
+		Configure()
+		{
+			app.UseMiddleware<CustomMiddleware>();
+		}
 
------------------------------------------------------------------------------------------------------------------------
+	------------------------------------------------------------
 
-How to handle exception in .net core GLOBALLY?
-
-Ans -> We can create an exception handling middleware.  (Using IMiddleware)
+	b. Usage of IMiddleware - 
+	
+	Q. How to handle exception in .net core GLOBALLY?
+	
+	Ans -> We can create an exception handling middleware. (Using IMiddleware). 
 
 	Concept goes if anything happens in the next method upcoming call we need to handle it from here.
 
-	Step 1:
+	Step 1: Create exception handling class
 
-	Create exception handling class
-	----------------------------
-
-	public abstract class DomainException: System.Exception
-	{
-		public DomainException(string message) : base(message)
+		public abstract class DomainException: System.Exception
 		{
-		}
-	}
-
-	public class DomainNotFoundException : DomainException
-	{
-		public DomainNotFoundException(string message):base(message)
-		{
-		}
-	}
-
-	public class DomainValidationExeption : DomainException
-	{
-		public DomainValidationExeption(string message) : base(message)
-		{
-		}
-	}
-
-
-
-	----------------------------
-	public class ExceptionHandlingMiddleware : IMiddleware
-	{
-		public async Task InvokeAsync(HttpContext context, RequestDelegate next)
-		{
-			try
+			public DomainException(string message) : base(message)
 			{
-				await next(context);
-			}
-			catch(DomainNotFoundExeption e)
-			{
-				context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-				await context.Response.WriteAsync(e.Message);
-			}
-			catch(DomainValidationException e)
-			{
-				context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-				await context.Response.WriteAsync(e.Message);
-			}
-			catch(Exception e)
-			{
-				context.Response.StatusCode = 500;
-				await context.Response.WriteAsync(e.Message);
 			}
 		}
-	}
+		public class DomainNotFoundException : DomainException
+		{
+			public DomainNotFoundException(string message):base(message)
+			{
+			}
+		}
+		public class DomainValidationExeption : DomainException
+		{
+			public DomainValidationExeption(string message) : base(message)
+			{
+			}
+		}
+
+		public class ExceptionHandlingMiddleware : IMiddleware
+		{
+			public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+			{
+				try
+				{
+					await next(context);
+				}
+				catch(DomainNotFoundExeption e)
+				{
+					context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+					await context.Response.WriteAsync(e.Message);
+				}
+				catch(DomainValidationException e)
+				{
+					context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+					await context.Response.WriteAsync(e.Message);
+				}
+				catch(Exception e)
+				{
+					context.Response.StatusCode = 500;
+					await context.Response.WriteAsync(e.Message);
+				}
+			}
+		}
 
 	Step 2: Startup.cs
 
-	public void ConfigureServices(IServiceCollection services)
-	{
-		services.AddTransient<ExceptionHandlingMiddleware>();
-	}
+		public void ConfigureServices(IServiceCollection services)
+		{
+			services.AddTransient<ExceptionHandlingMiddleware>();
+		}
 
-	public void Configure(IApplicationBuilder app)
-	{
-		//After app.UseRouting();
-		app.UseMiddleware<ExceptionHandlingMiddleware>();
-	}
+		public void Configure(IApplicationBuilder app)
+		{
+			//After app.UseRouting();
+			app.UseMiddleware<ExceptionHandlingMiddleware>();
+		}
 
 
 	Step 3 :
-	Method(){
-		throw new DomainValidationException("Message");
-	}
+
+		Method(){
+			throw new DomainValidationException("Message");
+		}
 
 	Call flow -> As exception thrown from method 
 							-> Middleware will be checked based upon that exception 
@@ -450,632 +576,499 @@ Ans -> We can create an exception handling middleware.  (Using IMiddleware)
 
 Note - Middleware is a stack of code blocks which can be run one after another.
 
-
-
 ----------------------------------------------------------------------------------------------------------------------
-
-Custom Middleware Implementation
-
-Approaches 
-
-Advantage : Conventional Middleware has Singleton service lifetime,
-		    IMiddleware implementation gives us way to have scoped or transient lifetime.
-
-Conventional with params
-
-Step 1 : Create middleware class
-
-	public class CustomMiddlewareParams
-	{
-		private readonly RequestDelegate _next;
-		private readonly string _paramValue;
-
-		public CustomMiddlewareParams(RequestDelegate next, string paramValue)
-		{
-			_next = next ?? throw new ArgumentNullException(nameof(next));
-			_paramValue = paramValue ?? throw new ArgumentNullException(nameof(paramValue));
-		}
-
-		public async Task InvokeAsync(HttpContext context)
-		{
-			// Middleware logic here that uses _paramValue
-			await context.Response.WriteAsync($"Parameter value: {_paramValue}");
-			await _next(context);
-		}
-	}
-
-Step 2 : Create Extension Methods
-
-	public static class CustomMiddlewareParamsExtensions
-	{
-		public static IApplicationBuilder UseCustomMiddlewareParams(
-			this IApplicationBuilder builder, string paramValue)
-		{
-			return builder.UseMiddleware<CustomMiddlewareParams>(paramValue);
-		}
-	}
-
-Step 3 :
-	
-	Register in the startup.cs class
-
-	public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-	{
-		// Other middleware and configuration
-
-		app.UseCustomMiddlewareParams("Hello from param!");
-
-		// Other middleware and configuration
-	}
-
-
------------------------------------------------------------
-Using IMiddleware 
-
-
-Step 1 : Create custom middleware with IMiddleware Interface
-	public class CustomMiddleware : IMiddleware
-	{
-		private readonly string _paramValue;
-
-		public CustomMiddleware(string paramValue)
-		{
-			_paramValue = paramValue;
-		}
-
-		public async Task InvokeAsync(HttpContext context, RequestDelegate next)
-		{
-			// Middleware logic here that uses _paramValue
-			await context.Response.WriteAsync($"Parameter value: {_paramValue}");
-			await next(context);
-		}
-	}
-
-Step 2 : Register the middleware in startup.cs
-
-	public void ConfigureServices(IServiceCollection services)
-	{
-		// Other service registrations
-
-		// Register your middleware with the required parameter
-		services.AddScoped<IMiddleware>(provider =>
-		{
-			// You can resolve other dependencies here if needed
-			var paramValue = "Hello from param!";
-			return new CustomMiddleware(paramValue);
-		});
-
-		// Other service registrations
-	}
-
-	public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-	{
-		// Other middleware and configuration
-
-		app.UseMiddleware<CustomMiddleware>();
-
-		// Other middleware and configuration
-	}
-
-When to use Conventional vs IMiddleware approach?
-
-Using IMiddleware Interface:
-	The IMiddleware interface is a convenient way to create reusable middleware components. 
-	When you implement the IMiddleware interface, you define a single method called InvokeAsync that performs 
-	the middleware's functionality. The middleware is automatically instantiated by the dependency injection 
-	system, making it easy to manage its dependencies.
-
-	Use IMiddleware when:
-
-	* You want to encapsulate the middleware logic in a reusable component.
-	* You prefer a more structured approach to dependency injection for middleware. (DI in the startup.cs)
-
-
-Using Func<HttpContext, Func<Task>, Task> Delegate:
-	This approach involves using a delegate to create middleware functions. This is a simpler and more flexible 
-	way to create middleware since you directly work with delegate functions that take HttpContext and a 
-	continuation delegate (representing the next middleware in the pipeline).
-
-	Use the delegate approach when:
-
-	* You need more control over the construction and instantiation of the middleware.
-	* You want to keep the middleware logic concise and avoid creating full-blown classes.
-
-
-************************************************************************************************************************
 
 AddSingleton vs AddScoped vs AddTransient
 
-In .NET Core, there are three main lifetime options for registering services 
-with the built-in dependency injection container: Singleton, Scoped, and Transient. 
-These lifetimes determine how instances of the registered services are managed and shared within the application. 
-Let's explore each of these lifetimes:
+	In .NET Core, there are three main lifetime options for registering services with the built-in dependency 
+	injection container: Singleton, Scoped, and Transient. 
+	These lifetimes determine how instances of the registered services are managed and shared within the application. 
+	Let's explore each of these lifetimes:
 
-Singleton:
+	Singleton:
 
-Services registered with a singleton lifetime are only instantiated once during the lifetime of the application. 
-This means that any injection of the service during the lifetime of the application will be done with the same
-instance of the service. In other words, only one service instance is created and shared across all requests.
-Ex - logger Service
+		Services registered with a singleton lifetime are only instantiated once during the lifetime of the application. 
+		This means that any injection of the service during the lifetime of the application will be done with the same
+		instance of the service. In other words, only one service instance is created and shared across all requests.
+		Ex - logger Service
 
-Scoped:
+	Scoped:
 
-Services registered with a scoped lifetime will be maintained and used during the lifetime of the scope 
-(or HTTP request) they have been created in. So for one same request, the instance of an object injected 
-in different classes will be the same. In simple words, one service instance is created for each request 
-and reused throughout the request.
-Ex - DBRepo Service
+		Services registered with a scoped lifetime will be maintained and used during the lifetime of the scope 
+		(or HTTP request) they have been created in. So for one same request, the instance of an object injected 
+		in different classes will be the same. In simple words, one service instance is created for each request 
+		and reused throughout the request.
+		Ex - DBRepo Service
 
-Transient:
+	Transient:
 
-Instances of services registered with a transient lifetime are created every time that their injection 
-into a class is required even though it is the same request.
-Ex - normal service
+		Instances of services registered with a transient lifetime are created every time that their injection 
+		into a class is required even though it is the same request.
+		Ex - normal service
 
-Here are some general guidelines:
+	Here are some general guidelines:
 
-Singleton: Use when the service instance should be shared globally across the entire application 
-and maintain state that is consistent throughout the application's lifetime.
+	Singleton: Use when the service instance should be shared globally across the entire application and maintain state that is consistent 
+	throughout the application's lifetime.
 
-Scoped: Use in scenarios like web applications, where you want to ensure that data is isolated within 
-the scope of a single request. Scoped services are often used to manage per-request database connections 
-or user-specific data.
-Ex - For any service which will maintain a state for a HttpRequest.
+	Scoped: Use in scenarios like web applications, where you want to ensure that data is isolated within the scope of a single request. 
+	Scoped services are often used to manage per-request database connections or user-specific data.
+	Ex - For any service which will maintain a state for a HttpRequest.
 
-Transient: Use for stateless, short-lived services that don't need to maintain any long-term state. 
-Transient services are created each time they're requested, which can be suitable for lightweight processing.
-Ex - For any service which will be invoked multiple times for different purposes.
-
-
+	Transient: Use for stateless, short-lived services that don't need to maintain any long-term state. Transient services are created each time 
+	they're requested, which can be suitable for lightweight processing.
+	Ex - For any service which will be invoked multiple times for different purposes.
 
 ------------------------------------------------------------------------------------------------------------------------
-CORS Website whitelisting (CORS work at browser level i.e no restriction from POSTMAN but we get restriction when calling from service or browser)
-(Cross-Origin Resource Sharing)
-Services.AddCors() use AddPolicy() delegate.
 
-services.AddCors(options =>
-{
-    options.AddPolicy(name: CORSPolicyProd,
-    builder =>
-      {
-          builder.WithOrigins("https://localhost:5001",
-                              "https://localhost:5000",
-                              "https://telemedicine.frontlinemds.com",
-                              "http://ec2-54-89-28-147.compute-1.amazonaws.com",
-                              "https://marketplace.drstellamd.com")
-          .AllowAnyHeader()
-          .AllowAnyMethod()					//For specific method .WithMethods("GET","POST","PATCH","DELETE")
-		  .WithExposedHeaders("Content-disposition", "WWW-Authenticate");
-      }
-    );
-});
+CORS Website whitelisting 
 
+	CORS - Cross Origin Resource Sharing. (CORS work at browser level i.e no restriction from POSTMAN but we get restriction when calling from service or browser).
+	
+	We use it using this flow -> Services.AddCors() use AddPolicy() delegate.
+
+		services.AddCors(options =>
+		{
+			options.AddPolicy(name: CORSPolicyProd,
+			builder =>
+			  {
+				  builder.WithOrigins("https://localhost:5001",
+									  "https://localhost:5000",
+									  "https://telemedicine.frontlinemds.com",
+									  "http://ec2-54-89-28-147.compute-1.amazonaws.com",
+									  "https://marketplace.drstellamd.com")
+				  .AllowAnyHeader()
+				  .AllowAnyMethod()					//For specific method .WithMethods("GET","POST","PATCH","DELETE")
+				  .WithExposedHeaders("Content-disposition", "WWW-Authenticate");
+			  }
+			);
+		});
 
 -----------------------------------------------------------------------------------------------------------------------
+
 WebApi different types of attributes
 
-1. [AllowAnonymous] - Allow request without any token
-2. [HttpGet("<ApiName>")]
-3. [Authorize(Roles = "Admin")] - Authorize filter
-4. [ProducesResponseType(typeof(FileContentResult), (int)HttpStatusCode.Ok)] - It is filter that will specify type of 
-value and status code returned by the ActionMethod.
-Ex. 
-[ProducesResponseType(typeof(FileContentResult), (int)HttpStatusCode.OK)]
-[ProducesResponseType(typeof(FileContentResult), (int)HttpStatusCode.NotFound)]
+	1. [AllowAnonymous] - Allow request without any token
+	
+	2. [HttpGet("<ApiName>")]
+	
+	3. [Authorize(Roles = "Admin")] - Authorize filter
+	
+	4. [ProducesResponseType(typeof(FileContentResult), (int)HttpStatusCode.Ok)] - It is filter that will specify type of value and status code 
+	returned by the ActionMethod.
+		Ex. 
+		[ProducesResponseType(typeof(FileContentResult), (int)HttpStatusCode.OK)]
+		[ProducesResponseType(typeof(FileContentResult), (int)HttpStatusCode.NotFound)]
 
-[Produces("application/json")]
+		[Produces("application/json")]
+	This resembles the API can return 2 types of responses
 
-This resembles the API can return 2 types of responses
+	4b. [Produces(MediaTypeNames.Application.Json)]
+	
+	5. ActionMethod([FromQuery(Name="lang")] string lang) - Specifies that a parameter or property should be bound using the request query string.
 
-4b. [Produces(MediaTypeNames.Application.Json)]
-5. ActionMethod([FromQuery(Name="lang")] string lang) - Specifies that a parameter or property should be bound using 
-the request query string.
-6. [FromRoute][UrlSlug] - Here UrlSlug acts as a ValidationAttribute and can be used in the parameter list
-	We can also have [FormQuery, Required]
-7. [FromBody][Bind("Property1","Property2")] - From all the property take only specific property of the DTO
-8. [FromBody][MaxLength(50)]
-9. [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Client, NoStore = false)] -
-10.[Required(ErrorMessage="")]
+	6. [FromRoute][UrlSlug] - Here UrlSlug acts as a ValidationAttribute and can be used in the parameter list
+		We can also have [FormQuery, Required]
 
+	7. [FromBody][Bind("Property1","Property2")] - From all the property take only specific property of the DTO
 
+	8. [FromBody][MaxLength(50)]
 
+	9. [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Client, NoStore = false)] -
 
-
-
+	10.[Required(ErrorMessage="")]
 
 -----------------------------------------------------------------------------------------------------------------------
 
 Filters in .net core -
 
-Filters gives us the facility to run a piece of code before or after any stage in request processing pipeline. 
-Filters have benefits like
-- Reusability
-- Extensibility
+	Filters gives us the facility to run a piece of code before or after any stage in request processing pipeline. 
+	Filters have benefits like
+	- Reusability
+	- Extensibility
 
-Types of Filters
+	Types of Filters
 
-Authorization Filters : 
-* Run first.
-* Determine whether the user is authorized for the request.
-* Short-circuit the pipeline if the request is not authorized.
+	Authorization Filters : 
+		* Run first.
+		* Determine whether the user is authorized for the request.
+		* Short-circuit the pipeline if the request is not authorized.
 
-Resource Filters : 
-* Run after authorization.
-* OnResourceExecuting runs code before the rest of the filter pipeline. 
-For example, OnResourceExecuting runs code before model binding.
-* OnResourceExecuted runs code after the rest of the pipeline has completed.
+	Resource Filters : 
+		* Run after authorization.
+		* OnResourceExecuting runs code before the rest of the filter pipeline. For example, OnResourceExecuting runs code before model binding.
+		* OnResourceExecuted runs code after the rest of the pipeline has completed.
 
-Action Filters : 
-* Run immediately before and after an action method is called.
-* Can change the arguments passed into an action.
-* Can change the result returned from the action.
-* Are not supported in Razor Pages.
+	Action Filters : 
+		* Run immediately before and after an action method is called.
+		* Can change the arguments passed into an action.
+		* Can change the result returned from the action.
+		* Are not supported in Razor Pages.
 
-Endpoint filters:
-* Run immediately before and after an action method is called.
-* Can change the arguments passed into an action.
-* Can change the result returned from the action.
-* Are not supported in Razor Pages.
-* Can be invoked on both actions and route handler-based endpoints.
+	Endpoint filters:
+		* Run immediately before and after an action method is called.
+		* Can change the arguments passed into an action.
+		* Can change the result returned from the action.
+		* Are not supported in Razor Pages.
+		* Can be invoked on both actions and route handler-based endpoints.
 
-Exception filters
-* Apply global policies to unhandled exceptions that occur before the response body has been written to.
+	Exception filters
+		* Apply global policies to unhandled exceptions that occur before the response body has been written to.
 
-Result filters:
-* Run immediately before and after the execution of action results.
-* Run only when the action method executes successfully.
-* Are useful for logic that must surround view or formatter execution.
-
+	Result filters:
+		* Run immediately before and after the execution of action results.
+		* Run only when the action method executes successfully.
+		* Are useful for logic that must surround view or formatter execution.
 
 -----------------------------------------------------------------------------------------------------------------------
-Rahul Nath
 
-Filters in .net core allows code to run before or after specific stages in request processing pipleline.
-We can have built in filters like authorization and response caching. We can also have custom filters
+Rahul Nath NOTES - 
 
- Filters run within the Asp.Net core Action Invocation Pipeline or Filter pipeline. The filter pipeline runs after the 
- ASP.Net selects the action to execute.
+More on Filters -
 
- Flow:
- HttpRequest 
- -> All Middleware 
- -> Routing Middleware 
- -> ActionSelection (Controller invoke) this will invoke the filters ---- MVC Action Invocation Pipeline (Filter Pipeline).<-
- -> Routing Middleware 
- -> All Middleware 
+	Filters in .net core allows code to run before or after specific stages in request processing pipleline. We can have built in filters like 
+	authorization and response caching. We can also have custom filters
 
- So here filters get executed before and after the actions
-
--------------------------
- Creating custom filter at GLOBAL LEVEL
-
- Step 1 : Create a custom filter class
-
-	//Creating custom action filter
-	public class MyCustomActionFilter : IActionFilter	//This interface has 2 methods to be implemented OnActionExecuting and OnActionExecuted
-	{
-		public void OnActionExecuting(ActionExecutingContext context){
-			Console.WriteLine("On Action Executing");
-		}
+	Filters run within the Asp.Net core Action Invocation Pipeline or Filter pipeline. The filter pipeline runs after the ASP.Net selects the action to execute.
 	
-		public void OnActionExecuted(ActionExecutedContext context){
-			Console.WriteLine("On Action Executed");
-		}
+	Flow:
+	HttpRequest 
+		-> All Middleware 
+		-> Routing Middleware 
+		-> ActionSelection (Controller invoke) this will invoke the filters ---- MVC Action Invocation Pipeline (Filter Pipeline).<-
+		-> Routing Middleware 
+		-> All Middleware 
+
+	So here filters get executed before and after the actions
+
+	We can implement the custom filter:
+		a. Creating custom filter at GLOBAL LEVEL
+		b. Creating custom filter at the CONTROLLER AND METHOD LEVEL
+
+	--------------------------------------------------
+
+	a. Creating custom filter at GLOBAL LEVEL
+
+		Step 1 : Create a custom filter class -> MyCustomActionFilter.cs
+
+			//Creating custom action filter - This interface has 2 methods to be implemented OnActionExecuting and OnActionExecuted
+			public class MyCustomActionFilter : IActionFilter	
+			{
+				public void OnActionExecuting(ActionExecutingContext context){
+					Console.WriteLine("On Action Executing");
+				}
 	
-	}
-
- Step 2 : To integrate this custom filter into .net Request Pipeline
- In the Startup.cs 
-
-	public void ConfigureServices(IServiceCollection services){
+				public void OnActionExecuted(ActionExecutedContext context){
+					Console.WriteLine("On Action Executed");
+				}
 	
-		//We will use AddController Method has a overloaded version we will use that
-		services.AddControllers( options =>
-		{
-			options.Filters.Add(new MyCustomActionFilter());
-		});
-	}
+			}
 
-This will integrate the custom filter for all the httpRequest. That is custom filter at global level
+		Step 2 : To integrate this custom filter into .net Request Pipeline in the -> Startup.cs 
 
--------------------------CUSTOM FILTER AT CONTROLLER AND METHOD LEVEL
-
-To implement filter at controller level we need to using attributes.
-
-Changes in code in step 1 we also inherit from Attribute
-
- Step 1 : Create a custom filter class
-
-	//Creating custom action filter Attribute ending with attribute 
-	public class MyCustomActionFilterAttribute : Attribute, IActionFilter	
-	{
-
-		private readonly string _name;
-		public MyCustomActionFilterAttribute(string name){
-			_name = name;
-		}
-
-		public void OnActionExecuting(ActionExecutingContext context){
-			Console.WriteLine($"On Action Executing - {_name}");
-		}
+			public void ConfigureServices(IServiceCollection services){
 	
-		public void OnActionExecuted(ActionExecutedContext context){
-			Console.WriteLine($"On Action Executed - {_name}");
-		}
+				//We will use AddController Method has a overloaded version we will use that
+				services.AddControllers( options =>
+				{
+					options.Filters.Add(new MyCustomActionFilter());
+				});
+			}
+
+	This will integrate the custom filter for all the httpRequest. That is custom filter at global level
+
+	--------------------------------------------------
 	
-	}
+	b. Creating custom filter at CONTROLLER AND METHOD LEVEL
+		
+	To implement filter at controller level we need to using attributes. 
+	Changes in code in step 1 we also inherit from Attribute
 
- Step 2 : No need to add integration to sevices.AddControllers (As not GLOBAL)
+		Step 1 : Create a custom filter class
 
- Step 3 : Find the specific controller
+			//Creating custom action filter Attribute ending with attribute 
+			public class MyCustomActionFilterAttribute : Attribute, IActionFilter	
+			{
 
- [MyCustomActionFilter("Hello World")]
- public class MyTestController : ControllerBase
- {
- 
- }
+				private readonly string _name;
+				public MyCustomActionFilterAttribute(string name){
+					_name = name;
+				}
 
- This will run only at this controller level
-
- We can also use at method level
- public class MyTestController : ControllerBase
- {
+				public void OnActionExecuting(ActionExecutingContext context){
+					Console.WriteLine($"On Action Executing - {_name}");
+				}
 	
-	[HttpGet("Test"")]
-	[MyCustomActionFilter("MyMethod")]
-	public void Test(){
-	}
- }
+				public void OnActionExecuted(ActionExecutedContext context){
+					Console.WriteLine($"On Action Executed - {_name}");
+				}
+			}
 
- -------------------------CUSTOM FILTER ASYNC
+		Step 2 : No need to add integration to sevices.AddControllers (As not GLOBAL)
 
- Step 1 : Create an Async Filter
+		Step 3 : Find the specific controller
+
+			[MyCustomActionFilter("Hello World")]
+			public class MyTestController : ControllerBase
+			{
+				//.........
+			}
+
+			This will run only at this controller level
+
+			We can also use at method level
+			public class MyTestController : ControllerBase
+			{
+				[HttpGet("Test"")]
+				[MyCustomActionFilter("MyMethod")]
+				public void Test()
+				{
+					//..........
+				}
+			}
+
+	NOTE - Using the same with CUSTOM FILTER ASYNC
+
+		Step 1 : Create an Async Filter
   
-  public class MyCustomAsyncFilterAttribute : Attribute, IAsyncActionFilter
-  {
+			public class MyCustomAsyncFilterAttribute : Attribute, IAsyncActionFilter
+			{
 
-		private readonly string _name;
-		public MyCustomAsyncFilterAttribute(string name){
-			_name = name;
-		}
+				private readonly string _name;
+				public MyCustomAsyncFilterAttribute(string name){
+					_name = name;
+				}
 
-		//This will be just like the custom middleware
-		public async Task OnActionExecutingAsync(ActionExecutingContext context, ActionExecutionDelegate next){
+				//This will be just like the custom middleware
+				public async Task OnActionExecutingAsync(ActionExecutingContext context, ActionExecutionDelegate next){
 
-			Console.WriteLine($"Before aync execution - {_name}");
-			await next();	//Calls next filter
-			Console.WriteLine($"After aync execution - {_name}");
-		}
+					Console.WriteLine($"Before aync execution - {_name}");
+					await next();	//Calls next filter
+					Console.WriteLine($"After aync execution - {_name}");
+				}
   
-  }
+			}
 
-  Step 2 : 
+		Step 2 : 
 
- public class MyTestController : ControllerBase
- {
-	
-	[HttpGet("Test"")]
-	[MyCustomAsyncFilter("MyMethod")]
-	public void Test(){
-	}
- }
-
- -------------------------------------- MULTIPLE FILTERS CHAINING (SIMILAR FILTER)
- Now suppose we are using all these filters used above
- 1. That is GlobalLevelCustom Filter
- 2. Controller Level Async Filter Attribute
- 3. Action Level Async Filter Attribute
-
- Output - We have wrapping of the first filter then the next level filter
-
- Before Executing Global
- Before Executing Controller
- Before Executing Action
- After Execution Action
- After Execution Controller
- After Execution Global
-
- Now we can change this default order. Let us add ordering for the GlobalFilter
-
- Please note we have changed the GlobalVersion as Attribute - So Global version depends on the implementation
-
-	public class MyCustomActionFilterAttribute : Attribute, IActionFilter, IOrderFilter
-	{
-		private readonly string _name;
-		public MyCustomActionFilterAttribute(string name, int order = 0)	//Default order=0
+		public class MyTestController : ControllerBase
 		{
-			_name = name;
+			[HttpGet("Test"")]
+			[MyCustomAsyncFilter("MyMethod")]
+			public void Test()
+			{
+				//..........
+			}
 		}
 
-		public void OnActionExecuting(ActionExecutingContext context)
+-----------------------------------------------------------------------------------------------------------------------
+
+MULTIPLE FILTERS CHAINING (SIMILAR FILTER)
+
+	Now suppose we are using all these filters used above
+	1. That is GlobalLevelCustom Filter
+	2. Controller Level Async Filter Attribute
+	3. Action Level Async Filter Attribute
+
+	Output - We have wrapping of the first filter then the next level filter
+
+	Before Executing Global
+	Before Executing Controller
+	Before Executing Action
+	After Execution Action
+	After Execution Controller
+	After Execution Global
+
+	Step 1 : Now we can change this default order. Let us add ordering for the GlobalFilter.
+	Please note we have changed the GlobalVersion as Attribute - So Global version depends on the implementation
+
+		public class MyCustomActionFilterAttribute : Attribute, IActionFilter, IOrderFilter
 		{
-			Console.WriteLine($"On Action Executing - {_name}");
+			private readonly string _name;
+			public MyCustomActionFilterAttribute(string name, int order = 0)	//Default order=0
+			{
+				_name = name;
+			}
+
+			public void OnActionExecuting(ActionExecutingContext context)
+			{
+				Console.WriteLine($"On Action Executing - {_name}");
+			}
+	
+			public void OnActionExecuted(ActionExecutedContext context)
+			{
+				Console.WriteLine($"On Action Executed - {_name}");
+			}
+
+			public int Order {get; set;}	//This will provide the ordering - fetched from IOrderFilter
+	
 		}
+
+	Step 2 : To integrate this custom filter into .net Request Pipeline.
+	In the Startup.cs 
+
+		public void ConfigureServices(IServiceCollection services){
 	
-		public void OnActionExecuted(ActionExecutedContext context)
-		{
-			Console.WriteLine($"On Action Executed - {_name}");
+			//We will use AddController Method has a overloaded version we will use that
+			services.AddControllers( options =>
+			{
+				options.Filters.Add(new MyCustomActionFilterAttribute("GLOBAL", 1)); 
+
+				//Here we have used 1 for order so higher the value lower the call preference, 
+				//so if we have -1 then this will get higher preference 
+				//So for each filter call we can set the order of chaining
+			});
 		}
-
-		public int Order {get; set;}	//This will provide the ordering - fetched from IOrderFilter
-	
-	}
-
- Step 2 : To integrate this custom filter into .net Request Pipeline
- In the Startup.cs 
-
-	public void ConfigureServices(IServiceCollection services){
-	
-		//We will use AddController Method has a overloaded version we will use that
-		services.AddControllers( options =>
-		{
-			options.Filters.Add(new MyCustomActionFilterAttribute("GLOBAL", 1)); 
-
-			//Here we have used 1 for order so higher the value lower the call preference, 
-			//so if we have -1 then this will get higher preference 
-			//So for each filter call we can set the order of chaining
-		});
-	}
 
 	O/p 1 -
-	So we have a call at the Global with Order 1
-	Same call of Filter for Controller with default 0
-	Same call of Filter for Method with default 0
+		So we have a call at the Global with Order 1
+		Same call of Filter for Controller with default 0
+		Same call of Filter for Method with default 0
 	
-	Here the order is 
- 
-	 Before Executing Controller
-	 Before Executing Action
-	 Before Executing Global
-	 After Execution Global
-	 After Execution Action
-	 After Execution Controller
+	Here the order is - 	
+		Before Executing Controller
+		Before Executing Action
+		Before Executing Global
+		After Execution Global
+		After Execution Action
+		After Execution Controller
 
 
 -----------------------------------------------------------------------------------------------------------------------
 
-Flow is 
+Filter Flow is 
 
-Authorization Filter-----------------	^
-	|								____|
-	!								|
-Resource Filter---------------------|-
-	|								|___
-	!									|
-Model Binding (Process)--------------	|
-	|									|
-	!									|
-Action Filter (Action Execution)-----	|
-	|									|
-	!									|
-Exception Filter---------------------	|
-	|									|
-	!									|
-Result Filter------------------------	|
-	|							 ^------
-	!							 |
-Execution------------------------|
+	Authorization Filter-----------------	^
+		|								____|
+		!								|
+	Resource Filter---------------------|-
+		|								|___
+		!									|
+	Model Binding (Process)--------------	|
+		|									|
+		!									|
+	Action Filter (Action Execution)-----	|
+		|									|
+		!									|
+	Exception Filter---------------------	|
+		|									|
+		!									|
+	Result Filter------------------------	|
+		|							 ^------
+		!							 |
+	Execution------------------------|
 
+	Authorization filter -
+		1. First filter
+		2. Have a before method and no after method
 
+		Sample : If we use [Authorize] that simply indicates whether we have logged in
 
+	--------------------------------------------------
 
-Authorization filter -
-1. First filter
-2. Have a before method and no after method
+	Resource Filter -
 
-Sample :
+		Sample : Class Level
 
-If we use [Authorize] that simply indicates whether we have logged in
+			public class MyCustomResourceFilterAttribute : Attribute, IResourceFilter
+			{
+				private readonly string _name;
 
+				public MyCustomResourceFilterAttribute(string name)
+				{
+					_name = name;
+				}
 
-Resource Filter -
+				public void OnResourceExecuting(ResourceExecutingContext context)
+				{
+					Console.WriteLine($"Resource Filter Before - {_name}");
+				}
 
-	Sample : 
+				public void OnResourceExecuted(ResourceExecutedContext context)
+				{
+					Console.WriteLine($"Resource Filter After - {_name}");
+				}
+			}
 
-	Class Level
+		Startup.cs
 
-	public class MyCustomResourceFilterAttribute : Attribute, IResourceFilter
-	{
-		private readonly string _name;
+			services.AddControllers(option =>
+			{
+				options.Filters.Add(new MyCustomActionFilterAttribute("Global"));
+				options.Filters.Add(new MyCustomResourceFilterAttribute("Global"));
+			});
 
-		public MyCustomResourceFilterAttribute(string name)
-		{
-			_name = name;
-		}
-
-		public void OnResourceExecuting(ResourceExecutingContext context)
-		{
-			Console.WriteLine($"Resource Filter Before - {_name}");
-		}
-
-		public void OnResourceExecuted(ResourceExecutedContext context)
-		{
-			Console.WriteLine($"Resource Filter After - {_name}");
-		}
-
-	}
-
-
-	Startup.cs
-
-	services.AddControllers(option =>
-	{
-		options.Filters.Add(new MyCustomActionFilterAttribute("Global"));
-		options.Filters.Add(new MyCustomResourceFilterAttribute("Global"));
-	});
-
-	Here if this runs O/p
-
-	Resource Filter Before - Global
-	Action Filter Before - Global
-	Action Filter After - Global
-	Resource Filter After - Global
+		Here if this runs O/P -
+			Resource Filter Before - Global
+			Action Filter Before - Global
+			Action Filter After - Global
+			Resource Filter After - Global
 
 	Here for DIFFERENT FILTER CHAINING we will see output as per filter ordering
 
-	This is also true for 
+	This is also true for -
+		Resource Filter Before - Global
+		Resource Filter Before - Action
+		Action Filter Before - Global
+		Action Filter Before - Action
+		Action Filter After - Action
+		Action Filter After - Global
+		Resource Filter After - Action
+		Resource Filter After - Global
 
-	Resource Filter Before - Global
-	Resource Filter Before - Action
-	Action Filter Before - Global
-	Action Filter Before - Action
-	Action Filter After - Action
-	Action Filter After - Global
-	Resource Filter After - Action
-	Resource Filter After - Global
+	--------------------------------------------------
 
-Exception Filters - Typically we will use Custom Exception Middleware rather than exception middleware
+	Exception Filters - Typically we will use Custom Exception Middleware rather than exception middleware.
 
-Result Filters
+	--------------------------------------------------
 
-Sample - 
+	Result Filters
 
- public class MyCustomResultFilterAttribute : Attribute, IResultFilter
- {
-	private readonly ILogger<MyCustomResultFilterAttribute> _logger;
-	public MyCustomResultFilterAttribute(ILogger<MyCustomResultFilterAttribute> logger)
-	{
-		_logger = logger;
-	}
+		Sample - 
 
-	public void OnResultExecuting(ResultExecutingContext context){
-		_logger.LogInformation($"Result Filter Before");
-	}
+			public class MyCustomResultFilterAttribute : Attribute, IResultFilter
+			{
+				private readonly ILogger<MyCustomResultFilterAttribute> _logger;
+				public MyCustomResultFilterAttribute(ILogger<MyCustomResultFilterAttribute> logger)
+				{
+					_logger = logger;
+				}
 
-	public void OnResultExecuted(ResultExecutedContext context){
-		_logger.LogInformation($"Result Filter After");
-	}
+				public void OnResultExecuting(ResultExecutingContext context){
+					_logger.LogInformation($"Result Filter Before");
+				}
 
- }
+				public void OnResultExecuted(ResultExecutedContext context){
+					_logger.LogInformation($"Result Filter After");
+				}
 
- //IGNORE
- In Startup.cs
+			}
 
-	public void ConfigureServices(IServiceCollection services){
+	 //IGNORE
+	 In Startup.cs
 
-		services.AddTransient<MyCustomResultAttribute>();	
-		services.AddControllers(options => 
-		{
-			options.Filters.Add(new MyCustomActionFilterAttribute("Global"));
-			options.Filters.Add(new MyCustomResourceFilterAttribute("Global"));
-			options.Filters.AddServices<MyCustomResultFilterAttribute>();
-		});
-	}
+		public void ConfigureServices(IServiceCollection services){
 
- //IGNORE
-  At Controller
+			services.AddTransient<MyCustomResultAttribute>();	
+			services.AddControllers(options => 
+			{
+				options.Filters.Add(new MyCustomActionFilterAttribute("Global"));
+				options.Filters.Add(new MyCustomResourceFilterAttribute("Global"));
+				options.Filters.AddServices<MyCustomResultFilterAttribute>();
+			});
+		}
+
+	 //IGNORE
+	 At Controller
 
 		[HttpGet]
 		[MyCustomActionFilter("Action")]
 		[MyCustomResourceFilter("Action")]
 		[MyCustomResultFilter]
 
-
-
 -----------------------------------------------------------------------------------------------------------------------
 
 [Authorize filters]
-
 
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -1095,29 +1088,28 @@ Middleware vs Filters -
 	In .NET Core, both filters and middleware can be used to add additional functionality to an HTTP request pipeline. 
 	However, there are some differences between the two:
 
+		1. Functionality - Filters are used to add functionality that is specific to an action method or controller, whereas middleware is 
+		used to add functionality that is applied to all requests passing through the pipeline.
 
-	1. Functionality - Filters are used to add functionality that is specific to an action method or controller, whereas middleware is 
-	used to add functionality that is applied to all requests passing through the pipeline.
+		2. Order of Call - Filters are executed in a specific order, based on their type (authorization filters, action filters, 
+		result filters, etc.), whereas middleware is executed in the order it is added to the pipeline.
 
-	2. Order of Call - Filters are executed in a specific order, based on their type (authorization filters, action filters, 
-	result filters, etc.), whereas middleware is executed in the order it is added to the pipeline.
+		3. Filters can access and modify the action context and arguments, whereas middleware can only modify the HTTP context.
 
-	3. Filters can access and modify the action context and arguments, whereas middleware can only modify the HTTP context.
+		4. Multiple filters can be applied to a single action method, whereas only one middleware can be applied to a single request.
 
-	4. Multiple filters can be applied to a single action method, whereas only one middleware can be applied to a single request.
-
-	5. There are many built-in filters in .NET Core, such as authorization filters, action filters, exception filters, 
-	and resource filters, but middleware is more flexible and allows developers to create their own custom middleware.
+		5. There are many built-in filters in .NET Core, such as authorization filters, action filters, exception filters, 
+		and resource filters, but middleware is more flexible and allows developers to create their own custom middleware.
 
 
 -----------------------------------------------------------------------------------------------------------------------
 
 What is .net MAUI?
 
-.NET MAUI (Multi-platform App UI) is a cross-platform UI framework for building native apps using .NET and C#. 
-It is the evolution of Xamarin.Forms, a popular UI toolkit for building mobile apps that run on multiple platforms. 
-With .NET MAUI, developers can create a single codebase that targets multiple platforms, including iOS, Android, macOS, 
-Windows, and Linux.
+	.NET MAUI (Multi-platform App UI) is a cross-platform UI framework for building native apps using .NET and C#. 
+	It is the evolution of Xamarin.Forms, a popular UI toolkit for building mobile apps that run on multiple platforms. 
+	With .NET MAUI, developers can create a single codebase that targets multiple platforms, including iOS, Android, macOS, 
+	Windows, and Linux.
 
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -1128,136 +1120,126 @@ Solution -> We can use buildbundle.minifier package
 
 What is RateLimiting ?
 
-If we are creating an API it will be used by many clients. For some clients they will frequently call the api thus creating 
-more traffic from a particular user. We can limit consumption of API for a particular client within a particular time 
-frame by using Rate Limiting.
+	If we are creating an API it will be used by many clients. For some clients they will frequently call the api thus creating more traffic 
+	from a particular user. We can limit consumption of API for a particular client within a particular time frame by using Rate Limiting.
 
-Rate Limiting is the process of controlling no. of requests for a resource within a specific time window.
+	Rate Limiting is the process of controlling no. of requests for a resource within a specific time window.
 
-Purpose 
-1. To regulate traffic
-2. To Prevent against DOS (Denial of Service) attack.
+	Purpose 
+		1. To regulate traffic
+		2. To Prevent against DOS (Denial of Service) attack.
 
-Implementation
-1. Use of Custom Middleware
-2. Use of Package "AspNetCoreRateLimit" package
+	Implementation
+	1. Use of Custom Middleware
+	2. Use of Package "AspNetCoreRateLimit" package
 
-Step 1 : using AspNetCoreRateLimit; -> Status when rate expired - 429
+	Step 1 : using AspNetCoreRateLimit; -> Status when rate expired - 429
 
-Step 2 : Add config in the appSettings.json
+	Step 2 : Add config in the appSettings.json
 
-	"IpRateLimiting": {
-		"EnableEndpointRateLimiting": true,
-		"StackBlockedRequests": false,
-		"RealIPHeader": "X-Real-IP",
-		"ClientIdHeader": "X-ClientId",
-		"HttpStatusCode": 429,
-		"GeneralRules": [{
-			"Endpoint": "GET:/students",
-			"Period": "5s",
-			"Limit": 2
-		}],
-		"EndpointWhitelist": [
-			"get:/api/test1",
-			"*:/api/statuc"
-		],
-		"ClientWhitelist":[
-			"ip1",
-			"ip2"
-		]
-	}
-	
+		"IpRateLimiting": {
+			"EnableEndpointRateLimiting": true,
+			"StackBlockedRequests": false,
+			"RealIPHeader": "X-Real-IP",
+			"ClientIdHeader": "X-ClientId",
+			"HttpStatusCode": 429,
+			"GeneralRules": [{
+				"Endpoint": "GET:/students",
+				"Period": "5s",
+				"Limit": 2
+			}],
+			"EndpointWhitelist": [
+				"get:/api/test1",
+				"*:/api/statuc"
+			],
+			"ClientWhitelist":[
+				"ip1",
+				"ip2"
+			]
+		}
 
-What is throtlling ?
-
-Throttling is a technique that ensures that the flow of data being sent at the target machine cann be digested at an acceptable rate.
+	What is throtlling ?
+		Throttling is a technique that ensures that the flow of data being sent at the target machine cann be digested at an acceptable rate.
 
 -----------------------------------------------------------------------------------------------------------------------
 
 Background Task - 
 
-Suppose we want to have a long running task - like sending email, doing IO operations
+	Suppose we want to have a long running task - like sending email, doing IO operations
 
-Step 1:
+	Step 1: Create a class
 
-	Create a class
-
-	public class MyLongRunningClass : BackgroundService
-	{
-		protected override Task ExecuteAsync(CancellationToken stoppingToken)
+		public class MyLongRunningClass : BackgroundService
 		{
-			while(!stoppingToken.IsCancellationRequested)
+			protected override Task ExecuteAsync(CancellationToken stoppingToken)
 			{
-				Console.WriteLine($"Current Date {DateTime.Now.Date}");
+				while(!stoppingToken.IsCancellationRequested)
+				{
+					Console.WriteLine($"Current Date {DateTime.Now.Date}");
+				}
 			}
-		}
 	
-	}
+		}
 
-Step 2:
+	Step 2: In Startup.cs
 
-	in Startup.cs
-
-	services.AddHostedService<MyLongRunningClass>();
+		services.AddHostedService<MyLongRunningClass>();
 
 -----------------------------------------------------------------------------------------------------------------------
 
 .net API versioning
 
-Typical versioning format
+	Typical versioning format Numeric Versioning (Major.Minor.Patch):
+		This is one of the most common versioning formats, known as Semantic Versioning (SemVer). It uses three numeric components to indicate the scope 
+		and impact of changes:
+			a. Major: Increments when there are incompatible changes.
+			b. Minor: Increments for backward-compatible new features.
+			c. Patch: Increments for backward-compatible bug fixes.
 
-Numeric Versioning (Major.Minor.Patch):
-This is one of the most common versioning formats, known as Semantic Versioning (SemVer). 
-It uses three numeric components to indicate the scope and impact of changes:
+	Use Package -> 
+		Microsoft.AspNetCore.Mvc.Versioning
 
-Major: Increments when there are incompatible changes.
-Minor: Increments for backward-compatible new features.
-Patch: Increments for backward-compatible bug fixes.
+	In Startup.cs -> ConfigureServices()
 
-Use Package -> 
-	Microsoft.AspNetCore.Mvc.Versioning
-
-In Startup.cs -> ConfigureServices()
-
-	services.AddApiVersioning(options =>
-	{
-		options.AssumeDefaultVersionWhenUnspecified = true;
-		options.DefaultApiVersion = new ApiVersion(1,1);	//Represents version 1.1
-		//options.ApiVersionReader = now MediaTypeApiVersionReader("version");	//To be used to call via header
-	});
+		services.AddApiVersioning(options =>
+		{
+			options.AssumeDefaultVersionWhenUnspecified = true;
+			options.DefaultApiVersion = new ApiVersion(1,1);	//Represents version 1.1
+			//options.ApiVersionReader = now MediaTypeApiVersionReader("version");	//To be used to call via header
+		});
 
 	Test : Once we have added we call our API as follows:
 
-	APIURL?api-version=1.0 //by default it will be version 1.0
-	or
-	APIURL
+		APIURL?api-version=1.0 //by default it will be version 1.0
+		or
+		APIURL
 
-In Controller
+	In Controller
 
-	[ApiController]
-	[Route("api/products")]
-	[ApiVersion("1.0")]
-	[ApiVersion("2.0")]
-	public class ProductController : ControllerBase
-	{
-		[HttpGet("{productId}")]
-		public IActionResult GetProductV1([FromRoute] Guid productId){
-		}
+		[ApiController]
+		[Route("api/products")]
+		[ApiVersion("1.0")]
+		[ApiVersion("2.0")]
+		public class ProductController : ControllerBase
+		{
+			[HttpGet("{productId}")]
+			public IActionResult GetProductV1([FromRoute] Guid productId){
+			}
 
-		[HttpGet("{productId}")]
-		[MapToApiVersion("2.0")]
-		public IActionResult GetProductV2([FromRoute] Guid productId){
+			[HttpGet("{productId}")]
+			[MapToApiVersion("2.0")]
+			public IActionResult GetProductV2([FromRoute] Guid productId){
 		
+			}
 		}
-	}
 
 	Api Call -
+		
+		By default call- (Version1.0)
+			<ApiCall>/{id}
 
-	By default call- (Version1.0)
-	<ApiCall>/{id}
-
-	Call to Version 2 -
-	<ApiCall>/{id}?api-version=2.0
+		Call to Version 2 -
+			<ApiCall>/{id}?api-version=2.0
 
 	Note - Other way to implement is to keep apis in different route
 	i.e <url>/v1/Api1
@@ -1265,30 +1247,28 @@ In Controller
 
 	When we added the statement,
 
-	options.ApiVersionReader = now MediaTypeApiVersionReader("version");
+		options.ApiVersionReader = now MediaTypeApiVersionReader("version");
 
 	Here in the call we can use the header "Accept" = "application/json; version=2.0"
 
-	If: options.ApiVersionReader = now MediaTypeApiVersionReader("MyHeader");
-	Call using header "MyHeader" = "2.0"
+		If: options.ApiVersionReader = now MediaTypeApiVersionReader("MyHeader");
+		Call using header "MyHeader" = "2.0"
 
 -----------------------------------------------------------------------------------------------------------------------
 
 .Net Core how to check for the environment?
 
-Ans -> 
+	Ans -> In the Startup.cs in the Confugure()
 
-In the Startup.cs in the Confugure()
+		Configure(IApplicationBuilder app, IWebHostEnvironment env){
 
-Configure(IApplicationBuilder app, IWebHostEnvironment env){
-	
-	if(env.IsDevelopment()){
-		app.DeveloperExceptionPage();
-	
-	}
-	
+			//........
+			if(env.IsDevelopment()){
+				app.DeveloperExceptionPage();
+			}
+			//........
 
-}
+		}
 
 ---------------------------------------------------------------------------------------------------------------------
 
@@ -1298,119 +1278,116 @@ Configure(IApplicationBuilder app, IWebHostEnvironment env){
 
 API retry mechanism
 
-let us have an service which calls another endpoint
+	1. Let us have an service which calls another endpoint
 
-public class WeatherService : IWeatherService
-{
-	private HttpClient _httpClient;
+		public class WeatherService : IWeatherService
+		{
+			private HttpClient _httpClient;
 
-	public WeatherService(HttpClient httpClient){
-		_httpClient = httpClient;
-	} 
+			public WeatherService(HttpClient httpClient){
+				_httpClient = httpClient;
+			} 
 
-	public async Task<string> Get(string cityName){
-		var apiKey = "1231343242425434534";
+			public async Task<string> Get(string cityName){
+				var apiKey = "1231343242425434534";
 
-		string apiUrl = $"?key={apikey}&q={cityName}";
+				string apiUrl = $"?key={apikey}&q={cityName}";
 
-		var response = await _httpClient.GetAsync(apiUrl);
-		return await response.Content.ReadAsStringAsync();
-	
-	}
-}
+				var response = await _httpClient.GetAsync(apiUrl);
+				return await response.Content.ReadAsStringAsync();
+			}
+		}
 
-This talks to weather API registered in the Startup.cs
+	2. This talks to weather API registered in the Startup.cs
 
-ConfigureServices()
-{
-	services.AddHttpClient<IWeatherService, WeatherService>(c => {
-		c.BaseAddress = new Uri("<weatherserviceurl>");
-	});
-}
+		ConfigureServices()
+		{
+			services.AddHttpClient<IWeatherService, WeatherService>(c => {
+				c.BaseAddress = new Uri("<weatherserviceurl>");
+			});
+		}
 
+	3. Now there is a network connectivity issue
+		
+		So we are going to use POLLY library - It is a .net resilience and transient fault handling library such as retry etc.
+		
+		a. We will install package - 
+			Microsoft.Extensions.Http.Polly
 
-Now there is a network connectivity issue
+		b. Update the ConfigureServices()
 
-So we are going to use POLLY library - It is a .net resilience and transient fault handling library such as retry etc.
+			ConfigureServices()
+			{
+				services.AddHttpClient<IWeatherService, WeatherService>(c => {
+					c.BaseAddress = new Uri("<weatherserviceurl>");
+				}).AddTransientHttpErrorPolicy(p => p.WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(2))) //Retry 3 times by waiting 2 seconds in between
+				  .AddTransientHttpErrorPolicy(p => p.CircuitBreakerAsync(5, _ => TimeSpan.FromSeconds(5))); //Break the constant call of 5 sec
+			}		
 
-We will install package - Microsoft.Extensions.Http.Polly
-
-Step 1 : Update the ConfigureServices()
-
-ConfigureServices()
-{
-	services.AddHttpClient<IWeatherService, WeatherService>(c => {
-		c.BaseAddress = new Uri("<weatherserviceurl>");
-	}).AddTransientHttpErrorPolicy(p => p.WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(2))) //Retry 3 times by waiting 2 seconds in between
-	  .AddTransientHttpErrorPolicy(p => p.CircuitBreakerAsync(5, _ => TimeSpan.FromSeconds(5))); //Break the constant call of 5 sec
-}		
-
-Here on call fail we will retry 3 times (Original + 3 retry) . Then again another call here once we have 1 calls i.e (3+1) + 1 = 5 calls the 
-circuit breaker policy kicks in and we need to wait for 5 seconds before we call again. If we try to call the api in between internally it 
-will be restricted.
+	NOTE - Here on call fail we will retry 3 times (Original + 3 retry) . Then again another call here once we have 1 calls i.e (3+1) + 1 = 5 calls the 
+	circuit breaker policy kicks in and we need to wait for 5 seconds before we call again. If we try to call the api in between internally it 
+	will be restricted.
 
 ---------------------------------------------------------------------------------------------------------------------
 
-How to read config data from config file
+How to read config data from config file -> Using IConfiguration, IOptions, and IOptionsSnapshot
 
 ---------------------------------------------------------------------------------------------------------------------
 
 .net core cache details - https://learn.microsoft.com/en-us/aspnet/core/performance/caching/overview?view=aspnetcore-8.0
 
-
 .Net Core Cache 
 
 	Why Cache?
 
-	Caching adds some complexity to an application and as developers we must always be cautious when making 
-	our applications more complex so why bother with caching at all? A few reasons spring to mind:
-		- It saves you money (bandwidth costs, fewer servers required)
-		- It provides a better experience for your customers
+		Caching adds some complexity to an application and as developers we must always be cautious when making 
+		our applications more complex so why bother with caching at all? A few reasons spring to mind:
+			- It saves you money (bandwidth costs, fewer servers required)
+			- It provides a better experience for your customers
 
 	What to Cache?
 
-	Choosing what to cache is highly dependent on application. Generally speaking, to maximize performance, we want to cache
-	at the highest level we can get away with.
+		Choosing what to cache is highly dependent on application. Generally speaking, to maximize performance, we want to cache
+		at the highest level we can get away with.
 
-	For assets such as CSS, JS and images, we should be aggressively caching at the browser level and a cache duration 
-	of a year or more is fairly standard.
+		For assets such as CSS, JS and images, we should be aggressively caching at the browser level and a cache duration 
+		of a year or more is fairly standard.
 
-	We can cache in two high-level choices to consider. Do you:
-		- Maintain a discrete cache on every server
-		- Use a centralised cache that each server accesses
+		We can cache in two high-level choices to consider. Do you:
+			- Maintain a discrete cache on every server
+			- Use a centralised cache that each server accesses
 
-	The first option, although slightly faster, has too many negatives to be recommended as a general solution:
-		- Discrepancies between caches can cause major headaches
-		- It is difficult to invalidate cache entries
-		- Wasted RAM filled with duplicated data
+		The first option, although slightly faster, has too many negatives to be recommended as a general solution:
+			- Discrepancies between caches can cause major headaches
+			- It is difficult to invalidate cache entries
+			- Wasted RAM filled with duplicated data
 
 	-------------------------------------------------------------------
 
 	Caching data with IMemoryCache and IDistributedCache
 	
-	The lowest level of caching in ASP.NET Core that we are going to discuss is the caching of data using IMemoryCache and IDistributedCache. 
-	These interfaces are the standard, in-built mechanisms for caching data in .NET Core.
+		The lowest level of caching in ASP.NET Core that we are going to discuss is the caching of data using IMemoryCache and IDistributedCache. 
+		These interfaces are the standard, in-built mechanisms for caching data in .NET Core.
 	
-	- You can register IMemoryCache in ConfigureServices using - services.AddMemoryCache();
-	- The local in-memory version of IDistributedCache using - services.AddDistributedMemoryCache();
+		- You can register IMemoryCache in ConfigureServices using - services.AddMemoryCache();
+		- The local in-memory version of IDistributedCache using - services.AddDistributedMemoryCache();
 
-	In ASP.NET Core, you can use memory caching to temporarily store data in memory to improve the performance and responsiveness of your application.
+		In ASP.NET Core, you can use memory caching to temporarily store data in memory to improve the performance and responsiveness of your application.
 
-	- Use services.AddMemoryCache() when you want to cache data in-memory within a single application instance.
-	This cache is local to the instance and is suitable for caching data that doesn't need to be shared across multiple instances.
+		- Use services.AddMemoryCache() when you want to cache data in-memory within a single application instance.
+		This cache is local to the instance and is suitable for caching data that doesn't need to be shared across multiple instances.
 
-	- Use services.AddDistributedMemoryCache() when you need to cache data in a distributed, shared in-memory cache that can be accessed
-	by multiple instances of your application. This is useful for scenarios where you need data consistency across all instances or 
-	when you are using a load-balanced environment.
+		- Use services.AddDistributedMemoryCache() when you need to cache data in a distributed, shared in-memory cache that can be accessed
+		by multiple instances of your application. This is useful for scenarios where you need data consistency across all instances or 
+		when you are using a load-balanced environment.
 
 	------------------------------------------------------------------
 
-
 	The built-in response caching middleware will not cache the page if any of the following are true:
-	- The response code is not 200
-	- The request method is not GET or HEAD
-	- An Authorization header is present
-	- A Set-Cookie header is present
+		- The response code is not 200
+		- The request method is not GET or HEAD
+		- An Authorization header is present
+		- A Set-Cookie header is present
 
 
 ************************************************************************************************************************

@@ -1,28 +1,28 @@
-﻿OOPS -
+﻿OOPS - Object-Oriented Programming System
 
-Features
-1. Emphasis on Data rather than procedure.
-2. Data security
-3. Follows bottom-up approach. 
-	Here in this approach the modules are designed individually and are then integrated together to complete the design.
-	Advantage - Testing and Reusability gets easier.
-	While the top-down approach focusses on breaking down a bigger problem into smaller and understandable chunk, the 
-	bottom-up approach first focusses on solving the smaller problems at the fundamental level and then integrating them 
-	into whole and complete solution.
+    Features
+        1. Emphasis on Data rather than procedure.
+        2. Data security
+        3. Follows bottom-up approach. 
+	    Here in this approach the modules are designed individually and are then integrated together to complete the design.
+	    Advantage - Testing and Reusability gets easier.
+	    While the top-down approach focusses on breaking down a bigger problem into smaller and understandable chunk, the 
+	    bottom-up approach first focusses on solving the smaller problems at the fundamental level and then integrating them 
+	    into whole and complete solution.
 
-Properties
-1.	Classes and Objects.
-2.	Data abstraction and encapsulation - Wrapping up of data and functions into a single unit (called class) is known 
-	as "encapsulation". The data is generally not accessible to outside world and methods inside the class can access it.
-	So the methods form the medium through which data can be exchanged between object and the program. This insulation from
-	direct access by the program is called "data hiding".
-	Abstraction referes to the act of representing essential features without including the background details or explanations.
-	Since classes use the concept of data abstraction they are known as Abstract Data types.
-3.	Inheritance - It is the process by which one class acquire the properties of objects of another class.
-4.  Polymorphism - Same name but different logic. Ex - Method overloading : Here we can have multiple methods of same name 
-	but different parameters. Ex - Operator Overloading : Operator exhibit different behavior in diff instances.
-5.	Dynamic Binding - Also called late binding. Here the code associated with a given procedure call is not known till the 
-	code is run or at instantiation.
+    Properties
+        1.	Classes and Objects.
+        2.	Data abstraction and encapsulation - Wrapping up of data and functions into a single unit (called class) is known 
+	        as "encapsulation". The data is generally not accessible to outside world and methods inside the class can access it.
+	        So the methods form the medium through which data can be exchanged between object and the program. This insulation from
+	        direct access by the program is called "data hiding".
+	        Abstraction referes to the act of representing essential features without including the background details or explanations.
+	        Since classes use the concept of data abstraction they are known as Abstract Data types.
+        3.	Inheritance - It is the process by which one class acquire the properties of objects of another class.
+        4.  Polymorphism - Same name but different logic. Ex - Method overloading : Here we can have multiple methods of same name 
+	        but different parameters. Ex - Operator Overloading : Operator exhibit different behavior in diff instances.
+        5.	Dynamic Binding - Also called late binding. Here the code associated with a given procedure call is not known till the 
+	        code is run or at instantiation.
 
 ************************************************************************
 

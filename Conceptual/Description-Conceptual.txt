@@ -6,190 +6,191 @@ Terms -
 
 Boxing and Unboxing (Occurs at runtime) - 
 
-Boxing - The process of Converting a Value Type (char, int etc.) to a Reference Type(object) is called Boxing.
-Boxing is implicit conversion process in which object type (super type) is used.
-The Value type is always stored in Stack. The Referenced Type is stored in Heap.
-Example :
-int num = 23; // 23 will assigned to num
-Object Obj = num; // Boxing
+	Boxing - The process of Converting a Value Type (char, int etc.) to a Reference Type(object) is called Boxing.
+	Boxing is implicit conversion process in which object type (super type) is used.
+	The Value type is always stored in Stack. The Referenced Type is stored in Heap.
+	Example :
+	int num = 23; // 23 will assigned to num
+	Object Obj = num; // Boxing
 
-Unboxing - The process of converting reference type into the value type is known as Unboxing.
-It is explicit conversion process.
-Example :
-int num = 23;         // value type is int and assigned value 23
-Object Obj = num;    // Boxing
-int i = (int)Obj;    // Unboxing
+	Unboxing - The process of converting reference type into the value type is known as Unboxing.
+	It is explicit conversion process.
+	Example :
+	int num = 23;         // value type is int and assigned value 23
+	Object Obj = num;    // Boxing
+	int i = (int)Obj;    // Unboxing
 
 ------------------------------------------------------------------------------------------------------
 
 Generics and Boxing/Unboxing
 
-Boxing is the process of converting a value type to object/reference type (or as the name suggests wrapping it inside the object container).
-Unboxing means converting the object to a value type. or unwrapping the type from the object container.
+	Boxing is the process of converting a value type to object/reference type (or as the name suggests wrapping it inside the object container).
+	Unboxing means converting the object to a value type. or unwrapping the type from the object container.
 
-Boxing/Unboxing are costly operations, and it is always better to not rely on them heavily in your code.
+	Boxing/Unboxing are costly operations, and it is always better to not rely on them heavily in your code.
 
-Advantage of using Generics - 
+	Advantage of using Generics - 
 
-	With Generics you avoid doing boxing/unboxing since you are dealing with the parameter type T,
-	which is a natural parameter that the compiler will replace it with the concrete type at compilation time 
-	without doing the boxing operation at runtime.
+		With Generics you avoid doing boxing/unboxing since you are dealing with the parameter type T,
+		which is a natural parameter that the compiler will replace it with the concrete type at compilation time 
+		without doing the boxing operation at runtime.
 
 
 ------------------------------------------------------------------------------------------------------
 
 Extension Methods and its advantage
 
-Extension methods are used to add new functionality to existing types without modifying the original types or creating 
-a new derived type. 
-That is adding functionality to the existing type without modifying or without extending.
-In C#, an extension method is a static method of a static class, where the "this" keyword is used as the first parameter
-of the method. This allows the method to be called as if it were an instance method on the type of the first parameter. 
+	Extension methods are used to add new functionality to existing types without modifying the original types or creating 
+	a new derived type. 
+	That is adding functionality to the existing type without modifying or without extending.
+	In C#, an extension method is a static method of a static class, where the "this" keyword is used as the first parameter
+	of the method. This allows the method to be called as if it were an instance method on the type of the first parameter. 
 
-Advantages:
+	Advantages:
 
-1. The main advantage of the extension method is to add new methods in the existing class without using inheritance.
-2. You can add new methods in the existing class without modifying the source code of the existing class.
-3. It can also work with sealed class.
+	1. The main advantage of the extension method is to add new methods in the existing class without using inheritance.
+	2. You can add new methods in the existing class without modifying the source code of the existing class.
+	3. It can also work with sealed class.
 
-Properties:
+	Properties:
 
-1. An extension method must be defined in a top-level static class.
-2. An extension method with the same name and signature as an instance method will not be called.
-3. When an extension method is defined with the same name and the signature of the existing method, 
-then the compiler will print the existing method, not the extension method. 
-Or in other words, the extension method does not support method overriding.
-4. Multiple binding parameters are not allowed means an extension method only 
-contains a single binding parameter (1st param with "this" keyword) 
-But you can define one or more normal parameter in the extension method.
+	1. An extension method must be defined in a top-level static class.
+	2. An extension method with the same name and signature as an instance method will not be called.
+	3. When an extension method is defined with the same name and the signature of the existing method, 
+	then the compiler will print the existing method, not the extension method. 
+	Or in other words, the extension method does not support method overriding.
+	4. Multiple binding parameters are not allowed means an extension method only 
+	contains a single binding parameter (1st param with "this" keyword) 
+	But you can define one or more normal parameter in the extension method.
 
-Ex -
+	Ex -
 
-class Geek {
+	class Geek {
    
-	  // Method 1
-	  public void M1() 
-	  {
-		  Console.WriteLine("Method Name: M1");
-	  }
+		  // Method 1
+		  public void M1() 
+		  {
+			  Console.WriteLine("Method Name: M1");
+		  }
    
-	  // Method 2
-	  public void M2()
-	  {
-		  Console.WriteLine("Method Name: M2");
-	  }
+		  // Method 2
+		  public void M2()
+		  {
+			  Console.WriteLine("Method Name: M2");
+		  }
    
-	  // Method 3
-	  public void M3()
-	  {
-		  Console.WriteLine("Method Name: M3");
-	  }
+		  // Method 3
+		  public void M3()
+		  {
+			  Console.WriteLine("Method Name: M3");
+		  }
     
- }
+	 }
 
- static class NewMethodClass {
+	 static class NewMethodClass {
   
-	  // Method 4
-	  public static void M4(this Geek g)
-	  {
-	  	Console.WriteLine("Method Name: M4");
-	  }
+		  // Method 4
+		  public static void M4(this Geek g)
+		  {
+	  		Console.WriteLine("Method Name: M4");
+		  }
   	  
-	  // Method 5
-	  public static void M5(this Geek g, string str)
-	  {
-	  	Console.WriteLine(str);
-	  }
-}
+		  // Method 5
+		  public static void M5(this Geek g, string str)
+		  {
+	  		Console.WriteLine(str);
+		  }
+	}
 
-public class GFG {
+	public class GFG {
   
-    // Main Method
-    public static void Main(string[] args)
-    {
-        Geek g = new Geek();
-        g.M1();
-        g.M2();
-        g.M3();
-        g.M4();
-        g.M5("Method Name: M5");
-    }
-}
+		// Main Method
+		public static void Main(string[] args)
+		{
+			Geek g = new Geek();
+			g.M1();
+			g.M2();
+			g.M3();
+			g.M4();
+			g.M5("Method Name: M5");
+		}
+	}
 
 ------------------------------------------------------------------------------------------------------
 
 Extension Methods vs Static Methods (Diff based upon usage both as used to create utility methods)
 
-Extension methods are modified static methods.
+	Extension methods are modified static methods.
 
-We use extension methods when we want to add utility methods to existing types, especially if 
-we don't have access to modify the original type's source code. They're particularly useful for 
-enhancing readability and providing syntactic sugar.
-Usage - Add utility methods to existing type for types which we dont want to modify or extend.
+	We use extension methods when we want to add utility methods to existing types, especially if 
+	we don't have access to modify the original type's source code. They're particularly useful for 
+	enhancing readability and providing syntactic sugar.
+	Usage - Add utility methods to existing type for types which we dont want to modify or extend.
 
-We use static methods when you want to provide utility functions that don't need any state or 
-behavior from an instance. Static methods are also used for factory methods or other functionalities 
-that don't involve instance-specific behavior.
-Usage - Add utility methods when we dont need to maintain any state or instance behavior (object).
+	We use static methods when you want to provide utility functions that don't need any state or 
+	behavior from an instance. Static methods are also used for factory methods or other functionalities 
+	that don't involve instance-specific behavior.
+	Usage - Add utility methods when we dont need to maintain any state or instance behavior (object).
+
 ------------------------------------------------------------------------------------------------------
 
 
 CLR and CTS - 
 
-CLR - Common Language Runtime (CLR) - A runtime "environment" for Managed Code
+	CLR - Common Language Runtime (CLR) - A runtime "environment" for Managed Code
 
-.Net Framework provides "runtime environment" called Common Language Runtime (CLR). It provides an environment 
-to run all the .Net Programs. The code which runs under the CLR is called as Managed Code. Programmers need
-not to worry on managing the memory if the programs are running under the CLR as it provides memory management 
-and thread management.
+	.Net Framework provides "runtime environment" called Common Language Runtime (CLR). It provides an environment 
+	to run all the .Net Programs. The code which runs under the CLR is called as Managed Code. Programmers need
+	not to worry on managing the memory if the programs are running under the CLR as it provides memory management 
+	and thread management.
 
-Programmatically, when our program needs memory, CLR allocates the memory for scope and de-allocates the memory 
-if the scope is completed.
+	Programmatically, when our program needs memory, CLR allocates the memory for scope and de-allocates the memory 
+	if the scope is completed.
 
-Language Compilers (e.g. C#, VB.Net, J#) will convert the Code/Program to Microsoft Intermediate Language (MSIL) 
-inturn this will be converted to Native Code by CLR.
+	Language Compilers (e.g. C#, VB.Net, J#) will convert the Code/Program to Microsoft Intermediate Language (MSIL) 
+	inturn this will be converted to Native Code by CLR.
 
-	Purpose :
-	1. Provide common runtime environment.
-	2. Memory management. (Automatic memory allocation/deallocation)
-	3. Conversion of COMPILED CODE to NATIVE CODE. In C# compiler would convert language specific code to MSIL.
-	Then this MSIL will be converted to Native code by using CLR (Which will internally use a JIT compiler).
-
-
-Common Type System (CTS) - Deals with Datatypes to be used by managed code
-
-Common Type System (CTS) describes the datatypes that can be used by managed code. CTS defines how these types are declared, 
-used and managed in the runtime.
-For Communicating between programs written in any .NET complaint language, the types have to be compatible on 
-the basic level.
-
-The common type system supports two general categories of types: 
-
-	Value types:
-
-	Value types directly contain their data, and instances of value types are either allocated on the "stack" or 
-	allocated inline in a structure. Value types can be built-in (implemented by the runtime), user-defined,
-	or enumerations.
-
-	Reference types:
-
-	Reference types store a reference to the value's memory address, and are allocated on the "heap" Reference types 
-	can be self-describing types, pointer types, or interface types. The type of a reference type can be determined 
-	from values of self-describing types. Self-describing types are further split into arrays and class types. 
-	The class types are user-defined classes, boxed value types, and delegates. 
+		Purpose :
+		1. Provide common runtime environment.
+		2. Memory management. (Automatic memory allocation/deallocation)
+		3. Conversion of COMPILED CODE to NATIVE CODE. In C# compiler would convert language specific code to MSIL.
+		Then this MSIL will be converted to Native code by using CLR (Which will internally use a JIT compiler).
 
 
+	Common Type System (CTS) - Deals with Datatypes to be used by managed code
 
-Common Language Specification (CLS) - (Deals with rules how datatypes should be written for managed code)
+	Common Type System (CTS) describes the datatypes that can be used by managed code. CTS defines how these types are declared, 
+	used and managed in the runtime.
+	For Communicating between programs written in any .NET complaint language, the types have to be compatible on 
+	the basic level.
 
-CLS stands for Common Language Specification and it is a subset of CTS. It defines a set of rules and restrictions 
-that every language must follow which runs under the .NET framework. The languages which follow these set of rules 
-are said to be CLS Compliant. In simple words, CLS enables cross-language integration or Interoperability.
+	The common type system supports two general categories of types: 
 
-For Example
+		Value types:
 
-If we talk about C# and VB.NET then, in C# every statement must have to end with a semicolon. it is also 
-called a statement Terminator, but in VB.NET each statement should not end with a semicolon(;).
+		Value types directly contain their data, and instances of value types are either allocated on the "stack" or 
+		allocated inline in a structure. Value types can be built-in (implemented by the runtime), user-defined,
+		or enumerations.
+
+		Reference types:
+
+		Reference types store a reference to the value's memory address, and are allocated on the "heap" Reference types 
+		can be self-describing types, pointer types, or interface types. The type of a reference type can be determined 
+		from values of self-describing types. Self-describing types are further split into arrays and class types. 
+		The class types are user-defined classes, boxed value types, and delegates. 
+
+
+
+	Common Language Specification (CLS) - (Deals with rules how datatypes should be written for managed code)
+
+	CLS stands for Common Language Specification and it is a subset of CTS. It defines a set of rules and restrictions 
+	that every language must follow which runs under the .NET framework. The languages which follow these set of rules 
+	are said to be CLS Compliant. In simple words, CLS enables cross-language integration or Interoperability.
+
+	For Example
+
+	If we talk about C# and VB.NET then, in C# every statement must have to end with a semicolon. it is also 
+	called a statement Terminator, but in VB.NET each statement should not end with a semicolon(;).
 
 
 ------------------------------------------------------------------------------------------------------
@@ -429,77 +430,78 @@ Method Overriding -
 				}
 			}
 
- ------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
 
- Const vs Readonly
+Const vs Readonly
 
 	Const - for unchangable value added at compile time.
 	Readonly - for unchangable value added at run time.
  
- ------------------------------------------------------------------------------------------------------
-
- C# value type vs reference type
-
- Value type - A data type which holds a data value within its own memory space. That is they directly contains value. 
- So when used with functions whenever we pass the value in the parameter, the parameter will create its own memory space.
- Holds value in Stack.	
- Ex - All basic/primitive data types (except string) + Struct + enum. Default value is some specific value ex- for int its 0.
-
- Reference type - A reference type does not hold the value directly rather it will hold the value of the address 
- where its actually value is actually stored. 
- The default value of a reference type variable is "null" when they are not initialized. Null means not refering to any object.
- When used with function no new copy is created instead address is passed.
- Holds value in Heap.
- Ex - String, stringbuilder, array (even its elements are value type), class, delegate. Default value is null.
-
-
- ------------------------------------------------------------------------------------------------------
- 
- Serialization:
-
-	Serialization is the process of converting objects or data structures into a format that can be easily 
-	stored or transmitted, usually as a stream of bytes/XML/JSON. 
-
- Deserialization:
-
-	Deserialization is the process of reconstructing objects or data structures from their serialized form. 
-	It takes the data stored in a format (such as binary, XML, or JSON) and creates instances of objects or 
-	data structures from it.
-
- 
- ---------------------------------------------------------------------------------------------------
-
- IS vs AS keywords
-
- IS keyword - Will be used to check. Ex - If(abc is string)
- AS keyword - Will be used to convert. Ex - string x = abc as string;
-
-
- ---------------------------------------------------------------------------------------------------
-
- Stacks and Heaps	
-
- 1) Primitive data type will be stored in Stacks. Stack has faster access
- and Reference types like objects are stored in Heaps. Heap has slower access.
-
- 2) Now for objects say 
- Object obj1 = new Object();
- obj1.Name = "ABC;
- That is obj1 is stored on heap (with memory reference) and its memory reference original value is stored in stack.
- 
- In stack data has to be pushed/removed from top only 
- but in heap data can be pushed or removed in any order.
-
- In stack recursion calls fills it up quickly 
- for heap recursion calls fills it up slowly
-
- Stack - We get stackOverflow when memory is exhausted. By default primitive variables get wiped off once they loose scope.
- Heap - GC - It is a special thread created by .NET runtime to monitor allocations of heap space.
- It only collects heap memory since objects are only created in heap
-
 ------------------------------------------------------------------------------------------------------
 
- Garbage Collector
+C# value type vs reference type
+
+	Value type - A data type which holds a data value within its own memory space. That is they directly contains value. 
+	So when used with functions whenever we pass the value in the parameter, the parameter will create its own memory space.
+	Holds value in Stack.	
+	Ex - All basic/primitive data types (except string) + Struct + enum. Default value is some specific value ex- for int its 0.
+
+	Reference type - A reference type does not hold the value directly rather it will hold the value of the address 
+	where its actually value is actually stored. 
+	The default value of a reference type variable is "null" when they are not initialized. Null means not refering to any object.
+	When used with function no new copy is created instead address is passed.
+	Holds value in Heap.
+	Ex - String, stringbuilder, array (even its elements are value type), class, delegate. Default value is null.
+
+
+------------------------------------------------------------------------------------------------------
+ 
+Serialization Vs Deserialization
+
+	Serialization:
+
+		Serialization is the process of converting objects or data structures into a format that can be easily 
+		stored or transmitted, usually as a stream of bytes/XML/JSON. 
+
+	Deserialization:
+
+		Deserialization is the process of reconstructing objects or data structures from their serialized form. 
+		It takes the data stored in a format (such as binary, XML, or JSON) and creates instances of objects or 
+		data structures from it.
+ 
+---------------------------------------------------------------------------------------------------
+
+IS vs AS keywords
+
+	IS keyword - Will be used to check. Ex - If(abc is string)
+	AS keyword - Will be used to convert. Ex - string x = abc as string;
+
+
+---------------------------------------------------------------------------------------------------
+
+Stacks and Heaps	
+
+	1) Primitive data type will be stored in Stacks. Stack has faster access
+	and Reference types like objects are stored in Heaps. Heap has slower access.
+	
+	2) Now for objects say 
+	Object obj1 = new Object();
+	obj1.Name = "ABC;
+	That is obj1 is stored on heap (with memory reference) and its memory reference original value is stored in stack.
+	
+	In stack data has to be pushed/removed from top only 
+	but in heap data can be pushed or removed in any order.
+	
+	In stack recursion calls fills it up quickly 
+	for heap recursion calls fills it up slowly
+	
+	Stack - We get stackOverflow when memory is exhausted. By default primitive variables get wiped off once they loose scope.
+	Heap - GC - It is a special thread created by .NET runtime to monitor allocations of heap space.
+	It only collects heap memory since objects are only created in heap
+	
+------------------------------------------------------------------------------------------------------
+
+Garbage Collector
  
 	Summary - GC cleans unreferenced memory of Managed Objects. If there is any unmanaged objects like files then we have to manually
 	write code to clean it. Unmanaged objects are typically cleaned using destructors. 
@@ -690,12 +692,12 @@ Method Overriding -
 
 Bin vs Obj folders
 
-In C# compilation is a two step process - compiling and linking.
+	In C# compilation is a two step process - compiling and linking.
 
-Compilation Process - In compiling every code file is segregated into individual compiled units. These compiled units are stored in Obj folder.
-Linking Process - Then each of these compiled files would be linked to form DLL file, exe file etc. These linked units are stored in Bin folder. 
+	Compilation Process - In compiling every code file is segregated into individual compiled units. These compiled units are stored in Obj folder.
+	Linking Process - Then each of these compiled files would be linked to form DLL file, exe file etc. These linked units are stored in Bin folder. 
 
-Note - When build is done only whatever file is updated would be updated in the folders.
+	Note - When build is done only whatever file is updated would be updated in the folders.
 
 ------------------------------------------------------------------------------------------------------
 
@@ -748,9 +750,9 @@ Common Collections -
 
 	Inheritence -
 
-	--------IEnumerable---------- 
-	|							|
-	ICollection				IQueryable
+	-------------IEnumerable-------------
+	|                                   |
+	ICollection					IQueryable
 	|
 	IList
 
@@ -821,7 +823,6 @@ Common Collections -
 ------------------------------------------------------------------------------------------------------
 
 App Domain
-
 Asp.Net introduces the concept of an Application Domain which is shortly known as AppDomain. 
 It can be considered as a Lightweight process which is both a container and boundary. The .NET runtime uses an AppDomain 
 as a container for code and data, just like the operating system uses a process as a container for code and data. 
@@ -839,27 +840,27 @@ Ref : https://www.youtube.com/watch?v=DUq84e3cZyo
 ------------------------------------------------------------------------------------------------------
 
 Yield (Keyword) - https://www.youtube.com/watch?v=4fju3xcm21M&t=2s
-Is used for stateful iteration.
+	Is used for stateful iteration.
 
-So if we have 2 methods 
+	So if we have 2 methods 
 
-static method1()
-{
-	foreach(var i in ValFunc())
+	static method1()
 	{
+		foreach(var i in ValFunc())
+		{
 		
-	}	
-}
-
-static ValFunc(){
-	int cnt = 0;
-	foreach(var i in listVal) //listVal(1 to 10))
-	{
-		cnt += i;
-		yield return (cnt);	//Here for yield the state will be maintained that is 
-							//for each iteration listval position i will be remembered in mem
+		}	
 	}
-}
+
+	static ValFunc(){
+		int cnt = 0;
+		foreach(var i in listVal) //listVal(1 to 10))
+		{
+			cnt += i;
+			yield return (cnt);	//Here for yield the state will be maintained that is 
+								//for each iteration listval position i will be remembered in mem
+		}
+	}
 
 ------------------------------------------------------------------------------------------------------
 
@@ -952,51 +953,51 @@ Aggregation vs Composition vs Association
 
 IEnumerable vs IQueryable
 
-Typically used for data fetching. If we have data fetched with filters then IEnumerable will simply fetch all the data and apply filter
-from application. And IQueryable will first apply filter on the data at DB then pull the data to application.
+	Typically used for data fetching. If we have data fetched with filters then IEnumerable will simply fetch all the data and apply filter
+	from application. And IQueryable will first apply filter on the data at DB then pull the data to application.
 
-IEnumerable 
-1. It exists in System.Collections Namespace.
-2. IEnumerable is best for querying data from in-memory collections like List, Array, etc.
-3. IEnumerable is suitable for LINQ to Object and LINQ to XML queries.
-4. IEnumerable doesn't support lazy loading. Hence not suitable for paging like scenarios.
+	IEnumerable 
+	1. It exists in System.Collections Namespace.
+	2. IEnumerable is best for querying data from in-memory collections like List, Array, etc.
+	3. IEnumerable is suitable for LINQ to Object and LINQ to XML queries.
+	4. IEnumerable doesn't support lazy loading. Hence not suitable for paging like scenarios.
 
-IQueryable 
-1. It exists in System.Linq Namespace.
-2. IQueryable is best for querying data from out-memory (like remote Database, service) collections.
-3. IQueryable is suitable for LINQ to SQL queries.
-4. IQueryable support lazy loading. Hence it is suitable for paging like scenarios.
+	IQueryable 
+	1. It exists in System.Linq Namespace.
+	2. IQueryable is best for querying data from out-memory (like remote Database, service) collections.
+	3. IQueryable is suitable for LINQ to SQL queries.
+	4. IQueryable support lazy loading. Hence it is suitable for paging like scenarios.
 
 ------------------------------------------------------------------------------------------------------
 
 C# Copying objects -
 
-Shallow Copy (Reference Copy) - Both original and copied object refer to same memory location.
+	Shallow Copy (Reference Copy) - Both original and copied object refer to same memory location.
 
-	A Shallow Copy is about copying an object's value type fields into the target object and the object's reference types 
-	are copied as references into the target object but not the referenced object itself. 
-	It copies the types bit by bit. The result is that both instances are cloned and the original will refer to the same object.
+		A Shallow Copy is about copying an object's value type fields into the target object and the object's reference types 
+		are copied as references into the target object but not the referenced object itself. 
+		It copies the types bit by bit. The result is that both instances are cloned and the original will refer to the same object.
 
-	Class1 obj1 = new Class1();
-	Class1 obj2 = obj1;
+		Class1 obj1 = new Class1();
+		Class1 obj2 = obj1;
 
-Deep Copy (New Pure Copy with new references) - Both original and copied object refer to different memory location.
+	Deep Copy (New Pure Copy with new references) - Both original and copied object refer to different memory location.
 
-	Deep Copy is used to make a complete deep copy of the internal reference types, for this we need to configure the object 
-	returned by MemberwiseClone().
+		Deep Copy is used to make a complete deep copy of the internal reference types, for this we need to configure the object 
+		returned by MemberwiseClone().
 
-	Class1 : IClonable
-	{
-		public object Clone(){
-			//Class1 obj = (Class1)this.MemberwiseClone();
-			//return obj;
+		Class1 : IClonable
+		{
+			public object Clone(){
+				//Class1 obj = (Class1)this.MemberwiseClone();
+				//return obj;
 
-			return (Class1)this.MemberwiseClone();
+				return (Class1)this.MemberwiseClone();
+			}
 		}
-	}
 
-	Class1 obj1 = new Class1();
-	Class1 obj2 = (Class1)obj1.Clone();
+		Class1 obj1 = new Class1();
+		Class1 obj2 = (Class1)obj1.Clone();
 
 ------------------------------------------------------------------------------------------------------
 
@@ -1008,7 +1009,6 @@ A method can also be sealed, and in that case, the method cannot be overridden.
 However, a method can be sealed in the classes in which they have been inherited. If you want to declare a method as sealed, 
 then it has to be declared as virtual in its base class.
 
-
 ------------------------------------------------------------------------------------------------------
 
 Serialize - Object to JSON/XML or Stream/string
@@ -1018,172 +1018,166 @@ Deserialize - JSON/XML/Stream to object
 
 Struct vs Class vs Record
 
-Classes - are reference types that store data on the heap. They are well-suited for creating complex objects that may 
-require features like inheritance, polymorphism, and encapsulation. They can have private/public methods
+	Classes - are reference types that store data on the heap. They are well-suited for creating complex objects that may 
+	require features like inheritance, polymorphism, and encapsulation. They can have private/public methods
 
-Structs - are value types that store data directly on the stack. They are suitable for efficiently storing small and 
-simple data types, making them a good choice when performance is a priority. They only have public methods.
-They do not have default constructor. But can have parameterised constructor. Also no inheritance.
+	Structs - are value types that store data directly on the stack. They are suitable for efficiently storing small and 
+	simple data types, making them a good choice when performance is a priority. They only have public methods.
+	They do not have default constructor. But can have parameterised constructor. Also no inheritance.
 
-Records - like classes, are reference types that store data on the heap. However, records are specifically designed to 
-represent immutable data structures. Immutable means that it cannot be changed once the data is set. Records provide 
-built-in functionality for comparing and hashing objects, making them useful for scenarios where data integrity is important.
-They can have constructor.
+	Records - like classes, are reference types that store data on the heap. However, records are specifically designed to 
+	represent immutable data structures. Immutable means that it cannot be changed once the data is set. Records provide 
+	built-in functionality for comparing and hashing objects, making them useful for scenarios where data integrity is important.
+	They can have constructor.
 
-When should I use a class, a struct, or a record?
-The best way to choose between a class, a struct, or a record is to consider the specific needs of your application. 
+	When should I use a class, a struct, or a record?
+	The best way to choose between a class, a struct, or a record is to consider the specific needs of your application. 
+		a. If you need a data structure that is immutable and efficient, then a record is a good choice. 
+		b. If you need a data structure that can be inherited from or that contains methods, then a class is a good choice.
+		c. If you need a data structure that is lightweight and fast, then a struct is a good choice.
 
-	If you need a data structure that is immutable and efficient, then a record is a good choice. 
-	If you need a data structure that can be inherited from or that contains methods, then a class is a good choice.
-	If you need a data structure that is lightweight and fast, then a struct is a good choice.
+	-----------------------------------------------
 
+	C# Class
+	A class is a fundamental concept in object-oriented programming. It is a user-defined data type that serves as a blueprint 
+	for creating objects and defining their properties (attributes) and behaviors (methods).
+	In C#, classes are reference types, which means they store data on the heap. They are great for creating complex objects that 
+	can inherit properties and behaviors from other classes, and they also support features like polymorphism and encapsulation.
 
-C# Class
-A class is a fundamental concept in object-oriented programming. It is a user-defined data type that serves as a blueprint 
-for creating objects and defining their properties (attributes) and behaviors (methods).
-In C#, classes are reference types, which means they store data on the heap. They are great for creating complex objects that 
-can inherit properties and behaviors from other classes, and they also support features like polymorphism and encapsulation.
+	As Classes are reference type, Its means that if you change the value of a field in one instance of a class, the value of 
+	that field will also change in any other instances of the class that refer to the same object.
 
-As Classes are reference type, Its means that if you change the value of a field in one instance of a class, the value of 
-that field will also change in any other instances of the class that refer to the same object.
+	We use classes to encapsulate related data and functionality, which makes it easier to reuse and maintain code.
 
-We use classes to encapsulate related data and functionality, which makes it easier to reuse and maintain code.
+	Let’s consider an example:
 
-Let’s consider an example:
+		using System;
 
-using System;
+		public class Person
+		{
+			public string Name { get; set; }
+			public int Age { get; set; }
 
-public class Person
-{
-    public string Name { get; set; }
-    public int Age { get; set; }
+			public void SayHello()
+			{
+				Console.WriteLine("Hello, I am " + Name);
+			}
+		}
 
-    public void SayHello()
-    {
-        Console.WriteLine("Hello, I am " + Name);
-    }
-}
+	In the above code snippet, we define a class called Person with two properties: Name and Age. We also have a method called “SayHello()” 
+	to greet the person. We can create objects of this class by using the “new” keyword, which allows us to access the properties and invoke methods.
 
-In the above code snippet, we define a class called Person with two properties: Name and Age. We also have a method called “SayHello()” 
-to greet the person. We can create objects of this class by using the “new” keyword, which allows us to access the properties and invoke methods.
+		class Program
+		{
+			static void Main(string[] args)
+			{
+				Person person = new Person();
+				person.Name = "Shekh Ali";
+				person.Age = 29;
 
-class Program
-{
-    static void Main(string[] args)
-    {
-        Person person = new Person();
-        person.Name = "Shekh Ali";
-        person.Age = 29;
+				person.SayHello();
+				Console.ReadLine();
+			}
+		}
 
-        person.SayHello();
-        Console.ReadLine();
-    }
-}
+	-----------------------------------------------
 
+	C# Struct
+	A struct, or structure, is a value type in C#. Unlike classes, structs are lightweight and store data directly on the stack. They are primarily used
+	for storing small amounts of data, making them a good choice when performance is a priority.
 
-C# Struct
-A struct, or structure, is a value type in C#. Unlike classes, structs are lightweight and store data directly on the stack. They are primarily used
-for storing small amounts of data, making them a good choice when performance is a priority.
+	As struct is a value type, meaning that when you create an instance of a struct, you are creating a copy of the struct’s data. It means that if you 
+	change the value of a field in one instance of a struct, the value of that field will not change in any other instances of the struct.
 
-As struct is a value type, meaning that when you create an instance of a struct, you are creating a copy of the struct’s data. It means that if you 
-change the value of a field in one instance of a struct, the value of that field will not change in any other instances of the struct.
+	Let’s consider an example of struct in C#:
 
-Let’s consider an example of struct in C#:
+		using System;
 
-using System;
+		public struct Point
+		{				
+			public int X { get; set; }
+			public int Y { get; set; }
 
-public struct Point
-{				
-    public int X { get; set; }
-    public int Y { get; set; }
+			public void Display()
+			{
+				Console.WriteLine("X: " + X + ", Y: " + Y);
+			}
+		}
 
-    public void Display()
-    {
-        Console.WriteLine("X: " + X + ", Y: " + Y);
-    }
-}
+		public class Program
+		{
+			public static void Main()
+			{
+				Point point = new Point();
+				point.X = 10;
+				point.Y = 5;
 
-public class Program
-{
-    public static void Main()
-    {
-        Point point = new Point();
-        point.X = 10;
-        point.Y = 5;
+				point.Display();
+			}
+		}
 
-        point.Display();
-    }
-}
+		Output : X: 10, Y: 5
 
-Output : X: 10, Y: 5
+	-----------------------------------------------
 
+	C# Record
+	A record is a reference type that is immutable by default. It means that once you create an instance of a record, you cannot change the value of 
+	any of its fields. Records are a good choice for data structures that need to be consistent and reliable.
 
-C# Record
-A record is a reference type that is immutable by default. It means that once you create an instance of a record, you cannot change the value of 
-any of its fields. Records are a good choice for data structures that need to be consistent and reliable.
+	Record was introduced in C# 9.0. They are special objects that bring together the characteristics of structs and classes. Like classes, records 
+	are reference types and store data on the heap.
 
-Record was introduced in C# 9.0. They are special objects that bring together the characteristics of structs and classes. Like classes, records 
-are reference types and store data on the heap.
+	One of the benefits of records is that they provide built-in features for comparing and hashing objects, which helps to maintain data integrity. 
+	Records are particularly useful in situations where you need to ensure that your data remains consistent and unaltered.
 
-One of the benefits of records is that they provide built-in features for comparing and hashing objects, which helps to maintain data integrity. 
-Records are particularly useful in situations where you need to ensure that your data remains consistent and unaltered.
+	Here are two examples to demonstrate the usage of “record” in C#. In one example, we will use it like a struct and the other like a class:
 
-Here are two examples to demonstrate the usage of “record” in C#. In one example, we will use it like a struct and the other like a class:
+		Example 1: Using “record” like a struct
 
-Example 1: Using “record” like a struct
+		public record Point(int X, int Y);
 
-public record Point(int X, int Y);
+		// Usage
+		Point point1 = new Point(5, 10);
+		Point point2 = point1 with { X = 8 };
+		Console.WriteLine($"Point 1: X={point1.X}, Y={point1.Y}");
+		Console.WriteLine($"Point 2: X={point2.X}, Y={point2.Y}");
+		Output:
 
-// Usage
-Point point1 = new Point(5, 10);
-Point point2 = point1 with { X = 8 };
-Console.WriteLine($"Point 1: X={point1.X}, Y={point1.Y}");
-Console.WriteLine($"Point 2: X={point2.X}, Y={point2.Y}");
-Output:
+		Point 1: X=5, Y=10
+		Point 2: X=8, Y=10
 
-Point 1: X=5, Y=10
-Point 2: X=8, Y=10
+	In this example, the record keyword is used to defines a data structure called “Point,” which acts similarly to a struct. It has two properties, 
+	X and Y, representing coordinates.
 
-In this example, the record keyword is used to defines a data structure called “Point,” which acts similarly to a struct. It has two properties, 
-X and Y, representing coordinates.
+	When we want to make changes to a property, we use the "with" keyword to create a new instance of the record with the updated value. 
+	It shows that the record is immutable, meaning it cannot be changed directly; instead, a new instance is created with the modified property.
 
-When we want to make changes to a property, we use the "with" keyword to create a new instance of the record with the updated value. 
-It shows that the record is immutable, meaning it cannot be changed directly; instead, a new instance is created with the modified property.
+		Example 2: Using “record” like a class
 
-Example 2: Using “record” like a class
+		public record Person
+		{
+			public string FirstName { get; init; }
+			public string LastName { get; init; }
+		}
 
-public record Person
-{
-    public string FirstName { get; init; }
-    public string LastName { get; init; }
-}
+		// Usage
+		Person person1 = new Person { FirstName = "Shekh", LastName = "Ali" };
+		Person person2 = new Person { FirstName = "Roman", LastName = "Chug" };
+		Console.WriteLine($"Person 1: {person1.FirstName} {person1.LastName}");
+		Console.WriteLine($"Person 2: {person2.FirstName} {person2.LastName}");
+		Output:
 
-// Usage
-Person person1 = new Person { FirstName = "Shekh", LastName = "Ali" };
-Person person2 = new Person { FirstName = "Roman", LastName = "Chug" };
-Console.WriteLine($"Person 1: {person1.FirstName} {person1.LastName}");
-Console.WriteLine($"Person 2: {person2.FirstName} {person2.LastName}");
-Output:
+		Person 1: Shekh Ali
+		Person 2: Roman Chug
 
-Person 1: Shekh Ali
-Person 2: Roman Chug
+	In the above code example, we use the “record” keyword to create a structure similar to a class called “Person.” It has properties for the 
+	person’s first name and last name. It is important to mention that we use the init keyword for these properties, which means they can only 
+	be set when the object is first created.
 
-In the above code example, we use the “record” keyword to create a structure similar to a class called “Person.” It has properties for the 
-person’s first name and last name. It is important to mention that we use the init keyword for these properties, which means they can only 
-be set when the object is first created.
-
-This highlights the fact that records are immutable, meaning their values cannot be changed once they are set. We can create objects 
-of this record type and access their properties in the same way we do with classes.
-
-
-
-------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------
-
+	This highlights the fact that records are immutable, meaning their values cannot be changed once they are set. We can create objects 
+	of this record type and access their properties in the same way we do with classes.
 
 ------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------
-
 
 Can we call static from non static methods? Yes we can
 
@@ -1198,83 +1192,83 @@ array to list
 
 Task.Delay() and Thread.Sleep() 
 
-- Task is a wrapper over thread.
+	- Task is a wrapper over thread.
 
-Both are used to introduce a delay or pause in the execution of code, but they have different use cases and behaviors, 
-especially in asynchronous programming scenarios.
+	Both are used to introduce a delay or pause in the execution of code, but they have different use cases and behaviors, 
+	especially in asynchronous programming scenarios.
 
-Task.Delay():
+	Task.Delay():
 
-	Asynchronous: Task.Delay() is an asynchronous operation that is commonly used in asynchronous programming. 
-	It returns a Task that represents a delay.
+		Asynchronous: Task.Delay() is an asynchronous operation that is commonly used in asynchronous programming. 
+		It returns a Task that represents a delay.
 	
-	Non-Blocking: When you use Task.Delay() in an asynchronous method, it allows the calling thread to continue executing other 
-	tasks while waiting for the delay to complete. This is especially useful in scenarios where you want to avoid 
-	blocking the main (UI) thread or consuming server resources unnecessarily.
+		Non-Blocking: When you use Task.Delay() in an asynchronous method, it allows the calling thread to continue executing other 
+		tasks while waiting for the delay to complete. This is especially useful in scenarios where you want to avoid 
+		blocking the main (UI) thread or consuming server resources unnecessarily.
 
-	Cancellation Support: Task.Delay() supports cancellation through a CancellationToken. You can cancel the delay if needed.
-	Recommended for Asynchronous Code: It's generally recommended for asynchronous code, such as in async/await patterns.
+		Cancellation Support: Task.Delay() supports cancellation through a CancellationToken. You can cancel the delay if needed.
+		Recommended for Asynchronous Code: It's generally recommended for asynchronous code, such as in async/await patterns.
 
-	Example in C#:
+		Example in C#:
 
-		async Task MyAsyncMethod()
+			async Task MyAsyncMethod()
+			{
+				// Do something before the delay
+				await Task.Delay(1000); // Delay for 1 second (non-blocking)
+				// Do something after the delay
+			}
+	------------------------
+
+	Thread.Sleep():
+
+		Synchronous: Thread.Sleep() is a synchronous method that causes the current thread to pause for a specified amount of time.
+		It blocks the execution of the current thread.
+	
+		Blocking: While Thread.Sleep() is useful for introducing delays, it's important to note that it blocks the thread 
+		on which it is called. This can lead to unresponsiveness in GUI applications and inefficient resource utilization 
+		in server applications.
+	
+		No Cancellation: Thread.Sleep() does not support cancellation. Once it starts sleeping, it will continue for the specified duration.
+		Historically Used: Thread.Sleep() has been used in traditional multi-threaded applications but is less suitable for modern 
+		asynchronous and non-blocking programming.
+
+		Example in C#:
+
+		void MyMethod()
 		{
-			// Do something before the delay
-			await Task.Delay(1000); // Delay for 1 second (non-blocking)
-			// Do something after the delay
+			// Do something before the sleep
+			Thread.Sleep(1000); // Sleep for 1 second (blocking)
+			// Do something after the sleep
 		}
-------------------------
 
-Thread.Sleep():
+		In summary, the choice between Task.Delay() and Thread.Sleep() depends on your specific use case:
 
-	Synchronous: Thread.Sleep() is a synchronous method that causes the current thread to pause for a specified amount of time.
-	It blocks the execution of the current thread.
+		Use Task.Delay() in asynchronous code when you want to introduce a non-blocking delay, especially in async/await scenarios.
 	
-	Blocking: While Thread.Sleep() is useful for introducing delays, it's important to note that it blocks the thread 
-	on which it is called. This can lead to unresponsiveness in GUI applications and inefficient resource utilization 
-	in server applications.
-	
-	No Cancellation: Thread.Sleep() does not support cancellation. Once it starts sleeping, it will continue for the specified duration.
-	Historically Used: Thread.Sleep() has been used in traditional multi-threaded applications but is less suitable for modern 
-	asynchronous and non-blocking programming.
-
-	Example in C#:
-
-	void MyMethod()
-	{
-		// Do something before the sleep
-		Thread.Sleep(1000); // Sleep for 1 second (blocking)
-		// Do something after the sleep
-	}
-
-	In summary, the choice between Task.Delay() and Thread.Sleep() depends on your specific use case:
-
-	Use Task.Delay() in asynchronous code when you want to introduce a non-blocking delay, especially in async/await scenarios.
-	
-	Use Thread.Sleep() when you need a synchronous delay, but be cautious about using it in situations where blocking the current 
-	thread may have negative impacts on responsiveness or resource utilization.
+		Use Thread.Sleep() when you need a synchronous delay, but be cautious about using it in situations where blocking the current 
+		thread may have negative impacts on responsiveness or resource utilization.
 
 ---------------------------------------------------------------------------------
 
 Task.WaitAll() vs Task.WhenAll() [Ref : https://www.c-sharpcorner.com/article/understanding-task-waitall-and-task-whenall-in-c-sharp/]
 
-Tasks in C# represent asynchronous operations. They provide a way to perform work on a separate thread and then continue 
-the execution once the task is completed. Tasks can be parallelized, making them ideal for scenarios where multiple
-operations can occur simultaneously, enhancing the overall performance of the application.
+	Tasks in C# represent asynchronous operations. They provide a way to perform work on a separate thread and then continue 
+	the execution once the task is completed. Tasks can be parallelized, making them ideal for scenarios where multiple
+	operations can occur simultaneously, enhancing the overall performance of the application.
 
-	*Task.WaitAll: Waiting for All Tasks to Complete (i.e waiting for group of tasks as a group response)
-	(Thread stops till all the tasks gets completed and task reference is returned)
+		a. Task.WaitAll: Waiting for All Tasks to Complete (i.e waiting for group of tasks as a group response)
+		(Thread stops till all the tasks gets completed and task reference is returned)
 	
-	Task.WaitAll is a synchronous method that blocks the current thread until all the provided tasks have completed execution.
-	It's useful when you have multiple tasks that need to finish before proceeding further in your code. The method takes an 
-	array of tasks as a parameter and waits for all of them to finish before allowing the program to continue.
+		Task.WaitAll is a synchronous method that blocks the current thread until all the provided tasks have completed execution.
+		It's useful when you have multiple tasks that need to finish before proceeding further in your code. The method takes an 
+		array of tasks as a parameter and waits for all of them to finish before allowing the program to continue.
 
-	*Task.WhenAll: Awaiting All Tasks Concurrently (i.e waiting for individual tasks concurrently)
-	(Thread continues to work, once all the tasks (working in background) get completed the task reference is returned)
+		b. Task.WhenAll: Awaiting All Tasks Concurrently (i.e waiting for individual tasks concurrently)
+		(Thread continues to work, once all the tasks (working in background) get completed the task reference is returned)
 
-	Task.WhenAll is an asynchronous method that returns a task that completes when all the provided tasks have completed execution.
-	Unlike Task.WaitAll, it doesn't block the calling thread, allowing for a non-blocking and more responsive application.
-	It's especially useful in asynchronous environments such as UI applications.
+		Task.WhenAll is an asynchronous method that returns a task that completes when all the provided tasks have completed execution.
+		Unlike Task.WaitAll, it doesn't block the calling thread, allowing for a non-blocking and more responsive application.
+		It's especially useful in asynchronous environments such as UI applications.
 
 
 ---------------------------------------------------------------------------------
@@ -1309,6 +1303,7 @@ Brief of .net background process
 --------------------------------------------------------------------------------
 
 VERACODE (Security Vulnarability Testing)
+
 	Veracode is a widely used application security testing (AST) tool that provides various scanning and analysis capabilities to 
 	identify and mitigate security vulnerabilities in software applications. Veracode performs static analysis, dynamic analysis, 
 	and software composition analysis to assess the security of applications, including web applications, mobile apps, 
@@ -1333,6 +1328,7 @@ VERACODE (Security Vulnarability Testing)
 ---------------------------------------------------------------------------------
 
 SONARCUBE (Code Quality Review)
+
 	SonarQube, often referred to as SonarCube (although the correct name is SonarQube), is an open-source platform for continuous code
 	quality and static code analysis. It is widely used by software development teams to analyze and improve the quality of their codebase.
 	SonarQube provides a range of tools and features for code quality assessment, code review, and reporting.
@@ -1631,14 +1627,14 @@ Key components and concepts of IAM typically include:
 
 Throw Vs Throw ex Vs Throw New 
 
-throw : If we use "throw" statement, it preserve original error stack information. 
-In exception handling "throw" with empty parameter is also called re-throwing the last exception.
+	throw : If we use "throw" statement, it preserve original error stack information. 
+	In exception handling "throw" with empty parameter is also called re-throwing the last exception.
 
-throw ex : If we use "throw ex" statement, stack trace of exception will be replaced with a stack 
-trace starting at the re-throw point. It is used to intentionally hide stack trace information.
+	throw ex : If we use "throw ex" statement, stack trace of exception will be replaced with a stack 
+	trace starting at the re-throw point. It is used to intentionally hide stack trace information.
 
-throw new Exception(ex.Message); is even worse. It creates a brand new Exception instance, 
-losing the original stack trace of the exception.
+	throw new Exception(ex.Message); is even worse. It creates a brand new Exception instance, 
+	losing the original stack trace of the exception.
 
 -------------------------------------------------------------------------------------------------
 
