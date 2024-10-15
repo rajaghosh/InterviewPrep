@@ -48,37 +48,17 @@ Mongo DB
 
 -----------------------------------------------------------------------------------------
 
-SAGA pattern -
-https://www.c-sharpcorner.com/article/microservices-architecture-pattern-saga/
-
------------------------------------------------------------------------------------------
-
-Task.WaitAll Vs Task.WhenAll
-
-Task.WaitAll is a method that blocks the main thread until all tasks complete, whereas 
-Task.WhenAll is an asynchronous operation, enabling you to initiate multiple tasks without 
-blocking the main thread. Task.WhenAll returns a task that represents the collective 
-completion of those tasks. Each of these methods has its distinct use cases, so it’s 
-essential to choose the one that aligns with your specific requirements in your C# applications.
-
------------------------------------------------------------------------------------------
-
 CORS - CORS works at browser
 
 -----------------------------------------------------------------------------------------
 
 Cross Site Request Forgery (CSRF)
 
-Cross-Site Request Forgery (CSRF) is an attack that forces an end user to execute unwanted actions on a web application
-in which they’re currently authenticated. With a little help of social engineering (such as sending a link via email or chat),
-an attacker may trick the users of a web application into executing actions of the attacker’s choosing. 
-If the victim is a normal user, a successful CSRF attack can force the user to perform state changing requests 
-like transferring funds, changing their email address, and so forth. If the victim is an administrative account, 
-CSRF can compromise the entire web application.
-
------------------------------------------------------------------------------------------
-
-https://www.linkedin.com/pulse/azure-logic-apps-vs-functions-aman-verma/
+    Cross-Site Request Forgery (CSRF) is an attack that forces an end user to execute unwanted actions on a web application in which they’re 
+    currently authenticated. With a little help of social engineering (such as sending a link via email or chat), an attacker may trick the 
+    users of a web application into executing actions of the attacker’s choosing. If the victim is a normal user, a successful CSRF attack can 
+    force the user to perform state changing requests like transferring funds, changing their email address, and so forth. If the victim is an
+    administrative account, CSRF can compromise the entire web application.
 
 -----------------------------------------------------------------------------------------
 
@@ -148,7 +128,6 @@ When a middleware short-circuits, it's called a terminal middleware because it p
 Advantage of SPA.
 
 Single page application as faster
-
 
 -----------------------------------------------------------------------------------------
 
@@ -468,6 +447,10 @@ What is Kubernetes? Why it is called K8S?
     3. Managed K8s service are provided by cloud provider like Azure
 
 
+
+---------------------------------------------------------------------------------------------------
+
+Deployment In K8s
 
 ---------------------------------------------------------------------------------------------------
 

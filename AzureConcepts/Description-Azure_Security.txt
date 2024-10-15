@@ -358,6 +358,25 @@ Hybrid Connectivity:
 	private connection between Azure and your on-premises network.
 
 
+----------------------------------------------------------------------------------------------------
+
+Azure Virtual Network (VNET) Service Endpoint
+
+	The service enpoint allows secure and direct connectivity to Azure Services over an optimized route through the 
+	Azure backbone network.
+
+	Customer A VNET
+	|
+	|	|
+	|	|
+	|	|
+	|	|
+	|
+
+	Benefits -
+	a. Enhanced Security
+	b. Improved Performance
+	c. Cost Savings
 
 
 

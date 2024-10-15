@@ -512,6 +512,22 @@ Use Case - Data Operation
 
 -------------------------------------------------------------------
 
+Use Case - Read Secrets from KeyVault
+
+	Step 1. Use "request trigger" Connector.
+		-> Trigger - When http request is received.
+		-> Method - POST
+
+	Step 2. Add "KeyVault" connector. 
+		-> Action - "Get Secret" from the Key Vault. Add the details.
+
+	Step 3. Add "Compose" connector.
+		-> Parameter - use "Secret Value" to get the secret value 
+	
+	Step 4. Add "Response" connector. (Will be used to send response)
+
+---------------------------------------------------------------
+
 What is Azure Logic App Integration Account?
 
 	Its a way to integrate enterprise apps to the Logic App. This helps to manage B2B artifacts.
@@ -543,3 +559,5 @@ Artifacts -
 	-> Maps - If there is a map which have the information for the getting the source data and send to output. Ex- It can be xhlt map.
 
 -----------------------------------------------------------------
+
+

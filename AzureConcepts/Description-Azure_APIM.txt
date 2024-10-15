@@ -272,8 +272,33 @@ Developer Portal
 
 -----------------------------------------------------------------------------------------------------------
 
+Best Practice - It is recommended to configure the APIM with the internal subnet (not directly exposed).
+Typically it would be 
 
+APPLICATION GATEWAY -> Gateway Subnet -> APIM Subnet -> API Subnet -> Data Subnet
 
+-----------------------------------------------------------------------------------------------------------
+
+POLICIES
+
+	Typically the request will come in and there will be policies
+	The policies can be updated in the XML format. The policies can be:
+		i.	Inbound
+		ii.	Backend
+		iii.Outbount
+		iv.	On-Error
+
+	Policies can be at multiple levels:
+		a. Global
+		b. Product
+		c. Operations
+		d. API
+
+	When we want to add a policy there are already pre-defined template of the policy.
+
+-----------------------------------------------------------------------------------------------------------
+
+Azure API Management Security from AAD
 
 
 

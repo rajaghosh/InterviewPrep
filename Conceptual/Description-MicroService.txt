@@ -216,8 +216,21 @@ Microservice Implementation Pattern - SAGA Pattern
 			4.Complex due to manage state tasks.
 
 -----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 
+Microservice Design Principles
 
+	1. Independent/ Autonomous
+	2. Resilient/ Fault Tolerent/ Design For Failure
+	3. Observable
+	4. Discoverable
+	5. Domain Driven
+	6. Decentralization
+	7. High Cohesion
+	8. Single Source of Truth
+
+	1. Independent/ Autonomous - Each of the microservices must be independent of each other.
+		- Team must be autonoumous
 
 
 

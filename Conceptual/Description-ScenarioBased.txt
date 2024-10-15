@@ -1,0 +1,23 @@
+﻿
+Q. The API is supposed to handle 100000 request. How you can handle the situation? [Huge User Traffic Scenario]
+
+	Ans - Testing for API performance in the lowers.
+	We need to run API performance test. Primarily the following tests:
+	a. Load Test - Helpful during scenarios of constant traffic.
+	b. Stress Test - Helpful during scenarios of constant traffic, with slow increase in requests.
+	c. Spike Test - Helpful during scenarios where suddenly the traffic increases.
+	d. Soak Test - Helpful during scenarios of memory leak, which is causing slowness in the application. 
+	Here we need to run the API for certain period of time to record stable response time.
+
+
+
+
+
+
+
+
+
+
+
+
+
