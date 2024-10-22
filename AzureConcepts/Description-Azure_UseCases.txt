@@ -1,0 +1,154 @@
+﻿Topics to work on
+- Microservice architechture
+- Microservice implementation
+- Durable functions
+- System Design
+- Architechture Design and Diagram
+- Azure functions flaw/ Logic Apps flaw
+
+- JWT token difference between secret and salt
+- GRPC
+- Webhook
+
+Use Case of Logic Apps -
+
+	a. Project: Streamlining Order Fulfillment with Azure Logic Apps
+
+		Problem: A retail company was facing challenges in managing the order fulfillment process, which involved manual steps like 
+		order confirmation, inventory checks, shipping label generation, and status updates. This process was time-consuming and 
+		prone to errors.
+
+		Solution: We implemented an automated order fulfillment workflow using Azure Logic Apps. The workflow integrated with various
+		systems, including the company's e-commerce platform, inventory management system, and shipping carrier APIs.
+
+		Key steps in the workflow:
+
+			- Order Trigger: When a new order is placed on the e-commerce platform, an event is triggered.
+			- Inventory Check: The Logic App checks the inventory system to verify the availability of the ordered items.
+			- Shipping Label Generation: If the items are available, the app generates shipping labels using the shipping carrier's API.
+			- Status Update: The order status is updated in the e-commerce platform and inventory system.
+			- Notifications: Notifications are sent to the customer and relevant internal teams about the order status.
+	
+		Benefits:
+			- Automation: The manual steps were automated, reducing the risk of errors and improving efficiency.
+			- Real-time Updates: Customers received real-time updates on their order status, enhancing the overall customer experience.
+			- Integration: The Logic App seamlessly integrated with multiple systems, ensuring a smooth flow of data.
+			- Scalability: The workflow could easily scale to handle increased order volumes.
+			- Cost-effectiveness: The automation reduced the need for manual labor, resulting in cost savings.
+			By using Azure Logic Apps, we were able to streamline the order fulfillment process, improve customer satisfaction, and increase
+			operational efficiency for the retail company.
+
+	b. Project: Real-time IoT Data Processing and Alerts
+
+		Problem: A manufacturing company needed to monitor and analyze data from sensors installed on their machines in real-time 
+		to identify potential issues and prevent downtime.
+
+		Solution: We implemented an Azure Logic Apps-based solution to process and analyze sensor data. The workflow involved 
+		the following steps:
+
+			- Data Ingestion: IoT devices sent sensor data to an Azure IoT Hub.
+			- Data Processing: Azure Logic Apps triggered a function to process the incoming data, perform calculations,
+			and identify anomalies.
+			- Alert Generation: If anomalies were detected, the Logic App would send alerts to relevant personnel via email, 
+			SMS, or push notifications.
+			- Historical Data Storage: Processed data was stored in an Azure database for further analysis and reporting.
+		
+		Benefits:
+			- Real-time Monitoring: Sensor data was processed in real-time, allowing for early detection of issues.
+			- Predictive Maintenance: By analyzing historical data and identifying trends, we could predict potential equipment 
+			failures and schedule preventive maintenance.
+			- Improved Efficiency: Early detection of issues helped to minimize downtime and improve overall production efficiency.
+			- Cost Savings: Predictive maintenance helped to reduce unplanned downtime and associated costs.
+			- Scalability: The solution could easily scale to accommodate additional sensors and increased data volumes.
+			By using Azure Logic Apps, we were able to create a robust IoT solution that provided real-time monitoring, predictive 
+			analytics, and alerts, helping the manufacturing company to improve operational efficiency and reduce costs.
+
+	c. Project: B2B Data Exchange with Azure Integration Account and Logic Apps
+		
+		Problem: A manufacturing company needed to securely exchange business data with their suppliers and customers in a standardized 
+		format. The existing manual processes were time-consuming and prone to errors.
+
+		Solution: We implemented a solution using Azure Integration Account and Logic Apps to automate and streamline the B2B data
+		exchange process.
+
+		Key steps in the solution:
+			- Integration Account Setup: An Azure Integration Account was created to manage the B2B data exchange artifacts, such as
+			schemas, maps, and agreements.
+			- Schema Definition: The schemas for the data to be exchanged were defined in the Integration Account, ensuring consistency 
+			and interoperability.
+			- Map Creation: Maps were created to define the transformation rules between different data formats (e.g., EDI to XML).
+			- Agreement Creation: B2B agreements were established with trading partners, specifying the communication channels, data 
+			formats, and security protocols.
+			- Logic App Workflow: Logic Apps were created to orchestrate the data exchange process. They would receive incoming data, 
+			validate it against the defined schemas, transform it using the maps, and send it to the appropriate trading partner.
+		
+		Benefits:
+			- Standardization: The use of Integration Account ensured that data was exchanged in a standardized format, reducing errors 
+			and improving data quality.
+			- Automation: The Logic Apps automated the data exchange process, reducing manual effort and increasing efficiency.
+			- Security: The Integration Account provided built-in security features, such as encryption and authentication, to protect
+			sensitive data.
+			- Scalability: The solution could easily scale to handle increased data volumes and new trading partners.
+			- Flexibility: The Integration Account and Logic Apps provided a flexible framework for managing B2B data exchange, allowing
+			for easy customization and adaptation to changing requirements.
+			By using Azure Integration Account and Logic Apps, we were able to create a robust and scalable solution for B2B data exchange,
+			improving efficiency, reducing errors, and ensuring compliance with industry standards.
+
+
+Use case of Azure Function Apps
+
+	Project: Real-time Image Processing with Azure Function Apps
+
+		Problem: A photography platform needed to process images uploaded by users in real-time, applying various enhancements
+		like resizing, cropping, and adding filters.
+
+		Solution: We implemented an Azure Function App to handle image processing. The function was triggered by an Azure Event
+		Grid event when a new image was uploaded to an Azure Blob storage container.
+
+		Key steps in the function:
+
+		Image Retrieval: The function retrieved the uploaded image from the Blob storage container.
+		Image Processing: The function applied the desired image processing operations using libraries like OpenCV or Pillow.
+		Image Storage: The processed image was saved back to the Blob storage container in a different folder.
+		Metadata Update: Metadata about the processed image, such as dimensions and applied filters, was stored in a database.
+		Benefits:
+
+		Real-time Processing: Images were processed immediately after upload, providing a fast and seamless user experience.
+		Scalability: The function app could easily scale to handle increased workloads during peak times.
+		Serverless Architecture: The serverless nature of Azure Functions eliminated the need for managing infrastructure, reducing costs and complexity.
+		Integration with Azure Services: The function app seamlessly integrated with Azure Blob storage and Event Grid, providing a complete solution.
+		Customizable: The function could be easily customized to add new image processing features or integrate with other services.
+		By using Azure Function Apps, we were able to create a scalable and efficient image processing solution that provided a great user experience for the photography platform.
+
+
+Used Project
+
+	a. We have python scripts in Azure VM. The python script will feed on data and has to be triggered.
+	b. We have to trigger the python script using http trigger using KQL based notification.
+		- The function app to communicate with VM we need the following steps -
+			- The function app has to be "Standard" type as we need to add the VNET (using VNET peering) of the VM.
+			- The function app should have correct "Tags" as per the business need. 
+			- The function app "managed identity" has to be added to allowed list of services in the Azure VM with 
+			"Contributor" RBAC access role.
+	c. Now at the Azure AppInsights we would create Alert Rule and Action Groups. 
+		- Alert Rule - A metric can be resource utilization or another can be based on data from AppInsights. 
+		Here we need to write KQL to fetch data. Once the data is available we need to check the granuility i.e range of 
+		data on which the Alert Rule will run + the check frequency.
+		Ex - Granuility = 24 hours and Frequency of Evaluation = 5 mins. This will check the data in the range of 24 hours 
+		with the check logic checking every 5 mins.
+		So we selected a time range and updated the the KQL to return true only for that time range. 
+		Alert rule will trigger as per its frequency but will alerts will be triggered as per the KQL condition as we want
+		condition(KQL == true && AlertRule == true).
+		- Action Group - Here we added all the emails + azure function notification.
+		We also communicated with the Service Now Poc to raise ticket if any failure occurs. We recieved a DL and added to 
+		the action group.
+	d. So as Action Group azure function notification got triggered out FunctionApp will send a Powershell command to the VM 
+		to trigger a .bat file which will trigger the python script. This is mandatory to send only command else any other heavy 
+		data send may cause timeout.
+
+
+
+
+
+
+

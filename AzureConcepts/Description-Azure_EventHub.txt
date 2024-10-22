@@ -1,0 +1,193 @@
+﻿
+
+Azure Event Hub - PAAS Event Stream Broker
+Direct competition is Apache Kafka API, but far better performance and lower cost.
+Fully managed by Azure.
+AMQP 1.0 standard complaint while Apache uses wire compatibility
+Cross Platform support.
+Industry leading reliability and availability
+Fast
+
+Diff between Apache Kafka vs Azure Event Hub
+
+User Model - Both same. Partitioned event-stream broker with high-availability replication.
+Architechture -
+	a. Event Hub 
+			- Multi-tenant
+			- 3-tier gateway/broker/storage cluster model, with tenant-isolation all tier independently scalable.
+	b. Apache kafka 
+			- Single-tenant
+			- Monolith. Need to increase broker instance in a cluster to scale any dimension.
+Cluster Manager 
+	a. Event Hub - Azure Service Fabric
+	b. Apache Kafka - Apache Zookeeper, Krift
+
+
+SKU and Pricing - Azure Event Hub
+	1. Standard - Shared Resource Model
+		a. Blended capacity and consumption based pricing
+		b. Upto 40MB/s ingress.
+		c. Throughput Units - 1TU = min(1000msg/s , 1MB/s in) / min(2000msg/s , 2MB/s out)
+		d. Includes Capture
+	2. Premium - Isolated Resource Model
+		a. Capacity based pricing model. 
+		b. Upto 120MB/s ingress.
+		c. Premium Units - 1PU = 5-10MB/s 
+		d. Includes Capture
+	3. Dedicated - Dedicated Resource Model
+		a. Capacity based pricing model.
+		b. Full Isolated cluster
+		c. Beyond 120MB/s ingress (>4GB/s in Prod)
+		d. Capacity Unit - 1CU
+
+-------------------------------------------------------------------------------------------------
+
+Characteristics 
+	- Big data Streaming service
+	- Scalable upto terrabyte of data and millions of events per seconds
+	- Reliable with zero data loss
+	- Supports multiple protocols and SDK
+
+Scenario When to use
+	- Anomaly/fraud detection
+	- Application logging
+	- Analytics pipeline, such as click stream
+	- Live dashboarding
+	- Archiving data
+	- Transaction Processing
+	- User/device telemetry processing
+	
+Basic concepts (From Producer Side)
+	1. Event producers - Send events via AMQP (Advanced Message Queuing Protocol) , HTTP or Apache Kafka
+		- Events are sent to event hub. Each event hub is partitioned upto 1 to 32 partition.
+		When events are sent from the producers event hub partitions will capture the events unequally mostly. That is if there are 8 partitions 
+		and we have 16 events we can have a single partition may hold 5 events and other partitions can have less events. So each partitions will
+		grow at different rate.
+	2. Partition Key - Each partitions are ordered from oldest to newest like a QUEUE. But the orders are not maintained across partitions.
+		 So to process multiple events in order we need a PARTITION KEY. The Parition Key will ensure the events attached to the partition key
+		 lands in the same partition.
+	3. Namespaces - Generally an event hub will represent an unique stream of data. So if we need to process N unique data stream
+		we need N event hubs.
+		So a Namespace is a logical collections of event hubs. So under a namespace event hubs will-
+			a. Scope containers
+			b. Share properties
+
+
+
+-------------------------------------------------------------------------------------------------
+
+To create 
+	-> Azure Portal -> Event Hubs -> 
+	-> Create Namespace -> Select details like Pricing Tier, Throughput unit (between 1 and 20)
+	And Ok. Our Event Hub Namespace will be created.
+
+	On creation we have few options.
+	1. Shared access policies - To share the data with SAS token.
+	2. Scale - Here we also have option for Auto-Inflate (i.e auto-scale).
+	3. Entities - This is the actual Event-Hubs under the namespace.
+
+	Now to create a new Event-Hub
+	1. Event Hub -> Create new Event Hub
+		- Name
+		- Partition Count - Partition is dependent on the processing power
+		- Message retention - How manyd days the message will be retained
+		- Capture
+
+	Note - When we create an EventHub Namespace we register a FQDN (<namespace_name>.servicebus.windows.net)
+-------------------------------------------------------------------------------------------------
+
+To send event from .net project
+	We will create a dot net core project.
+	We need the following info:
+		- Connection String
+		- EventHubName
+
+		Code -
+
+		private const string connStr = <>;	//We have to create a SAS token with send claim then generate the connection string
+		private const string eventHubName = <>;
+		 
+		await using (var producerClient = new EventHubClient(connStr, eventHubName))
+		{
+			using EventDataBatch eventBatch = await producerClient.CreateBatchAsync();
+
+			eventBatch.TryAdd(new EventData(Encoding.UTF8.GetBytes("FirstEvent")));
+			eventBatch.TryAdd(new EventData(Encoding.UTF8.GetBytes("SecondEvent")));
+			eventBatch.TryAdd(new EventData(Encoding.UTF8.GetBytes("ThirdEvent")));
+
+			await producerClient.SendAsync(eventBatch);
+			Console.WriteLine("A batch of 3 events has been published");
+		}
+
+-------------------------------------------------------------------------------------------------
+
+Basic Concept (From Consumer Side)
+	1. Consumer Group - Is a unique view on Event Hub data. So typically each consumer group represents a seperate application.
+	2. Consumers - Are processes that read event data (AMQP 1.0). They are part of consumer group.
+	3. Offset - Position of the event in a partition.
+	4. CheckPointing - Is process of saving Offset on Client Side. 
+
+-------------------------------------------------------------------------------------------------
+
+To receive event from .net project
+	We will be using a .net code.
+	We will read the events and store it to a blob storage. The container we use will have check points.
+	Code -
+
+		private const string connectionString = "<event_hub_connection_string>"; //We have to create a SAS token with listen claim then generate the connection string
+        private const string eventHubName = "<event_hub_name>";
+        private const string blobStorageConnectionString = "<blob_connection_string>";
+        private const string blobContainerName = "<container_name>";
+        
+		static async Task Main()
+        {
+            string consumerGroup = EventHubConsumerClient.DefaultConsumerGroupName;
+
+            // Create a blob container client that the event processor will use 
+            BlobContainerClient storageClient = new BlobContainerClient(blobStorageConnectionString, blobContainerName);
+
+            // Create an event processor client to process events in the event hub
+            EventProcessorClient processor = new EventProcessorClient(storageClient, consumerGroup, connectionString, eventHubName);
+
+            // Register handlers for processing events and handling errors
+            processor.ProcessEventAsync += ProcessEventHandler;
+            processor.ProcessErrorAsync += ProcessErrorHandler;
+
+            // Start the processing
+            await processor.StartProcessingAsync();
+
+            // Wait for 10 seconds for the events to be processed
+            await Task.Delay(TimeSpan.FromSeconds(10));
+
+            // Stop the processing
+            await processor.StopProcessingAsync();
+        }
+        static async Task ProcessEventHandler(ProcessEventArgs eventArgs)
+        {
+            // Write the body of the event to the console window
+            Console.WriteLine("\tRecevied event: {0}", Encoding.UTF8.GetString(eventArgs.Data.Body.ToArray()));
+
+            // Update checkpoint in the blob storage so that the app receives only new events the next time it's run
+            await eventArgs.UpdateCheckpointAsync(eventArgs.CancellationToken);
+        }
+
+        static Task ProcessErrorHandler(ProcessErrorEventArgs eventArgs)
+        {
+            // Write details about the error to the console window
+            Console.WriteLine($"\tPartition '{ eventArgs.PartitionId}': an unhandled exception was encountered. This was not expected to happen.");
+            Console.WriteLine(eventArgs.Exception.Message);
+            return Task.CompletedTask;
+        } 
+
+
+-------------------------------------------------------------------------------------------------
+
+Additional feature -
+	1. Event Capture - If we cant process the event within a day, and want to keep it for several days. It is found on the LHS blade.
+		It has the time interval of capture and size of the capture.
+		It also has filter not to select empty event
+		Select container option is available
+
+
+
+
