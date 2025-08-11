@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'NetCoreAnalysis' " />
   <ItemGroup>
     <None Remove="Description-NetCoreAdditional.txt" />
   </ItemGroup>

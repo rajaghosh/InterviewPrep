@@ -1,0 +1,436 @@
+Progressive Web Apps (PWAs)
+
+This video provides an in-depth summary of Progressive Web Apps (PWAs), which combine the best 
+features of both web and mobile applications. The video explains their core features, how they work, 
+their advantages, how to build them, and real-world examples.
+
+What are PWAs?
+    PWAs are a type of web application that offers an app-like experience directly through a browser. 
+    They are built using standard web technologies like HTML, CSS, and JavaScript. Popular examples 
+    of PWAs include Spotify, Telegram, and Pinterest.
+
+Core Features
+    1. Service Workers: These background scripts enable offline functionality by caching resources.
+    2. HTTPS: Ensures a secure connection with encrypted data.
+    3. Push Notifications: Re-engage users with updates and reminders.
+    4. Web App Manifest: A JSON file that defines how the PWA behaves when installed on a device, 
+    including its name and icon.
+    5. Application Shell Architecture: Separates the app's user interface from its dynamic content 
+    to provide faster loading times.
+
+How They Work
+    When a user interacts with a PWA, a service worker intercepts the request. It then decides 
+    whether to fetch data from the server (if online) or from its offline cache (if offline). 
+    This process ensures a smooth user experience regardless of the user's internet connectivity.
+
+Advantages of PWAs
+    PWAs are fast, reliable, and provide a native app-like feel without requiring a download from
+    an app store. They reduce development costs by working across all devices and are highly 
+    adaptive to different screen sizes. Additionally, they use less data and offer seamless offline 
+    access.
+
+Steps to create a PWA
+    1. Plan a PWA with functionality
+    2. Build front-end
+    3. Implement service worker
+    4. Set Up HTTPS
+    5. Add a web app Manifest ( a json file containing app meta data)
+    6. Testing of Web App.
+    7. Optimize the Web App.
+    8. Deployment
+    9. Register for push notification (optional).
+    10.Promote and monitor the PWA.
+
+
+Real-World Examples
+    Companies that have successfully implemented PWAs include OLX, Spotify, MakeMyTrip, Starbucks, 
+    Twitter, Flipkart, Pinterest, Forbes, Alibaba.com, and Uber. The video highlights two specific 
+    case studies:
+
+    Twitter Lite: After implementing a PWA, it saw a 70% reduction in data usage, a 65% increase in pages 
+        viewed per session, and improved load times.
+
+    Uber: Their PWA was made accessible on 2G networks, reducing load times to under 3 seconds and helping 
+        them gain millions of users in developing countries.
+
+    PWA helps a lot when the services are offline or no internet connections. Ex - Twitter was loading 
+    slowly, especially on 2G connections. After PWA it was loading faster even on slow networks with 
+    70% less data usage. 
+
+    PWA are more secured then Native App.
+    Build from one code base for all platforms.
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+Android questions - 
+
+This video is a mock interview for an experienced Android developer. The interviewer, Jose, and the interviewee, Akil, discuss a range of Android development concepts.
+
+Key Topics Covered
+Akil's Experience: Akil has 10 years of experience with Android and iOS development, 
+working on banking and social applications. He is familiar with architectural patterns 
+like MVVM, MVC, MVP, and clean architecture.
+
+Interesting Projects: Akil described a branchless banking app that used a lottery mechanism 
+for fund collection and disbursement. He addressed security challenges using end-to-end 
+encryption and SSL pinning.
+
+Memory Leaks: To avoid memory leaks, Akil suggests using getApplicationContext instead of 
+activity context, avoiding static variables for views, and unregistering broadcast receivers.
+
+Broadcast Receiver: This is an Android component that registers with the Android OS to handle 
+system-level events, such as when a phone restarts.
+
+AIDL (Android Interface Definition Language): This language is used for inter-process communication 
+in a multi-threaded environment. It allows a method in one application to be executed in another, 
+similar to remote procedure calls.
+
+ANR vs. Crashing: A crash is the termination of an application due to a coding error or exception. 
+An ANR (Application Not Responding) occurs when the UI freezes, and the user must manually force-close 
+the app.
+
+Looper, Handler, and MessageQueue: Akil explained these components as follows:
+
+    MessageQueue: A queue of tasks.
+    Handler: The component that enqueues and executes tasks.
+    Looper: A worker that keeps the thread alive and sends messages to the handler.
+    Android NDK (Native Development Kit): The NDK is used for writing performance-critical 
+    and secure code in C or C++, which communicates with Java using JNI (Java Native Interface).
+    SQLite Database: Android uses SQLite, a serverless and lightweight database that performs all
+     transactions locally on the device.
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+HEADLESS ARCHITECHTURE
+
+Headless architecture is a software design approach where the frontend (the user interface) is completely separated from the backend 
+(where data storage, business logic, and content management occur)[1][2][3][4][5][6][7]. The connection between these layers is handled 
+via APIs, allowing each to operate and evolve independently.
+
+In practice, a **headless system** consists of:
+- A backend (such as a headless CMS or other services) that manages and stores data/content, providing access only through APIs.
+- A frontend that consumes this data and presents it to users, using any technology or framework desired (such as React, Vue, or mobile apps)[2][3][4][6].
+
+**Key benefits of headless architecture:**
+- **Flexibility:** Developers can use any frontend technology and update user interfaces without backend changes[2][6][7].
+- **Scalability:** Independent layers can be updated, scaled, and maintained separately, improving agility and reliability[3][4][7].
+- **Omnichannel delivery:** The same backend can serve content to multiple frontends (e.g., website, mobile app, IoT devices), reducing duplication
+ and centralizing content management[2][3][7].
+- **API-centric integration:** Easy to integrate with third-party tools and services for payments, search, analytics, etc., via APIs[3][4][5].
+
+**In summary:** Headless architecture decouples the "head" (UI) from the "body" (backend logic/content), enabling modular development, 
+rapid deployment, and more customizable digital experiences[2][3][4].
+
+Sources
+[1] What is a Headless Architecture? Definition, Examples, & More https://prismic.io/glossary/headless-architecture
+[2] How Headless Architecture Benefits Websites https://strapi.io/blog/headless-architecture
+[3] Headless Architecture: Benefits, Best Practices, Challenges, and ... https://crystallize.com/blog/headless-architecture
+[4] Headless & Composable Architecture Guide - BetterCommerce https://www.bettercommerce.io/blog/headless-architecture-composable-architecture
+[5] Headless Architecture 101: What You Need to Know - ButterCMS https://buttercms.com/blog/understanding-headless-architecture/
+[6] What is a headless architecture? Pros & cons | Hygraph https://hygraph.com/blog/headless-architecture
+[7] Headless architecture: Seven things to know - Contentful https://www.contentful.com/blog/headless-architecture-seven-things-to-know/
+[8] Headless Architecture: What is it? | Alokai https://alokai.com/blog/headless-architecture
+[9] Headless CMS explained in 5 minutes - Strapi https://strapi.io/what-is-headless-cms
+
+This video explains the differences between headless and decoupled architectures, their respective advantages and disadvantages, and introduces 
+Webnexs as a platform that supports both.
+
+Headless Architecture
+In a headless architecture, the front end is completely separate from the back end. The back end, which could be a CMS or an e-commerce platform, 
+only provides data and functionality through an API.
+
+Advantages:
+    Flexibility: You can deliver content to various channels, such as websites, mobile apps, or smartwatches, from a single back-end source.
+    Performance and Scalability: The front and back ends can be independently optimized and scaled to handle traffic and performance demands.
+    User Experience: This architecture allows for a more personalized and tailored user experience.
+
+Disadvantages:
+    Complexity: The separation of components can increase complexity.
+    Specialized Skills: It often requires developers with specialized skills to manage both the front and back ends.
+    Development Effort: Building a headless system may require more development effort for initial setup and integrations.
+
+Decoupled Architecture
+A decoupled architecture is a variation of headless where the front end still has some access to specific back-end features, 
+such as authentication, but maintains its independence. This offers more control and customization than a fully headless setup.
+
+Advantages:
+    Technological Freedom: You have the flexibility to use different technologies for the front and back ends.
+    Easier Maintenance: Changes to one layer don't necessarily affect the other, making maintenance and updates easier.
+    Security and Scalability: It offers enhanced security by isolating sensitive data and allows for independent scaling.
+
+Disadvantages:
+    Complexity: Like headless, this architecture can be complex to manage.
+    Performance: There can be some performance overhead due to the communication between layers.
+    Cost: It might have higher development and maintenance costs compared to a traditional monolithic architecture.
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+Data pipeline
+
+Collect - Data from different sources - Data Source, Data Stream, Application
+                            |
+                            *
+Injest - Data load - Data loading in event queue
+                            |
+                            *
+Store - Data store in Data Lake, Date Warehouse, Data Lakehouse
+                            |
+                            *
+Compute - Data processing using batch processing and stream processing
+                            |
+                            *
+Output computation - Compute for BI tools, dashboards, Data Science, Stream Analytics 
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+A webhook is a mechanism that allows one application to automatically send real-time data or event notifications to another 
+application via HTTP when a specific event occurs[1][3][4][5]. Unlike traditional APIs, where the client has to repeatedly 
+check (poll) for new information, webhooks enable the server to "push" updates instantly to a predefined URL in the receiving system[2][4][7].
+
+Essential details:
+- **Webhooks rely on event-driven communication**—when an event (like a new order or updated record) happens in the source application, 
+it triggers a POST request to the webhook URL provided by the receiving system[3][4].
+- The payload of this request typically contains information about the event, formatted as JSON or XML[1][4].
+- **This mechanism eliminates the need for polling**, reducing server load and enabling faster, more efficient integrations between systems[1][3][7].
+- Webhooks are widely used for integrating web services, automating workflows, and building real-time applications, such as notifications, payment processing, or synchronization between tools[1][5][4].
+
+In summary: Webhooks provide a simple, effective way for different systems to communicate automatically when relevant events occur, using HTTP to instantly deliver information from one app to another[1][4][5].
+
+Sources
+[1] What is a webhook? - Red Hat https://www.redhat.com/en/topics/automation/what-is-a-webhook
+[2] What is a Webhooks Push-Styled API and how does it work? - Mulesoft https://www.mulesoft.com/api-university/what-webhooks-push-styled-api-and-how-does-it-work
+[3] What is a Webhook and How to Use it? - GeeksforGeeks https://www.geeksforgeeks.org/what-is-a-webhook-and-how-to-use-it/
+[4] What are webhooks? | Zapier https://zapier.com/blog/what-are-webhooks/
+[5] What is a webhook vs API - Ampcontrol https://www.ampcontrol.io/ev-terminology/what-is-a-webhook
+[6] Webhooks API - HubSpot Developers https://developers.hubspot.com/docs/guides/api/app-management/webhooks
+[7] About webhooks - GitHub Docs https://docs.github.com/en/webhooks/about-webhooks
+[8] What is a webhook? - Apideck https://www.apideck.com/blog/what-is-a-webhook
+[9] APIs vs Webhooks: What are their differences and how do you ... https://cyclr.com/blog/apis-vs-webhooks-what-are-their-differences-and-how-do-you-harness-their-power-with-cyclr
+[10] Webhook https://en.wikipedia.org/wiki/Webhook
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+A web socket is a network protocol that enables **real-time, full-duplex (two-way) communication** between a client (such as a web browser) and a server over a single, long-lived TCP connection[2][6][1]. Unlike HTTP, which is request-response and closes the connection after each exchange, web sockets establish a persistent connection where both client and server can continuously send and receive data at any time[4][1][2].
+
+Key points:
+- The connection starts with an HTTP handshake, then upgrades to the WebSocket protocol if both sides agree[4][3].
+- Data can flow instantly in either direction, which is essential for applications like **live chat, collaborative tools, online gaming, financial dashboards, or IoT device updates**[2][1][3].
+- By eliminating the need for frequent reconnections or polling, web sockets greatly reduce **latency** and **bandwidth**, making them more efficient for real-time use cases[2][1].
+- Web sockets are supported by all modern browsers and can transmit both text and binary data[2][6][4].
+
+In summary: Web sockets are ideal for scenarios where **instant, interactive, and constantly updated communication** between client and server is required—enabling rich, real-time web and mobile applications[2][1][4].
+
+Sources
+[1] WebSockets for Real-Time Distributed Systems - GeeksforGeeks https://www.geeksforgeeks.org/system-design/websockets-for-real-time-distributed-systems/
+[2] WebSockets explained: What they are and how they work - Ably https://ably.com/topic/websockets
+[3] What is WebSocket: Protocols, Benefits & Examples - Ramotion https://www.ramotion.com/blog/what-is-websocket/
+[4] HTTP vs WebSocket: Real-Time Web Communication Guide https://www.digitalsamba.com/blog/websocket-vs-http
+[5] WebSockets and Queues: Real-Time Web Communication https://www.alibabacloud.com/tech-news/a/message_queue/gugz0vwofw-websockets-and-queues-real-time-web-communication
+[6] The WebSocket API (WebSockets) - Web APIs - MDN Web Docs https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API
+[7] WebSocket - Wikipedia https://en.wikipedia.org/wiki/WebSocket
+[8] What is web socket and how it is different from the HTTP? https://www.geeksforgeeks.org/what-is-web-socket-and-how-it-is-different-from-the-http/
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+Webhooks and Web Sockets both enable real-time communication between applications, but they operate using fundamentally different models and are suited for different use cases.
+
+- **Webhooks** are best for *one-way, event-driven notifications* where a server (sender) sends an HTTP POST to a predefined URL only when a specific event occurs[1][2][3][5][6]. They are simple, easy to set up, and work well for integrating different services or automating workflows where real-time, ongoing interaction isn't needed.
+- **Web Sockets** establish a *persistent, two-way communication channel* between a client and server, allowing both to send and receive data continuously in real time over a single connection[1][2][3][4][5][6]. This makes them ideal for interactive, low-latency applications like live chat, gaming, or collaborative tools.
+
+|         | Webhook                         | Web Socket                  |
+|---------|---------------------------------|-----------------------------|
+| Type    | One-way (server to client)      | Two-way (client ↔ server)   |
+| Protocol| HTTP                            | ws:// or wss:// (WebSocket) |
+| Lifespan| Event-triggered, short-lived    | Persistent, open connection |
+| Use Case| Notifications, integrations     | Live chat, dashboards       |
+| Scalability | Easier, stateless           | Harder, many open connections|
+| Latency | Slight delay per event          | Instant, ultra-low latency  |
+
+- **When to use webhooks:**
+  - Infrequent or event-driven updates, server-to-server communication, automating tasks between disparate software platforms[1][3].
+- **When to use web sockets:**
+  - Continuous, interactive, and low-latency exchanges (e.g., live collaboration, streaming, chat, or online games)[1][2][5][6].
+
+In summary, use **webhooks** for simple, one-off event notifications, and **web sockets** for persistent, interactive communication needing real-time update flow.
+
+Sources
+[1] Webhook vs WebSocket: A Detailed Comparison for Developers https://www.videosdk.live/developer-hub/websocket/webhook-vs-websocket
+[2] When to Use Webhooks, WebSocket, Pub/Sub, and Polling https://hookdeck.com/webhooks/guides/when-to-use-webhooks
+[3] Webhook vs. Websocket - What's the difference? | Svix Resources https://www.svix.com/resources/faq/webhook-vs-websocket/
+[4] Real-time communication made easy: a guide to webhooks and ... https://www.zoom.com/en/blog/a-guide-to-webhooks-and-websockets/
+[5] Webhooks and WebSockets - DEV Community https://dev.to/ricardogesteves/webhooks-and-websockets-3p53
+[6] WebSockets vs. Webhooks: How do they differ? - Stream https://getstream.io/glossary/websockets-webhooks/
+[7] Differences between webhook and websocket? - Stack Overflow https://stackoverflow.com/questions/23172760/differences-between-webhook-and-websocket
+[8] WebSockets vs WebHooks - Budibase https://budibase.com/blog/app-building/websockets-vs-webhooks/
+[9] Webhook vs Websocket - YouTube https://www.youtube.com/watch?v=1hE-bLSCcDQ
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+EVENT DRIVEN ARCHITECHTURE
+
+Overview and Concept: EDA is about designing systems where components communicate via events asynchronously, 
+without tight coupling. It embodies the publish-subscribe pattern where event producers (publishers) send 
+events to an event broker (message broker or event bus), which then routes these events to various subscribers
+ (consumers) that independently react to them.
+
+	•	Use Cases: Ideal for real-time notifications (like social media likes), live chat, logging segregation,
+     caching, multiplayer games, and other scenarios needing asynchronous, scalable communication among 
+     microservices or system components.
+
+	•	High Decoupling: Publishers do not know subscribers, promoting independent deployment, scaling, and maintenance.
+     Event-driven systems allow faster processing and reduce direct dependencies between services.
+
+	•	Event Notification Pattern: Services publish specific events (e.g., payment success), which multiple independent
+     subscribers can consume simultaneously to update inventory, send confirmation emails, or trigger UI changes without 
+     blocking the main workflow.
+
+	•	Reliability and Failure Handling: Events are handled by message brokers like RabbitMQ. If processing fails,
+     events may remain in queues, be retried, or moved to dead letter queues for manual inspection, ensuring fault tolerance.
+
+	•	Event-Carried State Transfer: Events can carry not just the occurrence but also the state changes between old
+     and new state, enabling consumers to have full context for reactive processing.
+
+	•	Event Sourcing: Instead of overwriting data, EDA can capture all changes as a sequence of immutable events stored 
+    in an event store or log (e.g., Kafka). This supports auditing, temporal queries, and rollback, though it adds complexity.
+
+	•	CQRS (Command Query Responsibility Segregation): To maintain performance and scale, read and write databases are 
+    separated. Writes are event-sourced, and separate read databases (possibly materialized views) are updated asynchronously 
+    to provide efficient querying.
+
+	•	Pros and Cons: Benefits include high scalability, responsiveness, and flexibility. Challenges consist of increased 
+    complexity, eventual consistency issues, debugging difficulty in distributed systems, and storage overhead for event logs.
+
+	•	Technologies and Patterns: Discusses common tools like RabbitMQ for messaging and Kafka for streaming/event sourcing. 
+    Code samples illustrate basic producer-consumer setups with queues.
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+This video provides a beginner's guide to event-driven architecture, explaining its core concepts, use cases, 
+design patterns, and associated technologies.
+
+Core Concepts and Benefits
+    Event-driven architecture is based on the publish-subscribe pattern. A publisher service sends an event to an 
+    event broker, and one or more subscriber services consume these events without the publisher needing to know who 
+    they are. This approach offers several benefits, including high decoupling between services, increased speed because 
+    services don't have to wait for a response, and increased reliability because events are stored in a queue until 
+    they are processed.
+
+The video highlights use cases like:
+
+    Real-time notifications for apps such as Facebook or Instagram.
+    Live chat applications.
+    Logging to segregate different types of logs.
+    Caching and multiplayer games.
+
+Design Patterns
+    The video delves into four key design patterns for this architecture:
+
+    * Event Notification: In this common pattern, a service publishes a notification event to a broker after a 
+    critical action occurs (e.g., a payment is processed). Other services can then subscribe to this event and 
+    perform their tasks simultaneously, such as updating inventory or sending a confirmation email.
+
+    * Event Carried State Transfer: This pattern is similar to event notification, but the event message itself 
+    includes the full state change, providing all the necessary information to subscribers without them needing 
+    to query the original service.  
+
+    * Event Sourcing: Instead of overwriting data, this pattern saves every change or event as a new record in an
+     event store. This creates a complete, reliable audit log of all changes, making it possible to reconstruct 
+     the state of the application at any point in time.
+
+    * Command Query Responsibility Segregation (CQRS): This pattern separates the read and write operations of an 
+    application, using an event store for all write commands and a separate read database for queries. This allows
+    the databases to be scaled independently, but it introduces the challenge of eventual consistency, where the 
+    read database might not be immediately in sync with the write database.
+
+Features - 
+
+    * Decouples the services.
+    * Scalability.
+    * Realtime processing
+
+EDA fits well with microservice architechture.
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+CQRS - Command query Responsibility Segregation
+It is concerned with DB. The DB will have two domains -
+    1. For Command - This will be responsible for write operations.
+    2. For Query   - This will be responsible for read operations.
+NOTE - When new data comes for UPSERT to command part, that data will be pushed to a queue. This data will be updated to the Query part 
+asynchronously.
+This seperation helps to optimize read and write operations independently improving scalability.
+
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+EVENT BROKERS
+
+In event-driven architecture (EDA), an event broker acts as a central mediator that facilitates communication between 
+event producers and consumers. It's a crucial component for enabling loose coupling and real-time interactions between 
+different parts of a system. Essentially, it's the middleware that receives, routes, and delivers events, allowing 
+applications to react to changes in the system without needing to know about each other directly. 
+
+Here's a more detailed explanation:
+
+    Event Producers:
+        These are the applications or services that generate and publish events. For example, a payment service might 
+        publish an "order processed" event. 
+
+    Event Brokers:
+        These act as intermediaries, receiving events from producers and forwarding them to the appropriate consumers. They can be hardware appliances, software, or SaaS offerings. 
+
+    Event Consumers:
+        These are the applications or services that subscribe to specific events and react to them. For instance, a shipping service might subscribe to the "order processed" event and initiate the shipping process. 
+
+    Loose Coupling:
+By using an event broker, producers and consumers are decoupled, meaning they don't need to know about each other's existence or implementation details. This makes the system more flexible and easier to maintain. 
+
+Key functionalities of an event broker:
+    Routing:
+        The event broker uses message exchange patterns (like publish-subscribe) to route events to the correct subscribers. 
+    Buffering/Persistence:
+        It can temporarily store events if consumers are unavailable, ensuring events are not lost. 
+    Filtering:
+        Some event brokers allow filtering events based on specific criteria, ensuring that consumers only receive relevant events. 
+    Scalability:
+        Event brokers are designed to handle large volumes of events and can be scaled to meet the demands of the system. 
+
+Examples of event brokers:
+    Apache Kafka
+    RabbitMQ
+    Amazon SNS/SQS
+    Google Pub/Sub
+    Solace PubSub+
+    SAP Event Mesh 
+In essence, the event broker is the backbone of an EDA, enabling efficient and reliable communication 
+between different parts of a distributed system. 
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+Common architechture implementations - 
+1. N-Tier architechture - Here we have some layers which communicate via each other -> 
+Client -> Presentation Layer -> Business Layer -> Data Access Layer -> Database.
+
+2. Monolithic architechture - Here all the N-Tiers (of n-tier architechture) is bundled into a single bundle.
+
+3. Microservice architechture - Here 
+Client (Sends request)-> API Gateway -> Servies to different domain of application. 
+Services communicate to its DB and other internal libraries.
+
+4. Event driven architechture - 
+Consumers connected to Producers. And react to the producer's output.
+
+
+
+

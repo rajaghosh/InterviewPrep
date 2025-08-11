@@ -1,0 +1,190 @@
+Tree Shaking -
+
+Lightweight Injection Token - 
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+Mobile application can be native or cross-platform 
+Native apps like ffor android and ios. Cross-platform app developement has one downside we can only include 
+features which are common.
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+This video, "How to Pass the iOS System Design Interview" by Swift Dev, provides a comprehensive summary of the iOS system design interview process. The video is broken down into key sections:
+
+What Interviewers Assess
+Interviewers evaluate three main areas:
+    Technical Skills: Your knowledge of technologies and ability to create scalable solutions. For example, 
+    comparing GCD and operation queues.
+    Structure and Approach: How you define the problem and follow a methodical process, demonstrating 
+    familiarity with design principles like MVVM.
+    Communication: Your ability to explain your thought process and collaborate effectively.
+
+Five Tips for Success
+    Scope and Clarify: Narrow down broad questions by asking about user count, features, and constraints.
+    Structured Approach: Break down your solution into layers like view controller, network, and storage.
+    Watch for Hints: Pay attention to the interviewer's subtle clues.
+    Think Aloud: Continuously verbalize your thought process so the interviewer can follow your logic.
+
+Practice: Practice alone, with friends, and with professionals to get comfortable with the interview format.
+    Practice Questions
+    The video concludes with examples of real interview questions from companies like Twitter, Uber, and Facebook:
+    How to create an infinite news feed for a Twitter clone.
+    Designing the architecture for Uber's driver app.
+    Building a version of Dropbox's iOS app.
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+Netflix Architechture - 
+    Users (From different screens) ->
+    -> AWS Elastic Load Balancer
+    -> API gateway (for checking authentication, authorization, rate limiting)
+    -> APIs (redirected to set of APIs)
+        -> Interacting with diff DB + Cache
+        -> Async capability with a Stream processing pipeline 
+        -> For searching it is using Kafka search
+        -> For realtime data processing they have - Apache Spark Streaming Cluster.
+
+-----------------
+
+Mobile-Specific Topics
+The guide emphasizes the importance of focusing on mobile-specific challenges, such as:
+    1. Limited Resources: Addressing constraints like battery, memory, and data usage.
+    2. Architecture and Design Patterns: Discussing high-level architectures (MVC, MVVM) 
+    and common design patterns (dependency injection, observer).
+    3. UI Architecture: Explaining how to manage UI components and display large datasets 
+    efficiently.
+    4. Data Handling: Describing different methods for fetching and caching data (e.g., 
+    REST API, WebSockets, SQLite, Keychain).
+    5. App Specifics: Considering elements like screen navigation, gestures, and responsive UI.
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+What are SSE API for real time updates.
+What is infinite scroll.
+What is pagination based on offset based vs cursor based.
+
+What are design patterns and its anti pattern.
+Clean architechture was proposed by Robert martin
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+The composible architechture (TCA)
+
+Best Practice for Mobile design
+    Clear pattern
+    Dependency injection
+    No logic in views
+    Modular Architechture
+    Composition over inheritance
+    Minimize State duplication
+    Use Async Await
+    Unidirectional data flow
+    Use DTOs
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+API Protocols 
+    - Rest
+    - Websocket
+    - Webhook
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+The video titled "Top 5 Mobile System Design Concepts Explained" provides a detailed overview of 
+five crucial concepts for mobile architecture and interviews.
+
+1. API Communication Protocols
+The video discusses four protocols for data exchange between a mobile app and its backend:
+    a. REST: The most popular choice, offering simplicity and scalability, but can lead to over-fetching.
+    b. WebSockets: Enables real-time, bidirectional communication, ideal for live chats.
+    c. GraphQL: Allows clients to request only the data they need, preventing over-fetching.
+    d. gRPC: A high-performance framework built on HTTP/2, offering low latency and strong typing.
+
+2. Real-time Updates
+This section explores methods for providing a responsive user experience:
+    a. HTTP Polling: The client repeatedly asks for new data, which is simple but inefficient.
+    b. HTTP Long Polling: The server holds a request open until new data is available, reducing latency.
+    c. Server-Sent Events (SSE): A one-way channel for the server to stream data to the client, 
+    more efficient than long polling.
+    d. WebSockets: Provides true bidirectionality and low latency for interactive apps.
+    e. Push Notifications: A battery-efficient way to send alerts even when the app is not running.
+
+3. Storage
+The video covers various storage solutions for performance, security, and data retrieval:
+    1. Key-Value Storage: Simple and fast for small, unstructured data like user settings.
+    2. Database: Structured solutions like SQLite for complex, relational data.
+    3. File Storage: Used for large, unstructured data like images and videos.
+    4. Secure Storage: OS-level solutions like Keychain on iOS or KeyStore on Android for sensitive data.
+
+4. Pagination
+Pagination is discussed as a technique to handle large datasets efficiently. The video explains four strategies:
+    1. Limit-Offset: Simple but can be inefficient with large datasets.
+    2. Page-Based: Similar to limit-offset, using page numbers.
+    3. Key-Set: Faster and more stable for large datasets by using a unique identifier.
+    4. Cursor-Based: A highly efficient and scalable method for large, dynamic datasets.
+
+5. Dependency Injection
+The final concept is a design pattern that provides a class with its dependencies. This improves:
+    1. Loose Coupling: Components are not tightly bound, making them easier to manage.
+    2. Testability: Dependencies can be easily swapped for unit testing.
+    3. Maintenance and Flexibility: Code is more maintainable and flexible by centralizing dependency management.
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+SOLID Principle (From UI stand point)
+
+
+This video provides a summary of the SOLID principles of object-oriented design, using examples from iOS development to illustrate each one.
+
+1. Single Responsibility Principle (SRP)
+The SRP states that a class should have only one reason to change. A violation of this principle is often seen in 
+the "massive view controller" problem in iOS, where a UIViewController handles UI, networking, and database logic, giving 
+it too many reasons to change. The solution is to break down these responsibilities into smaller, more focused classes 
+to improve maintainability and reduce complexity.
+
+2. Open/Closed Principle (OCP)
+The OCP dictates that software entities should be open for extension but closed for modification. A violation would be a 
+news feed application that uses a long if/else statement in a cellForRow method to handle different cell types. This 
+becomes problematic because adding a new cell type requires modifying the existing code. A better approach is to use 
+protocols like CellViewModel and ConfigurableTableViewCell to allow new cell types to be added without changing the 
+core cellForRow logic.
+
+3. Liskov Substitution Principle (LSP)
+The LSP states that subtypes must be substitutable for their base types without changing the correctness of the program. 
+An example of a violation is a UIVisualEffectView that inherits from UIView but breaks the UI if its transparency is changed, 
+as it doesn't uphold the contract of its base class.
+
+4. Interface Segregation Principle (ISP)
+The ISP states that clients should not be forced to depend on interfaces they do not use. A violation would be a single, 
+large ChatProtocol with many methods that is implemented by different chat entities (e.g., group chat, secret chat) that 
+only use a subset of the methods. The solution is to split the large protocol into smaller, more specific protocols so each 
+entity only has to implement the functionality it needs.
+
+5. Dependency Inversion Principle (DIP)
+The DIP states that high-level modules should not depend on low-level modules; both should depend on abstractions. A 
+violation of this principle is a UIViewController that directly accesses a specific database like CoreData. If the database
+ is changed to something else, the view controller's code needs to be rewritten. The solution is to introduce an abstraction,
+  like a FeedProvider interface, that both the UIViewController and the specific database implementation depend on, thereby 
+  decoupling them.
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+Topics 
+
+    Progressive web-app (PWA)
+    headless architechture
+    Event driven architechture
+    Domain driven architechture
+    How to open website using deeplink vs backlink
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 

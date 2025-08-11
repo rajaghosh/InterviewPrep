@@ -1,0 +1,447 @@
+This list of multiple-choice questions (MCQs) covers a wide range of topics relevant to a senior front-end professional. The questions are designed to test not only knowledge of specific technologies but also understanding of best practices, architecture, and security.
+
+UI and Mobile Design Concepts
+Which of the following CSS properties is most effective for ensuring a responsive grid layout that adapts to different screen sizes without media queries?
+a. display: flex;
+b. display: grid;
+c. grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+d. flex-wrap: wrap;
+
+Answer: c
+Explanation: The repeat(auto-fit, minmax(250px, 1fr)) property creates a grid where items automatically adjust to fill the available space. auto-fit will expand the grid items to fill any empty space, and minmax() ensures a minimum width while allowing the items to grow, making it highly responsive.
+
+When designing for mobile-first, what is the primary advantage of a 'thumb-friendly' design approach?
+a. It reduces the number of taps required for navigation.
+b. It places key interactive elements within easy reach of a user's thumb.
+c. It optimizes the app for biometric security.
+d. It is primarily for left-handed users.
+
+Answer: b
+Explanation: A thumb-friendly design recognizes that most users hold their phones with one hand and interact with the screen using their thumb. By placing key call-to-action buttons and navigation elements in the lower third of the screen, it enhances usability and ergonomics.
+
+Which accessibility standard is the current W3C recommendation for making web content more accessible to people with disabilities?
+a. WCAG 1.0
+b. WAI-ARIA
+c. A11Y
+d. WCAG 2.1
+
+Answer: d
+Explanation: WCAG (Web Content Accessibility Guidelines) 2.1 is the latest stable standard from the W3C. While WAI-ARIA is a crucial technology for accessibility, WCAG 2.1 is the comprehensive set of guidelines and standards. A11Y is a numeronym for accessibility.
+
+What is the primary benefit of using a "Single Page Application (SPA)" over a traditional multi-page application (MPA) in terms of user experience?
+a. Better SEO performance
+b. Faster initial page load time
+c. Smoother, more dynamic user experience without full page reloads
+d. Simpler server-side logic
+
+Answer: c
+Explanation: SPAs load all necessary resources once and then dynamically update the content. This avoids full page reloads, providing a more fluid and desktop-like experience for the user.
+
+Which mobile platform design guideline emphasizes a "flat" design aesthetic, focusing on clarity, simplicity, and intuitive user interfaces?
+a. Material Design
+b. Fluent Design
+c. Human Interface Guidelines
+d. Metro UI
+
+Answer: c
+Explanation: The Human Interface Guidelines are Apple's official design principles for creating macOS, iOS, iPadOS, watchOS, and tvOS apps. They emphasize a minimalist, flat design with a focus on usability. Material Design is Google's design system.
+
+Mobile View of Desktop Applications & Android/iOS Concepts
+In the context of responsive design, what does the term 'Fluid Grid' refer to?
+a. A layout that uses fixed pixel widths.
+b. A layout where columns are defined using percentages.
+c. A grid that changes its number of columns based on screen size.
+d. A grid that uses CSS Flexbox.
+
+Answer: b
+Explanation: A fluid grid is a layout system where the column and gutter widths are defined using relative units like percentages (%) or ems. This allows the layout to scale and adapt smoothly as the viewport size changes.
+
+What is the main purpose of using a viewport meta tag in a mobile-optimized web page?
+a. To set the background color of the page.
+b. To define the character encoding.
+c. To control the page's width and scaling on mobile devices.
+d. To embed a favicon.
+
+Answer: c
+Explanation: The viewport meta tag, often <meta name="viewport" content="width=device-width, initial-scale=1.0">, instructs the browser on how to control the page's dimensions and scaling, ensuring it renders correctly and responsively on different mobile screens.
+
+When developing a web application that will be accessed on both iOS and Android, what is a key difference to be aware of regarding browser engines?
+a. Android uses Chromium, while iOS uses Firefox.
+b. Both use WebKit, but with different implementations.
+c. Android devices primarily use Chrome's Blink engine, while all iOS browsers are required to use Apple's WebKit engine.
+d. iOS browsers are faster than Android browsers.
+
+Answer: c
+Explanation: This is a fundamental concept for cross-platform web development. Apple requires all browsers on iOS (including Chrome and Firefox) to use its own WebKit rendering engine. Android, on the other hand, primarily uses Google's Blink engine (a fork of WebKit) within the Chrome browser.
+
+UI Design and Front-end Security/Scalability
+Which of the following is the most effective defense against Cross-Site Scripting (XSS) attacks in a front-end application?
+a. Using HTTPS
+b. Sanitizing and encoding user-generated content before rendering it on the page.
+c. Implementing Content Security Policy (CSP)
+d. All of the above
+
+Answer: d
+Explanation: While sanitizing and encoding (b) is the most direct defense for preventing script injection, a comprehensive approach requires a combination of methods. HTTPS (a) helps prevent man-in-the-middle attacks, and a strong Content Security Policy (c) provides a second line of defense by restricting the sources from which a browser can load resources, including scripts.
+
+In the context of front-end scalability, what is the primary benefit of using a component-based architecture (e.g., with React, Vue, or Angular)?
+a. It makes the application run faster.
+b. It simplifies back-end development.
+c. It promotes code reusability, maintainability, and allows for parallel development.
+d. It is required for all modern web applications.
+
+Answer: c
+Explanation: Component-based architectures break down the UI into small, independent, and reusable pieces. This modularity makes the codebase easier to manage as the application grows, allows different teams to work on different components simultaneously, and simplifies maintenance.
+
+How can a front-end architect mitigate the risk of a single point of failure and improve the scalability of a front-end application?
+a. By using a single large JavaScript file.
+b. By implementing a micro-frontend architecture.
+c. By hosting the application on a single server.
+d. By using a monolithic design pattern.
+
+Answer: b
+Explanation: Micro-frontends decompose a large monolithic front-end into smaller, independent applications. Each micro-frontend can be developed, tested, and deployed independently. This reduces the risk of a single point of failure and allows for more scalable development teams and architectures.
+
+Progressive Web Apps (PWAs)
+Which of the following technologies is the most critical for a web application to be considered a PWA?
+a. A large JavaScript framework like React.
+b. Server-Side Rendering (SSR).
+c. A service worker.
+d. A dedicated mobile app.
+
+Answer: c
+Explanation: Service workers are the core technology behind PWAs. They act as a proxy between the browser and the network, enabling features like offline access, push notifications, and background data synchronization.
+
+What is the primary function of a Web App Manifest in a PWA?
+a. To serve as a cache for offline assets.
+b. To provide meta-information about the PWA, such as its name, icon, and display mode, for "add to homescreen" functionality.
+c. To handle routing and navigation.
+d. To store user data locally.
+
+Answer: b
+Explanation: The Web App Manifest is a JSON file that gives the browser information about the PWA. This information is used by the browser when the user "installs" the app, providing details like the app's name, start URL, and icon.
+
+Which of these features is a key benefit of using PWAs over traditional native apps?
+a. They are only available on the Google Play Store.
+b. They can access all native hardware features without permission.
+c. They are discoverable via search engines and can be shared with a URL.
+d. They have a larger installation size than native apps.
+
+Answer: c
+Explanation: A major advantage of PWAs is their discoverability. Since they are essentially websites, they are indexed by search engines and can be shared like any other web page, which is not the case for native apps found only in app stores.
+
+CI/CD for Web Deployment
+In a CI/CD pipeline for a front-end application, what is a typical step performed during the 'Continuous Integration' phase?
+a. Deploying the application to a production server.
+b. Pushing code to a git repository.
+c. Running automated tests and code analysis.
+d. Manually testing the application on various browsers.
+
+Answer: c
+Explanation: Continuous Integration (CI) is the practice of merging all developers' working copies to a shared mainline several times a day. A key part of this process is running automated tests (unit, integration, etc.) and static code analysis to catch errors early.
+
+What is the purpose of a build step in a front-end CI/CD pipeline?
+a. To install all dependencies.
+b. To transpile and bundle source code for production.
+c. To run end-to-end tests.
+d. To deploy the application to a server.
+
+Answer: b
+Explanation: The build step is where source code, often written in languages like TypeScript, JSX, or Sass, is compiled, transpiled, and bundled into optimized files (e.g., minified JavaScript, CSS) that are ready for deployment and efficient for the browser to consume.
+
+Best Practices (Build, Maintenance, Performance)
+Which technique is most effective for improving the initial load performance of a large front-end application?
+a. Increasing the server's processing power.
+b. Using a CDN (Content Delivery Network) for serving static assets.
+c. Combining all JavaScript into a single, large file.
+d. Reducing the number of images on the page.
+
+Answer: b
+Explanation: A CDN places copies of your static assets (images, CSS, JavaScript) on servers geographically closer to your users. This significantly reduces latency and improves the initial load time, as assets are delivered from a nearby server rather than a single, distant origin server.
+
+What is a key benefit of using a CSS preprocessor like Sass or Less?
+a. It makes the CSS file smaller.
+b. It allows for the use of variables, mixins, and functions, which improves code organization and maintainability.
+c. It automatically minifies the CSS code.
+d. It is a mandatory part of modern web development.
+
+Answer: b
+Explanation: CSS preprocessors introduce programming-like features to CSS, making it more powerful and easier to manage. Features like variables for colors and fonts, mixins for reusable code blocks, and nested selectors greatly improve the maintainability and scalability of large style sheets.
+
+What is a "debounce" function primarily used for in front-end development?
+a. To prevent a function from being called too many times in a short period (e.g., during a resize or input event).
+b. To execute a function after a specified delay.
+c. To store data in the browser's local storage.
+d. To animate an element.
+
+Answer: a
+Explanation: Debouncing is a performance optimization technique. It ensures that a function is only executed once after a certain amount of time has passed without the function being called again. This is extremely useful for events like resize, scroll, or keyup where the event can fire multiple times per second.
+
+Which of the following is a key reason for using web components?
+a. To create native mobile applications.
+b. To create reusable, encapsulated custom HTML elements that work across modern browsers.
+c. To improve server-side performance.
+d. To manage application state.
+
+Answer: b
+Explanation: Web components are a set of W3C standards that allow developers to create custom, reusable, and encapsulated HTML tags. They are a browser-native way of achieving modularity without relying on a specific framework, making them highly portable and interoperable.
+
+
+
+
+
+
+
+Please generate the best 100 to 500 mcq questions with answers for a senior front end designer, engineer, architect. (Share the answes with explanations). Candidate having experience between 5yrs and 8yrs.
+
+The questions will give priority to latest tech on -
+
+1. UI and mobile design concepts.
+
+2. The questions will include systems of - Mobile View of desktop Applictions, Android, IOS concepts.
+
+3. Ui design and front-end security, scalability.
+
+4. Progressive web-app.
+
+5. CI/CD for web deployment.
+
+6. Best practices on build, maintanence, high-performance of front-end solutions.
+
+7. Make sure to include the questions already asked in PSU organizations like - HPCL, BPCL.
+
+
+
+Generating 100-500 high-quality, comprehensive MCQs with detailed explanations and a focus on specific PSU-asked questions is a massive undertaking that would require extensive research into specific organizational question banks, which aren't publicly available. However, I can provide a robust and well-structured set of questions that cover all the requested topics at a senior level, mimicking the style and depth you would find in such an exam. The following 25 questions are representative of a larger set and are designed to test the core competencies of a candidate with 5-8 years of experience.
+
+UI and Mobile Design Concepts
+Which CSS property is the most semantically and performant way to hide content from the screen but keep it accessible to screen readers?
+a. display: none;
+b. visibility: hidden;
+c. opacity: 0;
+d. clip-path: inset(100%);
+
+Answer: d
+Explanation: display: none; and visibility: hidden; completely remove the element from the accessibility tree. opacity: 0; keeps the element in the accessibility tree but can be problematic for focus. clip-path: inset(100%); is the modern and robust method. It clips the element to a zero-width, zero-height box, effectively hiding it visually while keeping it fully present for screen readers.
+
+When designing a mobile-first UI, what is the primary purpose of a "thumb zone" and why is it crucial?
+a. It's a reserved area for the device's home button.
+b. It's the most comfortable and accessible area of the screen for a user's thumb, where key actions should be placed.
+c. It's an area for gestures, like swiping and pinching.
+d. It's a zone that prevents accidental taps.
+
+Answer: b
+Explanation: The "thumb zone" refers to the ergonomic area of a mobile screen that is easily reachable by a user's thumb when holding the device with one hand. Placing critical navigation and call-to-action buttons in this zone significantly improves usability and reduces user frustration.
+
+Which of the following best describes the principle of 'Progressive Enhancement'?
+a. Starting with a complex, feature-rich design and scaling down for simpler devices.
+b. Starting with a basic, functional experience and adding more advanced features for capable browsers and devices.
+c. Using only the latest CSS and JavaScript features to ensure a modern user experience.
+d. Designing for a single, target device.
+
+Answer: b
+Explanation: Progressive Enhancement is a strategy that prioritizes core content and functionality. It ensures that the application is accessible and functional on all browsers, with "enhancements" (like animations, advanced layouts, or interactive features) added only for browsers that support them. This ensures a robust and resilient user experience.
+
+Mobile View of Desktop Applications & Android/iOS Concepts
+A developer wants to prevent a web page from being zoomed in on mobile devices. What is the correct viewport meta tag configuration for this?
+a. <meta name="viewport" content="width=device-width, height=device-height">
+b. <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0">
+c. <meta name="viewport" content="user-scalable=no">
+d. <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+Answer: d
+Explanation: The user-scalable=no property explicitly tells the browser to disable the pinch-to-zoom feature. It is usually combined with width=device-width, initial-scale=1.0 to ensure the page initially fits the device screen correctly without any scaling issues.
+
+Which statement is true regarding the rendering engines used by browsers on iOS and Android?
+a. All browsers on Android and iOS use the same WebKit engine.
+b. Android browsers use Blink, while iOS browsers use a different engine.
+c. Apple mandates that all third-party browsers on iOS (e.g., Chrome, Firefox) must use its WebKit rendering engine.
+d. All Android browsers must use the Chromium engine.
+
+Answer: c
+Explanation: This is a key architectural difference. Apple's App Store guidelines require that all browsers, including those from other companies, must use the WebKit framework. On Android, browsers are free to use their own engines, with Chrome using Blink (a WebKit fork) being the dominant choice.
+
+What is the best practice for handling a fixed-position header or footer in a mobile-optimized web application to prevent it from obscuring content on small screens?
+a. Use position: absolute; instead of fixed.
+b. Use a media query to hide it on mobile.
+c. Ensure content has adequate padding/margin to prevent it from being hidden behind the fixed element.
+d. Use a hamburger menu to replace the fixed header.
+
+Answer: c
+Explanation: A fixed header or footer will always stay in the same place, potentially covering content. The most robust solution is to add a padding-top or padding-bottom to the main content area that is equal to the height of the fixed element. This ensures the content is never hidden from view.
+
+UI Design and Front-end Security/Scalability
+What is the primary security risk that a Content Security Policy (CSP) is designed to mitigate?
+a. SQL Injection
+b. Distributed Denial of Service (DDoS)
+c. Cross-Site Scripting (XSS) and other data injection attacks
+d. Phishing
+
+Answer: c
+Explanation: A CSP is a crucial layer of defense against XSS. It's an HTTP header that allows you to specify which domains the browser should consider to be trusted sources of executable scripts, stylesheets, and other resources. If a script comes from an untrusted source, the browser will block it, thus preventing injection attacks.
+
+In a micro-frontend architecture, what is the most significant advantage for a large team of front-end engineers?
+a. It eliminates the need for a build process.
+b. It allows each team to work on a separate part of the application and deploy independently.
+c. It centralizes all development into a single repository.
+d. It is only useful for e-commerce websites.
+
+Answer: b
+Explanation: Micro-frontends are an architectural pattern where a web application is broken down into smaller, independent "micro-apps." This allows different teams to own and deploy their sections of the application without affecting other teams, leading to improved scalability, faster development cycles, and greater autonomy.
+
+Which of the following is the most robust strategy to prevent a CSRF (Cross-Site Request Forgery) attack in a modern front-end application?
+a. Using HTTPS.
+b. Implementing a Same-Site cookie policy.
+c. Using a CSRF token in forms and API requests.
+d. All of the above are equally effective.
+
+Answer: c
+Explanation: While HTTPS and Same-Site cookies are important security measures, the most direct and effective defense against CSRF is the use of CSRF tokens. A unique, unpredictable token is generated for each user session and included in form submissions or API requests. The server validates this token, ensuring that the request is legitimate and not forged.
+
+Progressive Web Apps (PWAs)
+What is the primary role of a Service Worker in a PWA?
+a. To manage the application's state.
+b. To act as a programmable network proxy, enabling offline functionality and caching.
+c. To handle all the UI rendering.
+d. To store all user data locally.
+
+Answer: b
+Explanation: A Service Worker is a JavaScript file that runs in the background of a PWA, separate from the main thread. Its main function is to intercept network requests, enabling powerful features like asset caching (for offline use), push notifications, and background synchronization.
+
+Which component is essential for enabling a PWA to be "installable" on a user's home screen?
+a. A robots.txt file.
+b. A sitemap.xml.
+c. A Web App Manifest file.
+d. A dedicated mobile application.
+
+Answer: c
+Explanation: The Web App Manifest is a JSON file that provides information about the PWA. This information, including the app's name, icons, start URL, and display mode, is used by the browser to allow the user to "install" the PWA to their home screen with an icon, similar to a native app.
+
+A PWA wants to send a push notification to a user's device even when the app is not open. What technology is required to make this possible?
+a. Web Sockets
+b. localStorage
+c. Service Workers and Push API
+d. The navigator.geolocation API
+
+Answer: c
+Explanation: Push notifications in PWAs are made possible by a combination of the Service Worker and the Push API. The Service Worker registers the device with a push service, and when a message is received from the server via this service, the Service Worker wakes up and displays the notification to the user.
+
+CI/CD for Web Deployment
+In a typical front-end CI/CD pipeline, what is the purpose of the 'linting' step?
+a. To optimize images.
+b. To transpile and bundle the code.
+c. To analyze the code for potential errors, style inconsistencies, and best practice violations.
+d. To deploy the code to a staging server.
+
+Answer: c
+Explanation: Linting is the process of using a tool (a "linter") to statically analyze code. It identifies programmatic errors, bugs, stylistic errors, and suspicious constructs. It's a crucial part of the CI process, as it catches issues early and helps maintain code quality and consistency across a team.
+
+What is a key benefit of using a Canary Deployment strategy for a new front-end feature?
+a. It deploys the new feature to all users at once.
+b. It allows the new feature to be tested by a small subset of real users before a full-scale rollout.
+c. It's a simple, low-risk deployment strategy for all applications.
+d. It requires manual intervention for every deployment.
+
+Answer: b
+Explanation: Canary Deployment is a strategy where a new version of the application is rolled out to a small group of users first. This allows for monitoring of the new version in a real-world environment and helps identify any bugs or performance issues before they affect the entire user base, thereby minimizing risk.
+
+Best Practices (Build, Maintenance, High-Performance)
+Which of the following techniques is considered a best practice for optimizing the performance of a web application's critical rendering path?
+a. Delaying the loading of all CSS and JavaScript files until after the page is fully loaded.
+b. Inlining critical CSS to reduce the number of render-blocking requests.
+c. Serving all assets from a single server.
+d. Using a large number of HTTP requests.
+
+Answer: b
+Explanation: The critical rendering path is the sequence of steps the browser goes through to render a web page. By inlining the CSS required for the initial "above-the-fold" content directly into the HTML, the browser can render the page without waiting for a separate stylesheet to be downloaded, thus significantly improving the perceived load time.
+
+In the context of modern front-end development, what is a primary benefit of using a module bundler like Webpack or Vite?
+a. It makes the application compatible with older browsers.
+b. It allows the browser to understand JSX and TypeScript directly.
+c. It combines and optimizes multiple module files into a single bundle, reducing HTTP requests and improving load times.
+d. It is a mandatory requirement for all front-end projects.
+
+Answer: c
+Explanation: Module bundlers are essential tools for modern front-end development. They take all the various JavaScript, CSS, and other asset files and bundle them into a single, optimized package (or a few packages). This reduces the number of HTTP requests the browser needs to make and can also apply other optimizations like minification and tree-shaking.
+
+What is the Intersection Observer API primarily used for?
+a. To detect when a user clicks on an element.
+b. To detect when an element enters or leaves the viewport, enabling features like lazy loading and infinite scrolling.
+c. To handle server-side data fetching.
+d. To manage the history of the browser.
+
+Answer: b
+Explanation: The Intersection Observer API provides a performant way to observe changes in the intersection of a target element with its ancestor or the viewport. It's far more efficient than listening for scroll events and is the standard for implementing features like lazy loading of images, infinite scrolling, or triggering animations when an element comes into view.
+
+HPCL & BPCL Style Questions (Reflects a PSU Focus on Core Knowledge & Best Practices)
+Which of the following is an effective technique to reduce the size of the initial JavaScript bundle for a large front-end application?
+a. Code splitting and lazy loading of components.
+b. Using a single, monolithic JavaScript file.
+c. Disabling code minification.
+d. Using an older version of JavaScript.
+
+Answer: a
+Explanation: Code splitting is a technique that breaks down a single large JavaScript bundle into multiple smaller chunks. These chunks are then loaded on demand (lazy loading) as the user navigates through the application, ensuring that the initial load time is as fast as possible.
+
+To optimize a web page for performance, where should non-critical JavaScript files typically be placed in the HTML document?
+a. In the <head> section.
+b. At the end of the <body> section.
+c. Immediately after the <title> tag.
+d. Before the <head> section.
+
+Answer: b
+Explanation: Placing JavaScript files at the end of the <body> tag ensures that the browser first renders the HTML content and builds the DOM tree. This provides a better user experience by allowing the user to see content faster, as the page won't be blocked while downloading and executing the scripts.
+
+Which of the following HTTP headers is used to specify a cache control policy for a web asset?
+a. Content-Type
+b. Authorization
+c. Cache-Control
+d. Location
+
+Answer: c
+Explanation: The Cache-Control HTTP header is a crucial part of a high-performance web architecture. It defines caching policies for a specific resource, specifying how long a browser or proxy server can cache the asset before it needs to re-fetch it from the server, thereby reducing latency and server load.
+
+What is a key difference between localStorage and sessionStorage?
+a. localStorage can only store strings, while sessionStorage can store any data type.
+b. localStorage data persists even after the browser is closed, while sessionStorage data is cleared when the session ends.
+c. Both have the same storage capacity.
+d. Neither is suitable for storing sensitive information.
+
+Answer: b
+Explanation: This is a fundamental concept of client-side storage. localStorage provides persistent storage that remains available across multiple sessions and browser tabs. sessionStorage, on the other hand, is temporary and its data is cleared as soon as the user closes the browser tab or window. Both are vulnerable to XSS and should not be used for sensitive information without proper encryption.
+
+What is the primary purpose of the aria-label attribute in HTML?
+a. To provide a tooltip for an element.
+b. To provide a text label for an element that is not visually present on the page, for the benefit of screen readers.
+c. To style an element with a specific label.
+d. To link an element to a specific URL.
+
+Answer: b
+Explanation: aria-label is a crucial part of WAI-ARIA (Web Accessibility Initiative - Accessible Rich Internet Applications). It provides a text alternative for a non-textual or icon-based element, allowing screen readers to announce its purpose to visually impaired users, thereby enhancing accessibility.
+
+Which of the following is a drawback of using client-side rendering (CSR) for a web application?
+a. Slower initial load time and potential for poor SEO.
+b. Faster initial load time and better SEO.
+c. The application is only suitable for desktop devices.
+d. The server handles all the rendering.
+
+Answer: a
+Explanation: In CSR, the browser receives an empty HTML shell and then downloads and executes JavaScript to fetch data and render the UI. This can lead to a slower "time to first paint" and may not be fully indexed by search engine crawlers, potentially hurting SEO.
+
+In the context of performance optimization, what does "tree shaking" refer to?
+a. A method for organizing files in a project.
+b. A build optimization technique that removes unused code from the final bundle.
+c. A way to re-render the DOM more efficiently.
+d. A method for testing an application.
+
+Answer: b
+Explanation: Tree shaking, or dead code elimination, is a modern build-step optimization used by module bundlers like Webpack. It analyzes the code to identify and remove any functions, components, or variables that are not actually being used, resulting in a smaller, more efficient final bundle.
+
+When building a web application, which of the following is a key consideration for high-performance front-end solutions, especially on mobile devices?
+a. Loading all resources synchronously.
+b. Minimizing the number of DNS lookups and HTTP requests.
+c. Using a single, large image for the entire background.
+d. Using position: fixed; for all elements.
+
+Answer: b
+Explanation: Every DNS lookup and HTTP request adds latency. By combining files (e.g., CSS and JavaScript bundling), using CSS sprites for icons, and optimizing assets, a front-end solution can significantly reduce the number of requests and improve overall performance, which is especially critical on slower mobile networks.
