@@ -6,4 +6,12 @@
     <RootNamespace>Architechture_Concepts</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="AdditionalConcept-TBD.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="AdditionalConcept-TBD.txt" />
+  </ItemGroup>
+
 </Project>

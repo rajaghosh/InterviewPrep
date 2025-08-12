@@ -18,19 +18,19 @@ UI Strategy Concepts
 Web Rendering Strategies (SSR, CSR, SSG, ISR, Partial Pre-Rendering) - Details - https://www.youtube.com/watch?v=i1YlVHr_BGM
 
 1. SSG - Static Site Generation -> Here the page is built at built-time. This has the fastest performance for loading
- the page at client.
-2. ISR - Incrementatl Static Regeneration -> Here the static page is updated on demand without a full rebuild.
+        the page at client.
+2. ISR - Incremental Static Regeneration -> Here the static page is updated on demand without a full rebuild.
 3. SSR - Server Side Rendering -> Here the page is generated on each request. It is suitable for dynamic content.
 4. CSR - Client Side Rendering -> Here the blank HTML is loaded first. Then fetches the data and compiles the JS on 
-the client side.
+        the client side.
 5. PPR - Partial Pre-Rendering -> It mixes the pre-rendered and dynamic content on the page.
 
 ---------------------------------------------------------------------------------------------------------
 
-Scaling Strategy - Micro-Frontend Architechture - Details - https://www.youtube.com/watch?v=OmLsV8Dljzo
+* Scaling Strategy - Micro-Frontend Architechture - Details - https://www.youtube.com/watch?v=OmLsV8Dljzo
 -> Here the application is splitted into multiple parts (each part is independent and deployble). 
 -> Each of the part of the MFE has independent rendering strategies like SSG for the product pages, SSR for checkouts,
- CSR for chats.
+    CSR for chats.
 -> The key tools for MFE is Module Federation using webpack5 which dynamically loads different micro-frontend applications. 
 
 ---------------------------------------------------------------------------------------------------------
@@ -38,13 +38,13 @@ Scaling Strategy - Micro-Frontend Architechture - Details - https://www.youtube.
 Rendering and optimising UI application (using profiler)
 -> Use crome dev tool profiler, react dev tool profiler, datadog, Google lighthouse, Webpage test.
 -> One of the major drawbacks for UI applications are unwanted re-rendering of components. So in react if the 
-parent component re-renders, all the child components will be re-rendered too. Solution is to memorize the components.
-There is a hook to memorize the components. 
+    parent component re-renders, all the child components will be re-rendered too. Solution is to memorize the components.
+    There is a hook to memorize the components. 
     Ex -> const childMemo = React.memo(Child)
     This will only re-render if only needed.
     Also we can use 'useCallback' which memorize the functions to avoid unnecessary function creation.
     Also we can use 'useMemo' to cache the expensive calculations of a functionn to avoid the recalculations of the function
-     at every render.
+    at every render.
 
 ---------------------------------------------------------------------------------------------------------
 
@@ -52,24 +52,24 @@ Lazy loading -> Here instead of loading at once before rendering we will load th
 initial bundle size of the 
 application and the application will feel faster.
 
-Apart from these we can have other strategies to load faster.
-a. Reduce the JS bundle size. The strategy of "TREE SHAKING" to remove unused code + split bundles for faster page loads.
-b. Use spinners on the page to make it more responsive.
+    Apart from these we can have other strategies to load faster.
+    a. Reduce the JS bundle size. The strategy of "TREE SHAKING" to remove unused code + split bundles for faster page loads.
+    b. Use spinners on the page to make it more responsive.
 
-We can also have API optimisation and caching
--> If the application is making too many network calls. This will slow down the application.
--> We can use state management + interceptor to reduce the no. of req made to backend by using caching
- (using expiration time or stale time).
+    We can also have API optimisation and caching
+    -> If the application is making too many network calls. This will slow down the application.
+    -> We can use state management + interceptor to reduce the no. of req made to backend by using caching
+     (using expiration time or stale time).
 
 
 ---CLIENT----- CALLS CACHE (MOBX/ REDUX) --------------- IF data not present in cache THEN
 --------------------------SERVER ----------------------- CALL THE SERVER
 
-State Management: Caching API data on the client side [04:24].
-React Query: Using the useQuery hook for caching and managing data [06:31].
-GraphQL: Preventing over-fetching by only requesting needed data fields [07:24].
-Rate Limiting: Using debouncing or throttling to reduce API calls for events like typing [08:42].
-Filters and Pagination: Reducing the amount of data sent from the server
+    State Management: Caching API data on the client side 
+    React Query: Using the useQuery hook for caching and managing data.
+    GraphQL: Preventing over-fetching by only requesting needed data fields.
+    *Rate Limiting: Using debouncing or throttling to reduce API calls for events like typing.
+    Filters and Pagination: Reducing the amount of data sent from the server
 
 ---------------------------------------------------------------------------------------------------------
 
@@ -97,14 +97,14 @@ Pagination with Cursor (for stable pagination window) - This approach of paginat
 ---------------------------------------------------------------------------------------------------------
 ========================================================================================================= 
 
-Front-End design concepts
+Front-End design concepts (Populate details for each topic - Enhance with additional details)
 ----------------------------
 
 Micro-frontends
     The concept of Micro-frontends is introduced as a way to scale monolithic front-end applications by splitting
-    them into independent, deployable parts [04:33]. This allows different teams to work on different parts of the 
+    them into independent, deployable parts. This allows different teams to work on different parts of the 
     application using various technologies. 
-    Module Federation is mentioned as a popular way to achieve this [06:55].
+    Module Federation is mentioned as a popular way to achieve this.
     We can achieve it using - 
     1. Iframe
     2. Web components
@@ -114,10 +114,10 @@ Micro-frontends
 Communication Protocols
     The video explains different ways for a client to communicate with a server [07:30]:
     a. Long Polling: The client requests data and waits for a response from the server, which only sends data when it's ready 
-        or a timeout occurs [09:13].
+        or a timeout occurs.
     b. WebSockets: A persistent, bi-directional connection between the client and server for real-time communication [10:32].
     c. Server-Sent Events (SSE): A one-way communication where the server can push multiple updates to the client after a 
-        single request [11:29].
+        single request.
 
 Availability, Accessibility, and Consistency
     a. Availability: The video discusses how to ensure an application remains partially functional even when the server is 
@@ -147,42 +147,9 @@ Other Concepts
 ---------------------------------------------------------------------------------------------------------
 ========================================================================================================= 
 
-Security best practices for UI/ Front end
+QUESTION 1
 
-Concepts - 
-    DDOS attacks
-    Authorization/ Authentication 
-    CSP (Content security policies) - basically who can access the websites, who can inject data to the application.
-    CORS
-    Man in the middle
-
-Performace and Optimization
-    Asset optimization
-    Delivery option
-    SSR (Server side rendering)
-    Service worker
-    Web vitals
-    Perceived performance
-
-Testing
-    Behavioural testing
-    Unit testing
-    Individual testing
-    End to end testing
-
-    Testing Framework 
-        Jest
-        Mocha
-        Chai
-        Cypress
-        Selenium
-        Protactor
-        Playwright
-
----------------------------------------------------------------------------------------------------------
-========================================================================================================= 
-
-System design from Insta videos
+System design from Insta videos (Populate details for each topic - Enhance with additional details)
 
 -----------------------------------
 
@@ -234,9 +201,10 @@ Questions -
 ---------------------------------------------------------------------------------------------------------
 ========================================================================================================= 
 
+QUESTION 2
 
 This video, "Frontend Interview Questions 2025 (Part 3)," covers several key front-end development concepts in 
-an interview-style discussion.
+an interview-style discussion. (Populate details for each topic - Enhance with additional details)
 
 Critical CSS
     Critical CSS is the minimal set of styles needed to render the content that is visible to the user 
@@ -279,77 +247,87 @@ Derived State: This state can be calculated from the essential state (e.g., the 
 ---------------------------------------------------------------------------------------------------------
 ========================================================================================================= 
 
-This video, titled "Frontend Interview Questions 2025 (Part 3)," presents a mock senior frontend interview covering several key web development concepts.
+QUESTION 3
+
+This video, titled "Frontend Interview Questions 2025 (Part 3)," presents a mock senior frontend interview 
+covering several key web development concepts.
+(Populate details for each topic - Enhance with additional details)
 
 Critical CSS
-Critical CSS refers to the styles needed to render the content that is visible to the user 
-"above the fold" [00:23]. The video explains that using a headless browser via a tool like a Webpack 
-plugin can extract these essential styles to improve initial page load performance [00:44].
+    Critical CSS refers to the styles needed to render the content that is visible to the user 
+    "above the fold" [00:23]. The video explains that using a headless browser via a tool like a Webpack 
+    plugin can extract these essential styles to improve initial page load performance [00:44].
 
 Accessibility
-The video highlights the importance of semantic HTML but notes that ARIA attributes can be used to add 
-accessibility roles to non-semantic elements like <div> when design constraints prevent using semantic tags [02:06].
+    The video highlights the importance of semantic HTML but notes that ARIA attributes can be used to add 
+    accessibility roles to non-semantic elements like <div> when design constraints prevent using semantic tags [02:06].
 
 Script Loading: defer vs. async
-defer: Downloads a script in the background and executes it right before the DOMContentLoaded event [02:57].
+    defer: Downloads a script in the background and executes it right before the DOMContentLoaded event [02:57].
 
-async: Downloads and executes a script as soon as possible without waiting for the HTML to be fully parsed [03:12].
-Both attributes are used to prevent scripts from blocking the browser's critical rendering path, thus 
-improving performance [03:38].
+    async: Downloads and executes a script as soon as possible without waiting for the HTML to be fully parsed [03:12].
+    Both attributes are used to prevent scripts from blocking the browser's critical rendering path, thus 
+    improving performance [03:38].
 
 ES6 Imports
-The video differentiates between two types of ES6 imports [04:03]:
-
-Static Imports: These are interpreted at build time and enable features like tree shaking and TypeScript type inference.
-
-Dynamic Imports: These allow for lazy loading of components or modules on demand, which improves initial load times.
+The video differentiates between two types of ES6 imports:
+    - Static Imports: These are interpreted at build time and enable features like tree shaking and TypeScript type inference.
+    - Dynamic Imports: These allow for lazy loading of components or modules on demand, which improves initial load times.
 
 Core Web Vitals: CLS
-CLS (Cumulative Layout Shift) is a metric that measures unexpected shifting of page content as it loads [05:23]. 
-The video suggests that adding width and height attributes to images and optimizing font loading are key solutions
- to fix a poor CLS score [06:09].
+    CLS (Cumulative Layout Shift) is a metric that measures unexpected shifting of page content as it loads [05:23]. 
+    The video suggests that adding width and height attributes to images and optimizing font loading are key solutions
+    to fix a poor CLS score [06:09].
 
 State Management
-The video concludes by explaining the difference between essential state (independent state from user interactions or 
-data fetching) and derived state (state that is computed from other state variables, like a cart's total price) [07:10].
+    The video concludes by explaining the difference between essential state (independent state from user interactions or 
+    data fetching) and derived state (state that is computed from other state variables, like a cart's total price) [07:10].
 
 
 ---------------------------------------------------------------------------------------------------------
 ========================================================================================================= 
 
+QUESTION 4 
 
 This video provides an overview of senior TypeScript interview questions. The topics covered are:
+(Populate details for each topic - Enhance with additional details)
 
 Generic Functions
-A generic function is a way to create type-flexible code without using the any type, allowing a function 
-to work with different data types [00:06].
+    A generic function is a way to create type-flexible code without using the any type, allowing a function 
+    to work with different data types [00:06].
 
 as const and const
-The as const assertion in TypeScript makes an object and all its nested properties immutable at compile time [
-    01:59]. In contrast, a standard const only prevents the variable from being reassigned, but its properties can still be modified.
+    The as const assertion in TypeScript makes an object and all its nested properties immutable at compile time. 
+    In contrast, a standard const only prevents the variable from being reassigned, but its properties can still be modified.
 
 private Access Modifier
-The private access modifier restricts a class variable or method to be accessible only from within that class, helping to enforce the principle of interface segregation [04:34].
+    The private access modifier restricts a class variable or method to be accessible only from within that class, 
+    helping to enforce the principle of interface segregation [04:34].
 
 Decorators
-Decorators are functions that add shared functionality to classes or methods by wrapping them with additional code. This pattern promotes composition over inheritance and is common in frameworks like Next.js and Angular [06:05].
+Decorators are functions that add shared functionality to classes or methods by wrapping them with additional code. 
+This pattern promotes composition over inheritance and is common in frameworks like Next.js and Angular [06:05].
 
 type vs. interface
-A key difference is that interfaces can be merged at build time, while types must be unique [08:16]. Types are recommended for defining domain entities, while interfaces are suitable for auxiliary shapes like component props or function inputs.
+A key difference is that interfaces can be merged at build time, while types must be unique [08:16]. Types are recommended 
+for defining domain entities, while interfaces are suitable for auxiliary shapes like component props or function inputs.
 
 Type Guard
-A type guard is a function that helps narrow down a union type to a specific subtype, allowing you to perform type-specific operations [09:51].
+A type guard is a function that helps narrow down a union type to a specific subtype, allowing you to perform type-specific 
+operations [09:51].
 
 Structural vs. Nominal Typing
-TypeScript uses structural typing, where two objects are considered the same type if they have the same properties [11:11]. This differs from nominal typing, where types must have the same explicit signature or class to be considered the same.
+TypeScript uses structural typing, where two objects are considered the same type if they have the same properties [11:11]. 
+This differs from nominal typing, where types must have the same explicit signature or class to be considered the same.
 
 
 ---------------------------------------------------------------------------------------------------------
 ========================================================================================================= 
 
+(New Notes Needed)
 The video explains the Backend for Frontend (BFF) pattern, a specialized service layer that sits between an
- application and its backend services [01:42]. This pattern is designed to solve the challenges that arise when 
- a single general-purpose API tries to serve multiple types of clients, such as mobile, web, and IoT devices.
+application and its backend services [01:42]. This pattern is designed to solve the challenges that arise when 
+a single general-purpose API tries to serve multiple types of clients, such as mobile, web, and IoT devices.
 
 Key Concepts
 Single API Challenge: The video explains that using a single API for all clients becomes problematic as different clients 
@@ -384,78 +362,58 @@ Shared BFF: A single BFF for multiple user interfaces, which can simplify develo
 ---------------------------------------------------------------------------------------------------------
 ========================================================================================================= 
 
+APPROACH TO GET THE REQUIREMENTS
+
  This video provides a comprehensive guide to front-end system design interviews, focusing on a framework 
  called "RADIO" to structure the process [00:04]. The framework breaks down the interview into the following 
  sections:
 
 1. Requirements
-The first step is to clarify both functional and non-functional requirements. Using the example of designing
- a Facebook news feed, functional requirements would include displaying feed items and supporting infinite 
- scroll. Non-functional requirements would cover aspects like mobile compatibility, offline support, accessibility, 
- internationalization, and performance [05:06].
+    The first step is to clarify both functional and non-functional requirements. Using the example of designing
+    a Facebook news feed, functional requirements would include displaying feed items and supporting infinite 
+    scroll. Non-functional requirements would cover aspects like mobile compatibility, offline support, accessibility, 
+    internationalization, and performance [05:06].
 
 2. Architecture
-This section focuses on designing the high-level architecture. It involves sketching a simple UI and outlining the 
-component architecture, such as the relationship between the client, API, controller, data model, and view layers. 
-The video recommends using the MVC (Model-View-Controller) design pattern for its clear separation of concerns [11:46].
+    This section focuses on designing the high-level architecture. It involves sketching a simple UI and outlining the 
+    component architecture, such as the relationship between the client, API, controller, data model, and view layers. 
+    The video recommends using the MVC (Model-View-Controller) design pattern for its clear separation of concerns [11:46].
 
 3. Data Model & API Model
-This part of the interview involves designing the client-side data models and the API.
+    This part of the interview involves designing the client-side data models and the API.
 
-Data Model: You should define data types for the application, user, and feed items, considering elements 
-like server-driven UI and rich text content [12:41].
+    - Data Model: You should define data types for the application, user, and feed items, considering elements 
+    like server-driven UI and rich text content.
 
-API Model: The discussion covers HTTP protocols (HTTP/1 vs. HTTP/2) and various API communication styles like 
-polling, GraphQL, WebSockets, and Server-Sent Events. For the news feed example, GraphQL is recommended [17:47].
+    - API Model: The discussion covers HTTP protocols (HTTP/1 vs. HTTP/2) and various API communication styles like 
+    polling, GraphQL, WebSockets, and Server-Sent Events. For the news feed example, GraphQL is recommended [17:47].
 
 4. Optimizations and Performance
-This is the largest part of the interview, covering various optimization techniques [23:21].
+    This is the largest part of the interview, covering various optimization techniques.
 
-Network Performance: Techniques include using HTTP/2, compressing headers, caching, batching requests, optimizing
- images, and bundle splitting [23:36].
+    - Network Performance: Techniques include using HTTP/2, compressing headers, caching, batching requests, optimizing
+    images, and bundle splitting.
 
-Rendering Performance: This includes ensuring mobile-friendliness, handling different loading states, considering 
-server-side rendering, preloading resources, tree shaking, and using virtualization for long lists [27:43].
+    - Rendering Performance: This includes ensuring mobile-friendliness, handling different loading states, considering 
+    server-side rendering, preloading resources, tree shaking, and using virtualization for long lists.
 
-Accessibility & Security: The video also touches on important topics like using ARIA roles for accessibility [34:58] 
-and implementing measures like CORS, rate limiting, and sanitizing user input to prevent XSS attacks for security [36:08].
-
----------------------------------------------------------------------------------------------------------
-========================================================================================================= 
-
-UI design concepts
-
-HTTP1 vs HTTP2
-Websocket vs Webhook
-Polling/ Long Polling/Rest API vs GraphQL
-Server side elements
-
-Rendering ->
-    Tree shaking
-
-Accessibility ->
-    Proper contrast
-    ARIA roles
-
-Security ->
-    XSS
-    Rate Limiting
-    CORS
+5.Accessibility & Security: The video also touches on important topics like using ARIA roles for accessibility 
+    and implementing measures like CORS, rate limiting, and sanitizing user input to prevent XSS attacks for security.
 
 ---------------------------------------------------------------------------------------------------------
-========================================================================================================= 
+=========================================================================================================  
 
-Front-end Architechture
+* Front-end Architechture (Re-Check)
 
-This video provides a detailed overview of various front-end architecture patterns, discussing their benefits,
- drawbacks, and suitable use cases. The speaker begins by defining front-end architecture, highlighting that 
- its purpose is to create flexible, testable, and scalable applications, not just to organize files [01:08].
+    This video provides a detailed overview of various front-end architecture patterns, discussing their benefits,
+    drawbacks, and suitable use cases. The speaker begins by defining front-end architecture, highlighting that 
+    its purpose is to create flexible, testable, and scalable applications, not just to organize files.
 
 Foundational Patterns
 
-MVC (Model-View-Controller): A foundational pattern that separates an application into three layers: Model 
-(data), View (UI), and Controller (the bridge between them) [04:35]. The video discusses its workflow and 
-limitations, such as the "fat controller" problem [11:37].
+    MVC (Model-View-Controller): A foundational pattern that separates an application into three layers: Model 
+    (data), View (UI), and Controller (the bridge between them). The video discusses its workflow and 
+    limitations, such as the "fat controller" problem.
 
 Web MVC - > 
     Model (Data Store - Redux, Vuex, Pinia)
@@ -463,51 +421,47 @@ Web MVC - >
     Controllers (Hooks, composables)  
 
 MVP (Model-View-Presenter): An evolution of MVC where the presenter handles all logic, making the view a 
-passive UI layer to improve testability and structure [13:58].
+    passive UI layer to improve testability and structure.
 
 MVVM (Model-View-ViewModel): This pattern introduces the ViewModel layer for UI-related logic and uses
- two-way data binding, making it suitable for applications with complex UI interactions [16:58].
+    two-way data binding, making it suitable for applications with complex UI interactions.
 
 Advanced Patterns
-Hierarchical MVC (HMVC): A scalable extension of MVC that breaks a large application into smaller, 
-independent MVC units, ideal for large-scale projects [21:50].
+    Hierarchical MVC (HMVC): A scalable extension of MVC that breaks a large application into smaller, 
+    independent MVC units, ideal for large-scale projects.
 
-MVVMC (Model-View-ViewModel-Coordinator): Extends MVVM with a "Coordinator" layer to specifically 
-manage navigation and screen transitions [24:17].
+    MVVMC (Model-View-ViewModel-Coordinator): Extends MVVM with a "Coordinator" layer to specifically 
+    manage navigation and screen transitions.
 
-Viper (View-Interactor-Presenter-Entity-Router): Primarily for mobile development, this pattern o
-ffers a highly structured approach with each component having a single, clear responsibility [25:30].
+    Viper (View-Interactor-Presenter-Entity-Router): Primarily for mobile development, this pattern 
+    offers a highly structured approach with each component having a single, clear responsibility.
 
 Modern Architectural Styles
-Clean Architecture: Organizes software into concentric layers with dependencies pointing inward, ensuring 
-that core business logic is independent of frameworks, databases, and the UI [28:05].
+    Clean Architecture: Organizes software into concentric layers with dependencies pointing inward, ensuring 
+    that core business logic is independent of frameworks, databases, and the UI.
 
-Hexagonal Architecture: Also known as Ports and Adapters, this pattern uses clear contracts for interactions,
- making it useful for systems with multiple distributed parts [32:20].
+    Hexagonal Architecture: Also known as Ports and Adapters, this pattern uses clear contracts for interactions,
+    making it useful for systems with multiple distributed parts.
 
-Screaming Architecture: Suggests that a codebase's structure should be organized around business domains and 
-features, not technical details [36:17].
+    Screaming Architecture: Suggests that a codebase's structure should be organized around business domains and 
+    features, not technical details.
 
-Vertical Slices: A feature-based approach where each "slice" is a self-contained feature, containing its own 
-logic, data, and UI components, which enhances modularity and is good for large teams [40:53].
-
-The video concludes by advising that architectural patterns should be adapted to a project's specific needs rather than followed rigidly [45:05].
-
-
-For more information, you can watch the video here: https://www.youtube.com/watch?v=ixee55xm_d8
-
+    Vertical Slices: A feature-based approach where each "slice" is a self-contained feature, containing its own 
+    logic, data, and UI components, which enhances modularity and is good for large teams.
 
 ---------------------------------------------------------------------------------------------------------
 ========================================================================================================= 
 
 Thick Vs Thin clients
 
-Thin Client - Keeps most of the processing on the Server Side. Client mainly handles display and user interactions.
-    Ex - traditional multi-page application (MPA), Static websites
+    Thin Client - Keeps most of the processing on the Server Side. Client mainly handles display and user interactions.
+        Ex - traditional multi-page application (MPA), Static websites
 
-Thick Client (Fat Client) - Performs significant data processing and logic execution on the client side, reducing server
-    work load.
-    Ex - Single page application, Online-first application, Desktop like web apps (ex - Google Docs)
+    Thick Client (Fat Client) - Performs significant data processing and logic execution on the client side, reducing server
+        work load.
+        Ex - Single page application, Online-first application, Desktop like web apps (ex - Google Docs)
+
+---------------------------------------------------------------------------------------------------------
 
 MVC - Pros and Cons 
     Pros - 
@@ -518,78 +472,12 @@ MVC - Pros and Cons
         a. Problem of fat Controllers.
         b. The view layer has more logic than it should.
         c. It was introduced in 1979 and more suitable for classic web application. It is not that suitable 
-            for modern application.
- 
-Fat Controller Problem
-    MVC is not suited for complex web application as it contains too many moving parts.
-    In MVC if include additional features like caching it would increase load on the controller.
-    It is good for small to medium size application.
+        for modern application.
 
-MVP (Model view presenter)
--> MVP solves the major problem with MVC (View contains more logic than it should)
--> Unlike MVC in MVP the view layer does not get updates from the Model directly.
-
-In MVC the view always observes the data update. We need to add the observer logic to the view layer, making it complex.
-In MVP the view layer receives data udpate from the presenter and remains a pure UI layer.
-
-Types of MVP 
-    Supervisor Controller - More like MVC. Here view handles some logic on its own.
-    Passive view - Here all logic is handled by presenter.
-
-    Supervisor Controller - 
-        Pros - 
-            Less delegation code since the view handles some task directly.
-            Faster development. Reduces unnecessary redirections.
-
-        Cons - 
-            Hard to test and maintain
-
-        Good for scenarios where view logic is minimal
-
-    Passive View -
-        Pros -
-            Strong boundries between view, presenter and model
-            The view is purely passive, and the presenter contains all logic, making it easier to test.
-
-        Cons - 
-            Requires more code to handle basic UI task.
-            Overhead in cases where a simple View-Model interaction would suffice.
-
-        Good for complex UI, Logic-heavy application.
-
-    Pros and Cons 
-        
-    Pros    
-        Layer Seperation - The presentation layer contains no logic or contains user interface logic.
-        Testibility - A view free of observability logic (business logic) can be tested as a pure UI.
-
-    Cons
-        Fat Presenter - The presenter can become unmanagable.
-        Inexpressiveness - MVP does not offer a suitable place for synchronization logic
-        
-MVVM (Model view view model) - It seperates the business logic from view logic
-
-Business Logic - Like change username, make a transaction, remove an item from list.
-View Logic - Close/open modal, disable button, update download status.
-
-It has three parts -
-Model - Connected with data store
-View - Related to UI
-View-Model - Seperates view logic from business logic
-
-Example - Vue.js
-Here two-way binding is implemented. When changes happen in view-model changes happen in view. Similarly when view is changed the model is updated too.
-
-Many views can share a single view-model.
-
-It is suitable for application with complex UI.
-
----------------------------------------------------------------------------------------------------------
-========================================================================================================= 
-
-Hierarchical MVC -
-    Generic MVC is good for small application and not for big application. Solution of this is Hierarchical MVC. Here the controller tries to fix its
-    scalability issue. Here we have more than one controller which forms its own MVC combination.
+    Hierarchical MVC -
+    Generic MVC is good for small application and not for big application. Solution of this is Hierarchical MVC. 
+    Here the controller tries to fix its scalability issue. Here we have more than one controller which forms 
+    its own MVC combination.
 
     Pros - 
         1. Modularity - Here we have multiple modules
@@ -601,21 +489,86 @@ Hierarchical MVC -
 
     Use - Large scale application, 
     application which needs different team.
+---------------------------------------------------------------------------------------------------------
 
-------
-
-Model View View-Model Coordinator -
-It is MVVM with Coordinator. It is a module responsible for screen transitions and navigation flow. It adds the navigation logic.
-
-Pros - 
-    Seperation of concern.
-    testability.
-
-Cons - 
-    completely 
+Fat Controller Problem
+    MVC is not suited for complex web application as it contains too many moving parts.
+    In MVC if include additional features like caching it would increase load on the controller.
+    It is good for small to medium size application.
 
 ---------------------------------------------------------------------------------------------------------
-========================================================================================================= 
+
+MVP (Model view presenter)
+    - MVP solves the major problem with MVC (View contains more logic than it should)
+    - Unlike MVC in MVP the view layer does not get updates from the Model directly.
+    - In MVC the view always observes the data update. We need to add the observer logic to the 
+    view layer, making it complex.
+    - In MVP the view layer receives data udpate from the presenter and remains a pure UI layer.
+
+Types of MVP 
+    a. Supervisor Controller - More like MVC. Here view handles some logic on its own.
+    Supervisor Controller - 
+        Pros - 
+            Less delegation code since the view handles some task directly.
+            Faster development. Reduces unnecessary redirections.
+
+        Cons - 
+            Hard to test and maintain
+
+        Good for scenarios where view logic is minimal
+
+    b. Passive view - Here all logic is handled by presenter.
+    Passive View -
+        Pros -
+            Strong boundries between view, presenter and model
+            The view is purely passive, and the presenter contains all logic, making it easier to test.
+
+        Cons - 
+            Requires more code to handle basic UI task.
+            Overhead in cases where a simple View-Model interaction would suffice.
+
+        Good for complex UI, Logic-heavy application.
+
+    Pros and Cons         
+        Pros    
+            Layer Seperation - The presentation layer contains no logic or contains user interface logic.
+            Testibility - A view free of observability logic (business logic) can be tested as a pure UI.
+        Cons
+            Fat Presenter - The presenter can become unmanagable.
+            Inexpressiveness - MVP does not offer a suitable place for synchronization logic
+
+---------------------------------------------------------------------------------------------------------
+
+MVVM (Model View View-Model) - It seperates the business logic from view logic
+
+    - Business Logic - Like change username, make a transaction, remove an item from list.
+    - View Logic - Close/open modal, disable button, update download status.
+
+    It has three parts -
+    Model - Connected with data store
+    View - Related to UI
+    View-Model - Seperates view logic from business logic
+
+    Example - Vue.js
+    Here two-way binding is implemented. When changes happen in view-model changes happen in view. 
+    Similarly when view is changed the model is updated too.
+
+    - Many views can share a single view-model.
+    - It is suitable for application with complex UI.
+
+---------------------------------------------------------------------------------------------------------
+
+* Model View View-Model Coordinator (MVVM-C)-
+    It is MVVM with Coordinator. It is a module responsible for screen transitions and navigation flow. It adds the navigation logic.
+
+    Pros - 
+        Seperation of concern.
+        testability.
+
+    Cons - 
+        completely 
+
+---------------------------------------------------------------------------------------------------------
 
 View Interactor Presenter Entity Router (VIPER) 
 
@@ -623,51 +576,48 @@ View Interactor Presenter Entity Router (VIPER)
             |
 View -> Presenter <-> Interator <-> Entity
 
-View - Interacts with presenter. It is a passive view.
-Presenter - Prepares data for the view. It sends requests to the Interactor.
-Router - It handles navigation between screens. It interacts with Presenter.
-Interactor - It is the business logic. Fetches data from entity. Requests data from backend.
-Entity - Data model layer. Contains only data no business logic.
+    View - Interacts with presenter. It is a passive view.
+    Presenter - Prepares data for the view. It sends requests to the Interactor.
+    Router - It handles navigation between screens. It interacts with Presenter.
+    Interactor - It is the business logic. Fetches data from entity. Requests data from backend.
+    Entity - Data model layer. Contains only data no business logic.
 
-Dependency Inversion in VIPER - Here view depends on Presenter,, presenter depends on interactor, and interactor depends on entity.
+    Dependency Inversion in VIPER - Here view depends on Presenter,, presenter depends on interactor, and interactor depends on entity.
 
-One good thing about this architecture is interactor can be partitioned into services and entity in entities needed.
+    One good thing about this architecture is interactor can be partitioned into services and entity in entities needed.
 
-Pros - 
-    Better seperation of concern.
-    Scales well
+    Pros - 
+        Better seperation of concern.
+        Scales well
 
-Cons - 
-    More boilerplate. Write vast amount of interfaces for class with minimal responsibilities.
+    Cons - 
+        More boilerplate. Write vast amount of interfaces for class with minimal responsibilities.
 
 ---------------------------------------------------------------------------------------------------------
-========================================================================================================= 
 
 Clean Architecture
 
+    | Top - Frameworks and Drivers  |  Database, External Interfaces, UI
+    | Interface Adapters            |  Controllers, Presenters, Gateways
+    | Application Business Logic    |  Use Cases
+    | Base - Core business logic    |  Entities
 
-| Top - Frameworks and Drivers  |  Database, External Interfaces, UI
-| Interface Adapters            |  Controllers, Presenters, Gateways
-| Application Business Logic    |  Use Cases
-| Base - Core business logic    |  Entities
+    - Entities - Represent business logic of domain. They are rarely modified. They can be objects with methods or simply 
+    a set of data structurs and functions.
+    - Use cases - Define application specific business rules. It controls the flow of data to and from the entities.
+    - Interface adapters - Adapt input to use cases and outputs to external interfaces.
+    - Frameworks and drivers - Represents the user interface and external dependencies such as database.
 
-Entities - Represent business logic of domain. They are rarely modified. They can be objects with methods or simply a set of data structurs and functions.
-Use cases - Define application specific business rules. It controls the flow of data to and from the entities.
-Interface adapters - Adapt input to use cases and outputs to external interfaces.
-Frameworks and drivers - Represents the user interface and external dependencies such as database.
+    Two principles of Clean Architecture - 
+        1. Seperation by diving the software into layers - The entity and external interface layers are mandatory, other 
+        layers can be discarded if not needed. Additional layers can also be added if needed.
+        2. The dependency rule - The outer layers depends on inner layer and not vice versa. Nothing in inner layers knows about outer layer.
 
-Two principles of Clean Architecture - 
-    1. Seperation by diving the software into layers - The entity and external interface layers are mandatory, other layers can be discarded if not needed.
-    Additional layers can also be added if needed.
-
-    2. The dependency rule - The outer layers depends on inner layer and not vice versa. Nothing in inner layers knows about outer layer.
-
-Local first application -
-    Indexed DB, UI
-    -> API, UI adapters
-    -> Use cases
-    -> Store
-
+    Local first application -
+        Indexed DB, UI
+        -> API, UI adapters
+        -> Use cases
+        -> Store
 
     Pros -
     1. Highly testable
@@ -679,45 +629,44 @@ Local first application -
     2. Increased complexity
 
 ---------------------------------------------------------------------------------------------------------
-========================================================================================================= 
 
 Hexagonal Architechture
-It makes distributed development easier. Different teams develop code and test it with mocks.
+    It makes distributed development easier. Different teams develop code and test it with mocks.
 
-Core Layer - Business Logic
-Above Layer - Input outputs (Input port, API, Output ports)
+    Core Layer - Business Logic
+    Above Layer - Input outputs (Input port, API, Output ports)
 
-Connected are the Driving side - 
-    Team A - UI, console, test script 
-    Team B - DB, Message Queue, HTTP
+    Connected are the Driving side - 
+        Team A - UI, console, test script 
+        Team B - DB, Message Queue, HTTP
 
-Features - 
-    Distributed development, 
-    Contract Programming - Here the contracts are placed to set clear expectation for interaction between domain core and adapters. We enforce contracts with 
-    response validators and integration test.
+    Features - 
+        Distributed development
+        Contract Programming - Here the contracts are placed to set clear expectation for interaction 
+        between domain core and adapters. We enforce contracts with response validators and integration test.
 
-Use - 
-    Full stack development.
-    Multiple interface - When your app interacts with various interfaces (Rest AAPI, Gtraph QL, etc)
-    Rich web application - 
+    Use - 
+        Full stack development.
+        Multiple interface - When your app interacts with various interfaces (Rest AAPI, Gtraph QL, etc)
+        Rich web application - 
 
-Not to use -
-    Simple application
-    Small team/ project
+    Not to use -
+        Simple application
+        Small team/ project
 
 
-Clean Architecture VS Hexagonal Architechture
+    Clean Architecture VS Hexagonal Architechture
 
-    Clean Architechture - 
-    1. Seperation into layers - Entity, Use case (Business Logic), Controllers, Infrastructure.
-    It is good when the application focus on layer seperation within a single application.
+        Clean Architechture - 
+        1. Seperation into layers - Entity, Use case (Business Logic), Controllers, Infrastructure.
+        It is good when the application focus on layer seperation within a single application.
 
-    Hexagonal Architechture -
-    1. Seperation between domain logic and infrastructure adapters.
-    It is suitable when the system involves multiple distributed parts (Application, services, or interfaces) interacting with central core domain logic.
+        Hexagonal Architechture -
+        1. Seperation between domain logic and infrastructure adapters.
+        It is suitable when the system involves multiple distributed parts (Application, services, 
+        or interfaces) interacting with central core domain logic.
 
 ---------------------------------------------------------------------------------------------------------
-========================================================================================================= 
 
 Screaming Architechture
     The idea is - The architecture should be immediately recognizable when lookiing at top-level structure.
@@ -738,10 +687,10 @@ Screaming Architechture
     Priority on business structure 
 
 ---------------------------------------------------------------------------------------------------------
-========================================================================================================= 
 
 Vertical Slices (Its not an architechture but an implementation approach)
-    Let us discuss on clean Architechture. It describes how to seperate layers. But it does not mention how to organise features in these layers.
+    Let us discuss on clean Architechture. It describes how to seperate layers. But it does not mention 
+    how to organise features in these layers.
 
     Vertical slices - It promotes a feature based approach. Where each feature is a business case.
 
@@ -754,7 +703,7 @@ Vertical Slices (Its not an architechture but an implementation approach)
 
     Vertical Slicing in MVP
     
-    Classic MVP can be splitted into (Once slice per feature) -
+    Ex - Classic MVP can be sliced into (Once slice per feature) -
         Create TODO slice
         Delete TODO slice
         Update TODO slice
@@ -775,5 +724,51 @@ Vertical Slices (Its not an architechture but an implementation approach)
         Small application
         Small team or project.
 
+-----------------------------------------------------------------------------
+
+---------------------
+
+Seven popular design pattern
+
+This video provides a summary of seven software design patterns, categorized into 
+three types: creational, structural, and behavioral. 
+These patterns offer reusable solutions to common programming problems.
+
+Creational Patterns
+    Creational patterns are focused on object creation.
     
+    Singleton Pattern: Ensures that a class has only one instance and provides a single point 
+    of access to it. An example is a logging system that uses a single logger for all activities.
+    
+    Builder Pattern: Used to construct complex objects step-by-step. This is useful when a 
+    constructor would otherwise have many optional parameters, allowing for cleaner code and 
+    method chaining.
+
+    Factory Pattern: Creates objects without specifying the exact class that will be created. 
+    It centralizes object creation logic into a single factory, which makes the code more 
+    flexible and maintainable.
+
+Structural Patterns
+    Structural patterns deal with how objects relate to each other.
+
+    Facade Pattern: Provides a simplified interface to a complex system of classes. It hides 
+    the underlying complexity behind a single, clean interface, like a "buy now" button that 
+    initiates multiple complex processes.
+
+    Adapter Pattern: Allows objects with incompatible interfaces to work together. It acts 
+    as a translator, similar to a physical adapter that lets a laptop plug into a different 
+    type of port.
+
+Behavioral Patterns
+    Behavioral patterns handle communication and interaction between objects.
+
+    Strategy Pattern: Allows an algorithm's behavior to be selected at runtime. It defines
+     a family of interchangeable algorithms, such as different strategies for getting to 
+     work (driving, biking, or taking the bus).
+
+    Observer Pattern: Defines a one-to-many dependency between objects. When one object 
+    (the subject) changes state, all of its dependents (the observers) are automatically 
+    notified and updated. A YouTube subscription system is a good example of this pattern.
+
+
 

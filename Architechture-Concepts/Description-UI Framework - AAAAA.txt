@@ -308,3 +308,6 @@ Mobile System Design
         • React to feedback and questions
         • Deep dive if requested
         • Be ready to accept your mistakes and fix the
+
+    -------------------
+---------------------------------------------------------------------------------------------------------------

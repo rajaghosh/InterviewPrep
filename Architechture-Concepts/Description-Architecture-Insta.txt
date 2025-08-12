@@ -1,0 +1,789 @@
+Q1. Types of backend authentication - 
+    1. Session Based - This is prone to CSRF attacks.
+    2. Token Based
+
+Q2. Find N-th highest salary.
+    SELECT salary FROM TAB 
+    ORDER BY salary
+    LIMIT 2,1;
+    (Check the query)
+
+Q3. Microservice performance related.
+    -> Logging will be managed by kubernetes side-container. As such the main system flow will have less load.
+    -> Also query will be used from DB with Redis cache. Redis cache is useful in terms of - In Memory, 
+    Single Threaded (Use event loops for multiple requests)
+
+Q4. Microservice fault tolerence.
+    
+Q5. JWT security best practices -
+    - Never store PII in token
+    - Use opaque token outside
+
+--------------------
+
+Cookies vs Cache
+    - Cookiess stores prolong data. They store user data to personalize experience.
+    - Cache stores frequently accessed data. This enhance data retrieval experience.
+
+----------------------
+
+LLD topics 
+- Design APIs - For REST APIs
+- Tables - SQL vs NoSQL
+- Solid principles
+- Common design pattern
+- Readable code
+- Logical part
+
+HLD Topics
+- Consistency and Consensus (CAP, Raft)
+- Distributed Caching and CDN
+------------------------
+
+DB Data deletion 
+
+DB Layers -
+1. Logical Layer - If DELETE command is used data is soft deleted. But the space consumed 
+    in the physical storage is still there. If data deleted at the logical level it is soft delete.
+
+    soft delete - UPDATE table SET deleted_at = NOW() WHERE id = 12
+2. Physical Layer - At physical level mark pages free. This will be hard delete.
+
+    hard delete - DELETE FROM TABLE WHERE id = 12
+3. Storage Disc 
+
+How to achieve GDPR Compliance?
+
+How to recover space after delete - 
+    Check fragmentation
+    Re-create index
+    Reallocate space
+
+The DBA will track - 
+    Transaction Log growth,
+    Page fragmentation
+    Dead tuple percentage
+    Auto vacuum frequency
+
+-------------------
+
+Data Deduplication 
+- Main file at one place. Other files shown will be actually a reference to the actual file.
+
+-----------------
+VM vs Docker
+
+A VM is a fully simulated computer software that mimics hardware components like CPU, Memory, 
+Storage, Networking via HYPERVISOR. This helps to riun guest OS and software completely decoupled from
+the underlying physical machine.
+With HYPERVISOR we can simulate infinite no. of CPUs.
+
+Why would we need docker container?
+Sometimes we do not need OS isolatation or full CPU capacity. So we use docker containers. They are
+lightweight isolated process, running on a docker engine.
+They share the HOST OS Kernel but has individual filesystems, resource limits and namespace.
+Giving high isolation without giving full VM to an app.
+
+Docker uses Linux. Docker uses CGroup to control CPUs, Memory and IO namespace. 
+To Isolate namespace, Filesystems.
+And Union File System to Layer container images.
+
+Docker can be installed on server or VMs.
+Kubernetes is an Oschestration layer. That distributes docker images across VMs and Nodes.
+Handling scaling, scheduling and recovery. 
+
+The VMs and Containers go hand in hand in modern infrastructure.
+
+----------------------------
+
+System design use case - 
+
+For a system if the user base is increased then how to handle.
+-> Increase server capacity - Scaling
+Horizontal scaling - Scale Out (Same server resouce * N Times)
+
+As the servers increases - use load balancers, to balance the loads.
+
+For DBs use replication - Master DB - For Write and another copy to Read.
+Replication at - Site A DB, Site B DB.
+
+If data increase then use Sharding
+If data has to be searched multiple times then push that data to REDIS cache.(To access 
+frequently accessed data from memory)
+
+To show large files like images, music and videos. The use CDN. Clone the content region 
+wise (based upond demand)
+
+For each feature create dedicated microservice.
+
+----------------------------------
+
+How Tesla stores trillion of data.
+It has multiple sources which generates metrics - factory, cars, energy systems.
+It needs to injest data to analyse data as time series.
+Initial system version used Prometheus DB. It was not scalable.
+Tesla then switched to ClickHouse DB. This is a OLAP DB optimised for speed.
+Then Tesla migrated the system for analytics and other data to a wrapper called COMET. (This a wrapper 
+over ClickHouse DB). This wrapper is needed for API interfacing backward compatibility.
+
+----------------------------------
+
+Webhook vs Websocket
+
+Webhook is like a notification system. So if something is happening at the server level it is notifying 
+the client. So Client is not requesting to the server, but server is notifying the client.
+
+Websocket creates a live tunnel between client and server, which helps the different clients to 
+communicate in real time. 
+
+We can use both simultaneously.
+
+Feature     
+
+    Triggered By -
+        Webhooks - Server Event
+        WebSocket - Continuous Connection
+    
+    Communication
+        Webhooks - One Way (Server -> Client)
+        WebSocket - Two Way (Client <-> Server)
+
+    Connection Type
+        Webhooks - Stateless 
+        WebSocket - Persistent/ Open connection
+
+    Real-time
+        Webhooks - Near real-time
+        WebSocket - True real-time
+        
+    Use Case
+        Webhooks - Alerts like payment alerts, email notification.
+        WebSocket - Chat, games, live-feed.
+
+    Protocol 
+        Webhooks - HTTP/HTTPS (POST requests)
+        WebSocket - WS/ WSS (Websocket Protocol)
+
+--------------------------
+
+In JS what is async await promise - 
+    Promise is a JS object which has the capability (in the future when there is API call) 
+    to get success or error.
+
+    With promise we use "then()" - To represent the block which represents the API call is successful
+    and "catch()" - To represent the block which represents the API call has exception.
+
+We also have async and await
+    We can use async at the start of the function
+    and await at the location where we are expecting some result.
+
+---------------------------
+
+In JS what is call, apply and bind
+In JS what is denounce
+Memory leak in JS
+
+----------------------------
+
+How to check usernames while registering such that response is fast.
+So with the data received we will feed to Redis Hashmap
+The Redis Hashmap is a powerful data structure often used in Caching layers.
+- It helps us to keep multiple key value pairs under one key.
+
+
+
+This video explains how large platforms like Google and Amazon quickly check if a username 
+is already taken. It focuses on the data structures and system design used to ensure this process 
+is fast and scalable.
+
+Key Data Structures
+    * Redis Hashmap: An in-memory data structure used for caching to quickly check if a username 
+    exists without querying the main database.
+    * Tries (Prefix Trees): A tree-like structure that organizes strings by shared prefixes, 
+    allowing for fast lookups and supporting autocomplete suggestions.
+    * B+ Trees: Used in databases to index fields and keep keys sorted, which is ideal for 
+    efficient lookups and range queries.
+    * Bloom Filters: A probabilistic, memory-efficient data structure that provides a very fast, 
+    initial check to see if a username "definitely not in the set," helping to avoid unnecessary database lookups.
+
+The Real-World Process
+The video explains that large-scale systems combine these data structures in a strategic flow:
+    * Load Balancing: A user's request is first routed to the nearest regional data center.
+    * Bloom Filter Check: The request hits a Bloom filter, which quickly checks if the username 
+    is unavailable, preventing most requests from going to the database.
+    * In-Memory Cache: If the Bloom filter is unsure, the request goes to an in-memory cache 
+    like Redis, which can return an answer in microseconds if the username was checked recently.
+    * Distributed Database: If there is a cache miss, the system performs an authoritative check 
+    by querying a distributed database, such as Apache Cassandra or Amazon DynamoDB.
+
+
+-------------------------------------------
+
+This video provides an overview of various authentication methods used in modern applications, 
+starting with a basic definition and moving into more advanced concepts.
+
+Authentication vs. Authorization
+Authentication is the process of verifying a user's identity to ensure they are legitimate. 
+Authorization, which follows authentication, is the process of determining what actions that 
+user is permitted to perform.
+
+    Basic Authentication
+    This is the simplest form of authentication, where a username and password are sent with 
+    each request as a base64-encoded string. This method is considered insecure on its own 
+    because the encoding is easily reversible and is rarely used today unless secured with HTTPS.
+
+    Bearer Tokens
+    Bearer tokens are a more secure and common method where an access token is sent with each 
+    request instead of a username and password. This is the current standard for API design 
+    because it is fast, stateless, and easier to scale.
+
+    OAuth 2.0 with JWT Tokens
+    OAuth 2.0 is a protocol that allows users to log in through a trusted third-party provider 
+    like Google or GitHub. When a user authenticates, the provider sends a JSON Web Token (JWT) 
+    to the application. JWTs are stateless and contain user information and an expiration date.
+
+    Access and Refresh Tokens
+    For enhanced security, modern systems often use a combination of short-lived access tokens 
+    and long-lived refresh tokens. An access token is used for making API calls, while a refresh 
+    token is used to obtain a new access token once the current one expires, allowing the user 
+    to remain logged in without re-authenticating. Refresh tokens should be stored securely on 
+    the server side.
+
+    Single Sign-On (SSO)
+    SSO allows a user to log in once and gain access to multiple services, such as when you log 
+    in to Google and are automatically granted access to Gmail, Drive, and Calendar. SSO typically 
+    uses protocols like SAML or OAuth 2.0 to securely exchange user login information between 
+    applications.
+
+-------------------------------
+
+This video provides an in-depth explanation of seven key system design concepts for building 
+reliable and scalable distributed systems.
+
+1. The CAP Theorem
+The CAP theorem states that a distributed system can only provide two of the three following 
+guarantees at the same time: consistency, availability, and partition tolerance. 
+    Consistency - All nodes see the same data at the same time.
+    Availability - Every request to a non-failing node receives a response.
+    Partition Tolerence - The system continues to operate despite network failures.
+
+Because network partitions are unavoidable, systems must choose between consistency and availability. 
+For example, Google Spanner prioritizes consistency, while Amazon's DynamoDB prioritizes 
+availability by using eventual consistency.
+
+2. Eventual Consistency
+Eventual consistency ensures that if no new updates are made, all replicas of the data will 
+eventually become the same. This approach is beneficial for large-scale systems because it 
+allows write operations to complete immediately without waiting for all replicas to be updated, 
+which improves performance and availability. The video mentions various conflict-resolution 
+strategies, such as "last write wins" and using conflict-free replicated data types (CRDTs).
+
+3. Load Balancing
+Load balancers distribute incoming requests across multiple servers to ensure high availability 
+and prevent a single server from being overwhelmed. The video differentiates between two main types:
+    Layer 4 Load Balancers: Operate at the transport layer, making routing decisions based on 
+    IP addresses and ports.
+    Layer 7 Load Balancers: Operate at the application layer, enabling smarter routing decisions 
+    by examining HTTP headers and request content.
+
+4. Consistent Hashing
+Consistent hashing is a technique used in horizontally scaled systems to solve the problem of 
+adding or removing nodes without having to remap a large amount of data. By placing both keys 
+and nodes on a circular hash ring, this method ensures that only a small fraction of data needs 
+to be redistributed when a node is added or removed.
+
+5. Circuit Breakers
+The circuit breaker pattern is used to prevent cascading failures in a distributed system. 
+A circuit breaker monitors the failure rate of a dependent service and can switch between 
+three states:
+    Closed: Requests flow normally.
+    Open: Requests are blocked immediately, returning a fast failure.
+    Half-Open: A few test requests are allowed to check if the service has recovered before 
+    returning to a closed state.
+
+6. Rate Limiting
+Rate limiting controls the number of requests a client can make within a specific time 
+window to protect the system from overload. The video explains algorithms for rate limiting, 
+including the Token Bucket and Leaky Bucket algorithms, which help to smooth out traffic spikes 
+and maintain an average request rate.
+
+7. Monitoring & Observability
+The video emphasizes that effective monitoring provides visibility into a system's behavior. 
+Modern observability focuses on four key signal types: metrics, logs, traces, and events. 
+The video also highlights the importance of effective alerting to reduce noise and identify 
+real problems.
+
+----------------------------------
+
+The video "Design Patterns & Anti-Patterns for Microservices Databases" provides a comprehensive 
+overview of different strategies for managing storage and databases in a microservices architecture.
+The video uses diagrams created with an AI tool called Eraser AI to illustrate these concepts.
+
+Anti-Pattern: Shared Database
+This approach involves multiple microservices sharing a single database. This is considered an 
+anti-pattern because it undermines the core benefits of microservices, such as modularity and 
+independent scaling. It can also lead to technical issues like deadlocks and inconsistencies 
+when different teams manage the same database.
+
+Recommended Pattern: Separate Databases
+A better approach is to give each microservice its own separate database. This allows for decoupling 
+and independent scaling, meaning a problem in one service won't affect others.
+
+Handling Distributed Transactions
+When a transaction spans multiple services, it becomes a distributed transaction. The video discusses 
+two patterns to handle this:
+
+Two-Phase Commit (2PC): A coordinator service orchestrates a two-step process to ensure all 
+participating services either commit or roll back a transaction together. However, this can be 
+complex to manage with many microservices.
+
+Saga Pattern: This is an event-driven pattern where a series of local transactions are chained 
+together via a message broker. If a service in the chain fails, compensating transactions are used 
+to roll back the changes.
+
+Other Key Patterns
+API Composition: A read-focused pattern where a parent service aggregates data by querying multiple 
+child services and combining the results.
+
+CQRS (Command Query Responsibility Segregation): This pattern separates the databases and 
+responsibilities for reading data (queries) from those for writing data (commands). This allows for 
+the independent scaling of read and write operations, which is efficient as reads often occur more 
+frequently.
+
+Event Sourcing: This pattern stores every change to an application's state as a sequence of immutable 
+events in an event log. This provides a full history of all changes for auditing purposes and allows 
+the current state to be reconstructed by replaying the events.
+
+-----------------------
+
+
+The video explains the Backend for Frontend (BFF) architectural pattern and how it addresses the
+limitations of a single API Gateway.
+
+    The Problem with a Single API Gateway
+    A single API Gateway sits between various clients (like a web app and a mobile app) and 
+    multiple microservices. While it helps centralize communication, it can become a bottleneck
+    because different clients often need different data. A single gateway may send excessive data 
+    to clients with simpler needs, becoming bloated and difficult to maintain [04:12].
+
+    The Solution: The BFF Pattern
+    The BFF pattern proposes creating a separate backend component for each client 
+    (e.g., a "Web BFF" and a "Mobile BFF") [04:44]. Each BFF is tailored to its specific client,
+    ensuring that the client receives only the data it needs [05:27]. This separation leads 
+    to more streamlined and manageable code. Ideally, the team responsible for a client's 
+    frontend also manages its corresponding BFF [06:16].
+
+    Key Differences
+    API Gateway: A single component for multiple clients, which can lead to bloated and 
+    hard-to-change code [08:16].
+
+    BFF: A dedicated backend for each client, resulting in client-specific code that is easier to 
+    maintain and scale [08:23].
+
+
+-----------------------------
+
+The video explains what an API Gateway is, its purpose, historical context, and its key 
+functions within system design.
+
+Historical Context
+    * Monoliths: In the 2000s, systems were often single monoliths, simple but hard to scale [00:05].
+    * Microservices: As services grew, monoliths were split into microservices, which created the 
+    challenge of how clients would access multiple services [00:31].
+    * API Gateway: Introduced around 2013-2014, the API Gateway acts as a thin layer in front of 
+    microservices, allowing clients to use a single endpoint to access various services [01:16].
+
+Key Functions of an API Gateway
+The video details four main functions:
+    * Request Validation: The gateway checks for correct formatting and headers before processing 
+    a request [03:24].
+    * Running Middleware: It handles shared tasks like authentication, rate limiting, and caching [01:49].
+    * Routing: This is the primary function, where the gateway uses a routing map to direct requests 
+    to the correct microservice [04:05].
+    * Transforming the Response: It can transform the response from a microservice (e.g., from gRPC to JSON)
+    before sending it to the client [04:44].
+
+Popular API Gateways
+The video mentions:
+    * Managed Gateways: Services provided by cloud providers like AWS API Gateway and Microsoft 
+    Azure API Management [05:17].
+    * Open-Source Alternatives: Examples include Kong, Tyk, and Express Gateway [05:29].
+    * The video also notes that mentioning an API Gateway is expected in a system design interview 
+    when discussing a microservices architecture [05:56].
+
+--------------------
+
+This video provides a comprehensive API learning roadmap, covering foundational concepts, 
+architectural styles, and advanced integration patterns.
+
+The video is structured around the following key topics:
+
+API Fundamentals
+    Definition: An API, or Application Programming Interface, is a set of rules that enables 
+    different software systems to communicate with each other [00:13].
+
+Types: The three main types are public, private, and partner APIs [00:20].
+
+Architectural Styles
+REST: The most common style, which is resource-based and stateless [00:44].
+GraphQL: Allows clients to request specific data in a single request [00:53].
+gRPC: Uses protocol buffers and HTTP/2 for high-performance communication [00:58].
+SOAP: A formal, XML-based protocol often used in older enterprise systems [01:06].
+WebSockets: Enables real-time, bidirectional communication [01:13].
+
+Core Concepts and Terminology
+HTTP Methods: The video explains POST, GET, PUT, and DELETE for REST APIs [02:32].
+
+Security: Common authentication methods are discussed, including basic auth, token-based authentication, JWT, OAuth, and session-based authentication [02:54].
+
+Modern API Features and Practices
+Usability & Resilience: Key features include pagination, parameters, versioning, and idempotency [04:02].
+
+Performance: Tips for improving performance include caching, rate limiting, load balancing, 
+and database indexing [04:31].
+
+Scaling: The video defines vertical scaling (increasing server capacity) and horizontal 
+scaling (adding more servers) [04:51].
+
+Ecosystem and Tools
+API Gateways: Act as a centralized entry point for managing API traffic [05:07].
+
+Frameworks: The video mentions popular frameworks for building APIs, such as Express.js, 
+Spring Boot, Flask, and Django [05:29].
+
+Documentation: Tools like Swagger and the Open API specification are mentioned for creating 
+standardized API contracts [03:32].
+
+System Design Patterns
+The video concludes by briefly mentioning concepts such as synchronous vs. asynchronous 
+communication, webhooks, and message queues [05:54].
+
+------------
+Patterns for managing databases in a microservices architecture
+
+This video provides an overview of different patterns for managing databases in a microservices architecture, 
+highlighting both best practices and anti-patterns.
+
+Anti-Pattern: Shared Database
+    The shared database pattern is considered an anti-pattern because it compromises the benefits of microservices, 
+    such as modularity and scalability [01:10]. When multiple services rely on a single database, it can lead to 
+    technical issues like deadlocks [02:02].
+
+Recommended Patterns
+    1. Separate Databases for Each Microservice
+        A better approach is to use a separate database for each microservice, which allows for independent scaling [03:37].
+
+    2. Distributed Transactions
+        Two-Phase Commit: A method to ensure consistency in distributed transactions by having a "prepare" and a 
+        "commit" phase. All services must be ready before the commit is issued; otherwise, all transactions are 
+        rolled back [06:05].
+        Saga Pattern: This pattern uses a message broker to manage a series of transactions. If a service fails, 
+        compensatory actions are used to roll back the changes [09:46].
+
+    3. API Composition
+        This is a read-focused pattern where a parent service aggregates data by querying multiple other services [10:49].
+
+    4. Command Query Responsibility Segregation (CQRS)
+        CQRS involves separating the database into a "write" database and one or more "read" databases [12:35]. 
+        This allows read databases to be scaled independently to improve throughput for read-heavy operations [13:10].
+
+    5. Event Sourcing
+        This pattern records every change to an application's state as an event in an event log, providing a full 
+        history of changes for auditing or compliance [15:11]. The current state is then reconstructed by replaying 
+        these events [17:13].
+
+----------------------
+
+AUTHENTICATION AND AUTHORIZATION
+
+This video provides a detailed explanation of authorization, differentiating it from authentication and detailing 
+the three main authorization models used in application and system security.
+
+Authorization vs. Authentication
+    Authentication confirms a user's identity to allow them to log into a system [00:00].
+    Authorization determines what the authenticated user is permitted to do, such as which resources they can 
+    access or actions they can perform [00:07].
+
+Three Main Authorization Models
+The video describes three common models for managing permissions:
+
+Role-Based Access Control (RBAC)
+    - This is the most common model, where users are assigned roles (e.g., admin, editor, viewer), and each 
+    role has a predefined set of permissions [01:53].
+    - RBAC is used in many everyday applications like GitHub and team management tools [03:51].
+
+Attribute-Based Access Control (ABAC)
+    - This is a more flexible model that defines access based on a combination of user attributes, resource attributes,
+    and environmental conditions [04:08].
+    - Access is granted only when specific conditions based on these attributes are met [04:16].
+
+Access Control Lists (ACL)
+    - With ACLs, each specific resource has its own permissions list [02:22].
+    - This model offers high specificity but is harder to scale in systems with millions of users [06:12].
+    - Google Drive is a real-world example of ACL, where permissions are managed for individual documents [06:29].
+
+Enforcing Authorization Rules
+    - OAuth 2.0: A protocol for delegated authorization that allows a third-party application to access a user's 
+    resources on another service without the user sharing their password [07:37].
+    - Tokens (JWT): Systems often use a token, such as a JSON Web Token (JWT), which contains information like the 
+    user's ID, roles, and access scopes. This token is sent with every user request, allowing the server to 
+    validate it and apply the correct permissions logic [09:13].
+
+-------------------
+
+EVENT STORMING
+
+This video provides a detailed overview of Event Storming, a technique used in Domain-Driven Design (DDD) 
+to understand and model complex business domains. The process is illustrated using an e-commerce shopping 
+cart as an example [00:45].
+
+The Event Storming process involves:
+    - Participants: A group of people including developers, domain experts, and product owners [00:59].
+    - Materials: Post-it notes of different colors and a large wall to visualize the flow [01:04].
+    - Events: The first step is to identify all key events that occur within the business process, written in the 
+    past tense (e.g., "product added") [01:52].
+    - Actors and Commands: Next, the team adds the actors (people or systems) and commands (actions) that trigger 
+    these events [03:37].
+    - Policies: Business rules and constraints that must be checked before an action can proceed are added as 
+    policies [04:52].
+    - Hotspots: Red Post-it notes are used to highlight potential issues, uncertainties, or risks in the process [06:18].
+    - Sequencing: The components are then arranged in a logical sequence to create a visual flow of the business process [07:03].
+    - Aggregates: Clusters of events, commands, and policies centered around a common concept, such as the shopping cart, 
+    are identified as aggregates [08:04].
+    - Query Models and External Systems: Finally, the data needed (query models) and any external systems or third-party 
+    APIs are identified [09:14].
+
+This entire process helps teams move from understanding the business domain to defining the technical solution, including concepts like database modeling and bounded contexts [12:45].
+
+-----------------------------
+
+DB MULTI-TENANCY
+
+This video discusses the concept of multi-tenancy in software architecture, where a single application serves multiple
+"tenants" or customers [00:04]. It contrasts this with a single-tenant system where each customer has their own dedicated application and database [01:50].
+
+The video outlines three different ways to manage data in a multi-tenant environment:
+
+Shared Database
+    All tenants share a single backend application and a single database.
+    Data is isolated by adding a tenant ID column to each table [04:35].
+    This approach is easy to store data, scale, and deploy, but carries a risk of data isolation
+    issues and performance problems if one tenant's activity affects others [05:36].
+
+One Database, Different Schemas
+    Tenants share the same backend but have their own dedicated database schema within a single database [09:56].
+    This method provides stronger data isolation and easier per-tenant backups and customization.
+    However, it can be difficult to manage schema migrations and may have performance issues with too many schemas [11:25].
+
+Dedicated Databases
+    Each tenant has its own separate database, while still using the same backend application [12:47].
+    This approach offers maximum data isolation, security, and eliminates the "noisy neighbor" performance issue.
+    The main drawbacks are that it is more expensive and difficult to manage and migrate, as a new database must
+    be created for every tenant [13:35].
+
+---------------------------
+
+This video provides a detailed explanation of the Backend for Frontend (BFF) architectural pattern, which is a solution 
+for supporting multiple client types, such as desktop and mobile apps, with a single backend.
+
+The Problem
+    The video highlights the challenge of a single backend serving different clients with varying data needs. 
+    A single, monolithic backend might send a large amount of unnecessary data to a mobile app, leading to poor 
+    performance and a bad user experience [05:48]. This issue is even more pronounced when integrating with devices
+    like Alexa, which require data in a completely different format [09:04].
+
+The BFF Solution
+    The BFF pattern solves this by creating a dedicated, intermediary layer between the core backend services and the clients. 
+    Instead of clients directly calling the backend, they call a specific BFF tailored to their needs (e.g., a desktop BFF 
+    or a mobile BFF).
+
+    This BFF layer handles the presentation logic, filtering out unnecessary data and making multiple internal calls 
+    to backend services if required.
+
+    The core backend remains generic, providing all possible information, and the BFF is responsible for customizing 
+    the response for each client.
+
+    The pattern is also highly effective in a microservices environment. For example, a desktop BFF might aggregate 
+    data from product, seller, and review services, while a mobile BFF might fetch from product and seller services 
+    but also an augmented reality (AR) service, skipping the review service entirely to save space [14:56].
+
+Advantages of the BFF Pattern
+    - Isolated Interfaces: The pattern allows for multiple, isolated interfaces that do not interfere with each other [16:32].
+    - Faster Client-Specific Tweaks: Changes for a specific client can be implemented and deployed more quickly [16:59].
+    - Data Security: Sensitive information can be filtered out at the BFF layer before reaching the client [17:25].
+    - Protocol Flexibility: Different BFFs can use different communication protocols without affecting the core backend [17:43].
+    - Request Aggregation: The BFF can act as an aggregator, reducing the number of API calls a client has to make [20:42].
+
+Disadvantages of the BFF Pattern
+    - Increased Complexity: It adds more components to the infrastructure that need to be managed, monitored, and deployed [23:25].
+    - Potential Code Duplication: Similar logic might be duplicated across different BFFs, requiring careful management [22:47].
+    - Increased Latency: Adding an extra network hop can slightly increase latency, which may not be ideal for super low-latency
+    applications [23:53].
+
+When to Use BFF
+The video recommends using the BFF pattern in two main scenarios:
+    When there are significant differences in the data required by different clients [24:40].
+    When clients require different communication formats or protocols [25:49].
+
+---------------------
+
+TYPESCRIPT
+
+This video provides a comprehensive overview of several key concepts in TypeScript, presented as a series of 
+interview questions and answers. The hosts explain each topic with code examples.
+
+Key Topics
+    Generic Functions: A way to write flexible code that works with different types. It allows you to
+    use type arguments in a function that are determined when the function is used [00:06].
+
+    as const: A feature that creates an immutable object where all properties are also immutable, 
+    preventing modifications at any level [02:07].
+
+    Private Access Modifier: This restricts access to a class variable or method from outside the class, 
+    enforcing the principle of interface segregation [04:34].
+
+    Decorators: A design pattern that lets you reuse code by wrapping a class or function with additional
+    functionality. This is a common practice in frameworks like Next.js and NestJS [06:05].
+
+    Type vs. Interface: While often used interchangeably, interfaces are merged at build time, allowing for 
+    extensions. Types must be unique. The video recommends using types for defining domain entities and 
+    interfaces for auxiliary shapes [08:16].
+
+    Type Guard: A function that helps narrow down a union type to a specific subtype, useful for performing 
+    actions that are only valid for one of the types [09:51].
+
+    Structural vs. Nominal Typing: TypeScript uses structural typing, where two objects are considered the 
+    same type if they have the same properties, regardless of their original declaration. This is different 
+    from nominal typing, where types must explicitly match their signature [11:11].
+
+-------------------------------
+
+BFF (Backend for Frontend)
+
+    The video explains the Backend for Frontend (BFF) pattern, a specialized service layer that
+    sits between an application and its backend services [01:42]. The key principle of this pattern 
+    is to create a dedicated backend service for each type of client, such as a mobile app, web app, or an IoT device [01:49].
+
+    How the BFF Pattern Solves Problems with General Purpose APIs
+    A single, general-purpose API can become a bottleneck when trying to accommodate the different needs of
+    various clients. The BFF pattern addresses this by allowing for tailored backends that:
+
+    Aggregate data from various microservices and format it specifically for a single client [02:29].
+
+    Handle client-specific business logic and workflows [02:37].
+
+    Optimize performance and security for each client type [02:09].
+
+    Netflix's Implementation of the BFF Pattern
+    Netflix uses a separate backend for each client type, including Android, iOS, TV, and web platforms [02:50]. 
+    This allows each platform's backend to be optimized for its unique needs, such as providing high-resolution 
+    content for a TV app or data-saving images for a mobile app [03:53].
+
+    Implementing the BFF Pattern
+    To implement the pattern, you should first identify the different types of clients that use your system [04:44]. 
+    For each client, you will create a dedicated backend service that aggregates and formats data, handles specific b
+    usiness logic, and interacts with core microservices [04:50]. Each BFF can be scaled and maintained independently 
+    without affecting the others [05:03].
+
+    The video notes that the organizational structure can influence whether it's better to have a dedicated BFF for 
+    each client or a single BFF for multiple clients [05:59]. However, the BFF pattern is presented as a powerful 
+    strategy for optimizing microservices architecture to deliver a better user experience across diverse platforms
+
+-------------------------
+
+MFE (Micro-Frontend)
+
+What is Micro-Frontend Architecture?
+    A micro-frontend is essentially a microservice that runs within the browser. Instead of a single, 
+    monolithic frontend, it divides the application into multiple independent codebases. Each codebase 
+    is managed by a different team, allowing for a single webpage to have various sections (e.g., products,
+    a shopping cart, and recommendations) handled by separate teams.
+
+Pros and Cons of Micro-Frontends
+    Pros:
+        a. Scalability and Reusability: The architecture allows for dividing the application into independent 
+        domains, and components can be reused across different parts of the application.
+
+        b. Reliability: The failure of one micro-frontend does not cause the entire application to fail.
+
+        c. Technology Flexibility: It allows different parts of the application to be built with different 
+        frameworks and languages.
+
+        d. Independent Pipelines: Each micro-frontend can have its own separate Continuous Integration/Continuous
+        Deployment (CI/CD) pipeline, testing, and deployment process.
+
+    Cons:
+
+        a. Increased Complexity: This architecture can increase the overall complexity of the application.
+
+        b. Increased Cost: Creating and managing multiple repositories and pipelines can increase costs.
+
+---------------------------
+
+The image shows a mind map titled "System Design Interview in Frontend." The map is a framework for 
+frontend system design interviews, breaking down the topic into four main pillars:
+
+1. Features
+   This section focuses on the functional requirements of the system.
+    - MVP (Minimum Viable Product):** The smallest set of features required to launch the product.
+    - High-level estimation:** Predicting data volumes and peak traffic.
+    - Core functionality:** Defining the main features of the application.
+
+2. Non-Functional Requirements**
+    This section covers the non-functional aspects of the system.
+    - Performance:** Discusses strategies like **caching**, **CDN (Content Delivery Network)**, 
+    **lazy loading**, and **page splitting**.
+    - Offline mode:** Mentions using `localStorage` and `IndexedDB`.
+    - Security:** Covers **XSS (Cross-Site Scripting)** and **CSRF (Cross-Site Request Forgery)**.
+    - High Availability:** Mentions **load balancers** and **health checks**.
+
+3. User Experience**
+    This section is dedicated to the user-facing aspects of the design.
+    - Accessibility:** Covers **screen readers**, **color contrast**, and **keyboard navigation**.
+    -  User-friendly:** Mentions having clear **error messages**, **loading indicators**, and **partially rendering** the page to improve perceived performance.
+
+4. Backend API**
+    This section covers the interaction with the backend.
+    - API Style:** Discusses different API styles like **RESTful**, **GraphQL**, and **RPC**.
+    - Data Structure:** Covers aspects like "happy paths" (expected scenarios) and "failure" (error handling).
+    - Security:** Mentions **API keys** and **HTTPS**.
+    - Pagination** and **sorting** are also included as key considerations for data handling.
+
+----------------------------------------
+
+Design patterns for building scalable and maintainable React applications
+
+This video, "3 React Design Patterns That Will Take Your Skills to the Next Level," provides a detailed look at 
+three key design patterns for building scalable and maintainable React applications:
+
+    a. Container/Presentational Pattern: This pattern separates logic (container components) from presentation 
+    (presentational components). It promotes separation of concerns and reusability but can introduce more 
+    boilerplate code and a learning curve.
+
+    b. Custom Hooks: This pattern is used for abstracting and reusing stateful logic in functional components. 
+    It allows for code reusability and separation of concerns but can increase debugging complexity due to 
+    abstraction and over-abstraction.
+
+    c. Higher-Order Components (HOCs): This classic pattern enhances component capabilities by wrapping them 
+    in a function that contains common logic. HOCs promote code reusability and separation of concerns, but 
+    can lead to "wrapper hell" and prop collisions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

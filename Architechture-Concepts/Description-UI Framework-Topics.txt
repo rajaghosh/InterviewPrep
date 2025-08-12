@@ -1,0 +1,369 @@
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+Advanced Topics
+Here are details for a few advanced topics in mobile system design.
+
+---------------------------------------------------------------------------------------------------------
+
+a. On-Device Machine Learning
+    On-device machine learning (ML) runs ML models directly on the user's device rather than on a server. 
+    This offers several benefits:
+    - Privacy: User data doesn't need to be sent to a server.
+    - Speed: Processing happens instantly without network latency.
+    - Offline Functionality: ML features work even without an internet connection.
+    - Frameworks: Developers use frameworks like Core ML for iOS and TensorFlow Lite for Android to integrate 
+    pre-trained models into their apps.
+
+b. Augmented & Virtual Reality
+    Augmented Reality (AR) overlays digital information onto the real world, while Virtual Reality (VR) 
+    creates a fully immersive, 
+    computer-generated environment.
+    - iOS: ARKit is Apple's framework for creating AR experiences.
+    - Android: ARCore is Google's platform for building AR apps.
+    - Headsets: Both AR and VR are often experienced through dedicated headsets, but mobile phones can also 
+    serve as the display for simpler experiences.
+
+c. Wearables
+    Wearables are smart electronic devices worn on the body, such as smartwatches and fitness trackers. 
+    Mobile apps need to be designed to communicate with these devices, often via Bluetooth.
+    - iOS: The WatchKit framework is used to build apps for the Apple Watch.
+    - Android: Wear OS is Google's operating system for smartwatches.
+
+d. Foldables & Multi-Window UIs
+    Modern smartphones with foldable screens and multi-window UIs present new challenges and opportunities 
+    for developers.
+    - Responsive Design: Apps must be able to adapt their layout to different screen sizes and aspect ratios, 
+    whether the device is folded or unfolded.
+    - Seamless Transitions: The app's state should be preserved when the device is folded or a window is resized.
+    - Drag-and-Drop: Multi-window UIs enable new interactions like dragging and dropping content between two 
+    different apps.
+
+e. Server-Driven UI
+    Server-driven UI (SDUI) allows the server to dictate the layout and components of a mobile app's screen.
+    - Flexibility: Developers can change the UI without requiring an app update, providing greater agility.
+    - Dynamic Content: The app can display different UIs based on user profile, A/B testing, or other 
+    -side logic.
+    - Implementation: The client app fetches a JSON or XML payload from the server that describes the UI, 
+    and then renders it using a set of pre-defined components.
+
+f. Cross-Platform Mobile Development
+    Cross-platform mobile development involves building apps that can run on multiple operating systems (like 
+    iOS and Android) from a single codebase.
+    - Frameworks: Popular cross-platform frameworks include React Native, Flutter, and Xamarin.
+    - Trade-offs: While this approach can save time and money, it may come with performance limitations or a 
+    less "native" user experience compared to native development.
+
+g. Internationalization
+    Internationalization (i18n) is the process of designing an app so that it can be adapted to various languages 
+    and regions without requiring changes to the code.
+    - Localization: This is the process of adapting the app for a specific locale, which includes translating text, 
+    adjusting for cultural norms, and handling different date and currency formats.
+    - Support: Both iOS and Android provide robust support for internationalization and localization, with tools 
+    for managing string files and adapting layouts for right-to-left languages.
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+• API Design & Networking
+Here is a breakdown of the key concepts in API design and networking for mobile systems.
+
+---------------------------------------------------------------------------------------------------------
+
+* Communication Protocols
+    - REST (Representational State Transfer): A standard architectural style for building 
+    web services. It uses standard HTTP methods (GET, POST, PUT, DELETE) to perform CRUD 
+    (Create, Read, Update, Delete) operations on resources.
+    - Websockets: A communication protocol that provides full-duplex communication channels 
+    over a single TCP connection. This allows for real-time, bi-directional data exchange 
+    between a client and a server.
+    - GraphQL: An API query language that gives clients the power to ask for exactly the data
+    they need, and nothing more. This reduces over-fetching and under-fetching of data.
+    - gRPC: A high-performance, open-source RPC (Remote Procedure Call) framework that uses 
+    Protocol Buffers for efficient data serialization. It's often used for microservices 
+    and other high-performance communication.
+
+---------------------------------------------------------------------------------------------------------
+
+* Real-time Updates
+    - HTTP Polling: The client repeatedly makes requests to the server at regular intervals to 
+    check for new data. This is inefficient as it creates unnecessary traffic.
+    - HTTP Long-Polling: The client makes a request to the server, and the server holds the 
+    connection open until new data is available or a timeout occurs.
+    - Server-Sent Events (SSE): A server-push technology that allows a server to send automatic 
+    updates to a client over a single HTTP connection. It's a one-way communication channel from server to client.
+    - WebSockets: As mentioned above, it provides a persistent, full-duplex connection for real-time data exchange.
+    - Push Notifications: A mechanism for sending messages from an app publisher to an app user. Notifications
+     are typically delivered through the device's operating system and don't require the app to be open.
+
+---------------------------------------------------------------------------------------------------------
+
+* Pagination
+    Pagination is a technique for splitting large datasets into smaller, manageable chunks.
+    - Limit-Offset Pagination: A common method where you request a specific number of items (limit) 
+    starting from a certain position (offset). This can be inefficient for large datasets.
+    - Page-Based Pagination: The server returns data in numbered pages. The client requests a specific 
+    page number. This can also be inefficient if pages are added or removed, leading to incorrect results.
+    - Keyset Pagination / Cursor-Based Pagination: A more robust method where the client requests a set 
+    of data "after" a specific key or cursor. This is more efficient for large datasets as it avoids the 
+    performance issues of limit-offset pagination.
+
+---------------------------------------------------------------------------------------------------------
+* API Integration
+    
+    HTTP Clients:
+        - iOS: 
+            "URLSession" is Apple's native API for handling network requests. 
+            "Alamofire" is a popular third-party library that provides a more convenient, high-level API.
+        - Android: 
+            "OkHttp" is a powerful, efficient HTTP client. 
+            "Retrofit" is a type-safe HTTP client built on top of OkHttp that simplifies API calls 
+            with an annotation-based approach.
+
+    Serialization & Parsing:
+        - iOS: 
+            "Codable / Decodable" is a Swift protocol that makes it easy to encode and decode custom 
+            data types to and from external representations like JSON. JSONDecoder / JSONEncoder can be customized 
+            for specific data formats.
+        - Android: 
+            "Moshi" and "Gson" are popular libraries for converting JSON into Kotlin/Java objects. 
+            kotlinx.serialization is a modern, multiplatform serialization library for Kotlin.
+        - DTO & Domain model mappers: Mappers are used to convert Data Transfer Objects (DTOs), which 
+        are often received from the API, into the app's internal domain models, separating the API's data 
+        structure from the app's business logic.
+
+    Background Calls:
+        - iOS: URLSession supports background sessions, allowing transfers to continue even if the app is suspended.
+        - Android: WorkManager is a recommended library for deferrable, guaranteed background work. JobScheduler 
+        is a more low-level API for scheduling tasks.
+
+    Delta Updates: A strategy for only fetching the changes (deltas) since the last update, instead of fetching 
+    the entire dataset.
+        - Using Timestamps: The client sends a timestamp, and the server returns all data that has been modified 
+        since that time.
+        - Using SequenceID: Similar to a timestamp, but the client sends the last known sequence ID, and the server 
+        returns all items with a higher ID.
+        - Using ETAG: A unique identifier for a specific version of a resource. The client sends the ETag, and if 
+        the resource hasn't changed, the server returns a 304 Not Modified status code.
+
+    Offline & Sync:
+        - Conflict resolution: A process for handling situations where a user modifies data offline, and 
+        another user modifies the same data online. Strategies include "last write wins" or user-prompted conflict 
+        resolution.
+        - Queueing: Storing offline requests in a queue to be processed once the network connection is restored.
+        - Background retry: Automatically retrying failed network requests in the background.
+
+    Batched Requests: Combining multiple API requests into a single request to reduce network overhead.
+
+    Resumable Uploads / Downloads: The ability to pause and resume large file transfers without starting over.
+
+    Prefetching: Loading data in the background that is likely to be needed in the near future, to reduce perceived latency.
+
+---------------------------------------------------------------------------------------------------------
+
+* Caching Strategies
+    
+    - HTTP Cache-Control Headers: HTTP headers that define caching policies, such as how long a resource can be cached by the 
+    browser or an intermediary proxy.
+    - ETag / Last-Modified: Headers used for conditional requests. If the resource hasn't changed, the server returns a 304 
+    Not Modified status, and the client uses its cached version.
+    - Memory Cache: Storing frequently accessed data in the device's RAM for fast access.
+    - iOS: NSCache is a mutable collection for temporarily storing transient key-value pairs. It's similar to a dictionary 
+    but with eviction policies.
+    - Android: LRUCache (Least Recently Used) is a common strategy for managing a memory cache, where the least recently 
+    accessed items are removed when the cache reaches its capacity.
+    - Disk Cache: Storing data on the device's persistent storage for longer-term caching.
+    - Custom Cache Invalidation Strategies: Defining specific rules for when a cached item should be considered stale and 
+    re-fetched from the server.
+
+---------------------------------------------------------------------------------------------------------
+
+* Authentication
+    
+    Basic Login/Password over HTTPS: A user provides a username and password, which are sent over a secure HTTPS 
+    connection.
+    
+    Third-Party Logins:
+        - Sign in with Apple / Google: Secure and user-friendly ways to authenticate users using their existing 
+        Apple or Google accounts.
+        - OAuth 2.0: An industry-standard protocol for authorization, allowing third-party services to access user 
+        data without the user sharing their credentials.
+        - OpenID: An authentication layer on top of OAuth 2.0 that allows clients to verify a user's identity.
+    
+    Biometric Authentication: Using a user's fingerprint or face scan to authenticate them.
+    
+    Multi-Factor Authentication: Requiring a user to provide two or more verification factors to gain access.
+    
+    Access Token & Refresh Token Flow: A common and secure authentication pattern where a short-lived access 
+    token is used for API calls, and a long-lived refresh token is used to obtain a new access token when the 
+    old one expires.
+    
+    Token storage best practices: Storing tokens securely, often in the device's keychain on iOS or 
+    EncryptedSharedPreferences on Android.
+
+---------------------------------------------------------------------------------------------------------
+
+Retry Policies
+    - Exponential Backoff: A strategy for retrying failed requests where the wait time between retries 
+    increases exponentially. This prevents overwhelming the server with repeated requests during a 
+    temporary outage.
+    - Linear Backoff: Similar to exponential backoff, but the wait time increases linearly.
+    - Circuit Breakers: A design pattern that detects when a service is failing and automatically prevents 
+    subsequent requests from being sent to it for a period of time, giving the service a chance to recover.
+    - Retrying after OAuth token refresh: If a request fails due to an expired access token, the app can 
+    use the refresh token to get a new access token and then retry the original request.
+
+---------------------------------------------------------------------------------------------------------
+
+API Evolution & Backward compatibility
+    - URI Versioning: Including the API version in the URI (e.g., /api/v1/users) to allow for multiple versions 
+    of the API to run simultaneously, ensuring older clients don't break.
+    - Adding / removing fields: When evolving an API, it's generally best to add new fields instead of removing 
+    existing ones, to maintain backward compatibility. If a field must be removed, the versioning strategy comes 
+    into play.
+
+---------------------------------------------------------------------------------------------------------
+
+CDN
+    CDN (Content Delivery Network): A geographically distributed network of servers that caches content and serves 
+    it from a location closer to the end user. This reduces latency and improves performance for delivering static 
+    assets like images, videos, and JavaScript files.
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+Software Architecture & Design Patterns
+Here are the details for various software architecture and design patterns.
+
+---------------------------------------------------------------------------------------------------------
+
+*** IGNORE ALREADY UPDATED ***
+
+App-Wide Architectural patterns
+These patterns provide a high-level structure for organizing the entire application's codebase, aiming to 
+separate concerns, improve testability, and enhance maintainability.
+    a. MVC (Model-View-Controller): A classic pattern where the Model manages the app's data and business 
+    logic, the View handles the user interface, and the Controller acts as an intermediary, updating the 
+    View when the Model changes and handling user input.
+    b. MVP (Model-View-Presenter): Similar to MVC, but the Presenter is an intermediary that contains the 
+    business logic and drives the View. The View is often a passive interface with no logic, making it 
+    easier to test.
+    c. MVVM (Model-View-ViewModel): The ViewModel acts as an intermediary between the Model and the View. 
+    It exposes data and commands that the View can bind to, often using data-binding frameworks. This pattern 
+    is well-suited for modern declarative UI frameworks like SwiftUI and Jetpack Compose.
+    d. MVI (Model-View-Intent): A unidirectional data flow pattern. The Intent represents a user action. These 
+    intents are processed by a business logic component (often a ViewModel or Presenter) that produces a new 
+    Model state. The View observes the Model and renders the UI based on the current state.
+    e. Clean Architecture: A layered architectural approach that separates the app into concentric circles. 
+    The inner circles (like the Domain or business logic) are independent of the outer circles (like the UI 
+    and database), making the core logic highly testable and framework-agnostic.
+    f. VIPER (View-Interactor-Presenter-Entity-Router): An architectural pattern that separates concerns more 
+    granularly. The View displays the UI, the Interactor contains the business logic, the Presenter updates the 
+    View based on the Interactor's output, the Entity holds the data, and the Router handles navigation.
+    g. Redux: A state management pattern that uses a single, immutable state tree. All changes to the state are 
+    made through a unidirectional data flow: Actions are dispatched to a Reducer, which updates the state.
+
+---------------------------------------------------------------------------------------------------------
+
+Design Patterns (GOF)
+The "Gang of Four" (GOF) design patterns are solutions to common problems in software design. They are 
+categorized into three main types: Creational, Structural, and Behavioral.
+
+    a. Creational
+        These patterns deal with object creation mechanisms, trying to create objects in a manner suitable 
+        for the situation.
+        - Singleton: Ensures a class has only one instance and provides a global point of access to it.
+        - Factory Method: Defines an interface for creating an object but lets subclasses decide which 
+        class to instantiate.
+        - Builder: Separates the construction of a complex object from its representation, allowing the 
+        same construction process to create different representations.
+        - Abstract Factory: Provides an interface for creating families of related or dependent objects 
+        without specifying their concrete classes.
+        - Prototype: Creates new objects by copying an existing object, known as the prototype.
+
+    b. Structural
+        These patterns are concerned with how classes and objects are composed to form larger structures.
+        - Facade: Provides a simplified interface to a complex subsystem.
+        - Proxy: Provides a surrogate or placeholder for another object to control access to it.
+        - Adapter: Allows objects with incompatible interfaces to collaborate.
+        - Decorator: Attaches new responsibilities to an object dynamically.
+        - Composite: Composes objects into tree structures to represent part-whole hierarchies.
+        - Bridge: Decouples an abstraction from its implementation so that the two can vary independently.
+        - Flyweight: Reduces the number of objects created to improve performance and memory usage.
+
+    c. Behavioral
+        These patterns are concerned with algorithms and the assignment of responsibilities between objects.
+        - Observer: Defines a one-to-many dependency between objects so that when one object (the subject) 
+        changes state, all its dependents (observers) are notified and updated automatically.
+        - Chain of responsibility: Passes a request along a chain of handlers. Each handler decides either 
+        to process the request or to pass it to the next handler in the chain.
+        - Strategy: Defines a family of algorithms, encapsulates each one, and makes them interchangeable.
+        - Mediator: Defines an object that encapsulates how a set of objects interact.
+        - Command: Encapsulates a request as an object, thereby letting you parameterize clients with 
+        different requests, queue or log requests, and support undoable operations.   
+        - Memento: Captures and externalizes an object's internal state so that the object can be restored 
+        to this state later.
+        - Interpreter: Given a language, defines a representation for its grammar along with an interpreter 
+        that uses the representation to interpret sentences in the language.
+        - Visitor: Represents an operation to be performed on the elements of an object structure. Visitor 
+        lets you define a new operation without changing the classes of the elements on which it operates.
+
+---------------------------------------------------------------------------------------------------------
+
+* Other
+    These are important concepts and patterns used in mobile development that fall outside the 
+    traditional GOF classification.
+    - Dependency Injection (DI): A technique where objects are given their dependencies from an 
+    external source rather than creating them themselves. This improves testability and reduces coupling.
+        * iOS: Manual DI in Swift involves passing dependencies through initializers or properties. 
+        Swinject is a popular third-party DI container
+        * Android: Manual DI in Kotlin is similar to Swift. Hilt is a recommended DI library for 
+        Android that integrates with the Dagger framework. Dagger is a powerful, compile-time DI framework.
+    - Delegate: A common pattern in iOS development where an object (the delegate) acts on behalf of 
+    or in coordination with another object.
+    - Reactive Programming: A programming paradigm centered around data streams and the propagation 
+    of change. Libraries like Combine (iOS) and RxJava / Kotlin Flow (Android) are used to handle asynchronous events.
+    - Service Locator: A pattern where a central registry (the service locator) is used to find and 
+    retrieve dependencies. It can lead to tight coupling and is often seen as an anti-pattern compared to DI.
+    - Feature flags & Remote Config: A technique that allows developers to toggle features on and 
+    off remotely without requiring a new app update. Remote Config is a service that allows apps to 
+    retrieve key-value pairs from a server.
+
+
+---------------------------------------------------------------------------------------------------------
+========================================================================================================= 
+
+Interview Strategy (Non-Tech)
+    Here are the details for each of the non-technical aspects of a mobile system design interview.
+
+---------------------------------------------------------------------------------------------------------
+
+Clarify Requirements
+    - This is the most critical phase. Your goal is to gather enough information to design the right solution, 
+    not just *a* solution.
+    - Ask questions to reduce ambiguity:** Don't make assumptions. Ask about user-specifics, platform 
+    constraints, and other details. For example, "Will users need to share this content?"
+    - Determine scope:** Clearly define what you're designing. Is it just the mobile app's front-end? Or 
+    does it include the API and back-end?
+    - Define functional requirements:** These are the core features of the app. For example, "Users can log in," 
+    or "Users can create and view a list of items."
+    - Define non-functional requirements:** These are the qualities of the system.
+        - Offline mode:** Will the app need to work without an internet connection? What data should be accessible?
+        - Minimize traffic bandwidth:** How can you optimize data transfer to save user data plans? Consider things
+        like image compression, delta updates, and caching.
+        - Minimize battery consumption:** What are the key battery drains (GPS, network requests, etc.) 
+        and how can they be managed?
+        - Optimize scroll: FPS = 60:** How will you ensure the UI is smooth? This often involves optimizing 
+        rendering and avoiding heavy work on the main thread.
+        - Data consistency:** Is **strong consistency** (all users see the same data at the same time) or 
+        **eventual consistency** (data will eventually become consistent) required? For a chat app, you need 
+        strong consistency. For a social media feed, eventual consistency is often acceptable.
+        - Address scale of the engineering team:** Mention that the design should be easy for a team to work with. 
+        Clean architecture and a well-defined API help.
+    - Define out of scope:** Explicitly state what you won't be covering to manage expectations and keep the conversation
+    focused. For example, "For the sake of time, I won't be designing the full back-end, but I'll define the API contract."
+    - Address scale:** Ask about the number of users. **Daily Active Users (DAU)** is a key metric. A small app for 1,000 
+    users has different requirements than an app for 10 million DAU.
+    - Address authentication:** Ask about the required login methods. Will it be a simple email/password, or will it 
+    involve third-party logins (e.g., "Sign in with Apple")?
+    - Address target OS versions:** Ask which versions of iOS and Android the app needs to support. This affects which 
+    frameworks and APIs you can use.

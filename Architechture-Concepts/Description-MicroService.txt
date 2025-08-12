@@ -1,0 +1,94 @@
+--------------------
+
+Microservices 
+
+    Micro service Foundatation
+    1. Monolith vs microservice
+    - What is monolith
+    - Problem with monoliths at scale
+    - Introduction to microservice
+    - Key benefits - Scalability, Fault isolation, independent deployability
+
+    2. Microservice core principles
+    - Single responsibility Principle
+    - Decentralised data management
+    - service autonomy
+    - API-first design
+
+    3. Key terminology
+    - Service registry and discovery
+    - API Gateway
+    - Circuit Breaker
+    - Synchronous vs asynchronous communication
+    - Eventual Consistency
+
+    Microservice Design Pattern
+    4. Architechture Pattern
+    - Database per service
+    - API Gateway
+    - Backend for Frontend (BFF)
+    - Service Mesh
+    - CQRS
+    - Event Sourcing
+
+    5. Communication Style
+    - Synchronous (RPC, gRPC)
+    - Asynchronous (Kafka, RabbitMQ, EventBus)
+    - When to use each 
+
+    Hands-on
+    6. Simple project with three services - 
+        - Product Service
+        - Payment Service
+        - Order Service
+    - Use Rest APIs to communicate
+    - Add an API gateway
+
+    7. Add-On features
+    - Service discovery
+    - Load Balancing (Ribbon or Spring Cloud Load Balancer)
+    - Centralised Config Server
+    - Distributed Logging (ELK Stack or Open Telemetry)
+    - Centralized Tracing (Zipkin, Jaeger)
+
+    Data Transformation in Microservice
+    8. Database design
+    - Why shared DB are bad in Microservice
+    - How to manage data Consistency
+    - Eventual consistency and SAGAs
+
+    9. Managing Transactions 
+    - SAGA Pattern (Orchestration vs Choreography)
+    - Outbox Pattern
+    - Two Phase Commit (2PC) - Why its avoided.
+
+    Security in Microservices
+    10. Authentication and Authorization
+    - OAuth2.0, OpenId connect
+    - JWT
+    - API gateway as security layer
+    - RBAC
+
+    Observability and Monitoring
+    11.Logging
+    - Correlation Id strategy 
+    - Structured Logging (e.g with Logback, Logstash)
+    
+    12. Tracing
+    - Distributed tracing (Zipkin, Jaeger)
+
+    13. Metrics and Health
+    - Actuator in Spring Boot
+    - Prometheus & Grafana
+
+    Resilience and Fault tolerence
+    14. Key Patterns 
+    - Circuit Breaker (Resilience4j or Hystrix)
+    - Retry, timeout, Fallback
+    - Bulkhead Pattern
+    - RateLimiting (Bucket4j or Istio)
+
+    Deployment Strategies
+    15. Containerization
+    - Dockerize each microservice
+    - Docker compose to run multiple microservice

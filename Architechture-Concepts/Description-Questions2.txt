@@ -1,0 +1,296 @@
+
+    Android questions - 
+
+Q. How to avoid memory leaks in Android, IOS and UiApplications?
+Q. What is Broadcast Receiver in Android?
+Q. What is the difference between a Service and an IntentService in Android?
+Q. What is AIDL in Android?
+Q. What is the difference between a Fragment and an Activity in Android?
+
+ANR vs. Crashing: A crash is the termination of an application due to a coding error or exception. 
+An ANR (Application Not Responding) occurs when the UI freezes, and the user must manually force-close 
+the app.
+
+Q. What is Looper, Handler, and MessageQueue in Android?
+Q. What is Android NDK (Native Development Kit)?
+Q. What is SQLite Database in Android?
+Q. What is the difference between Serializable and Parcelable in Android?
+Q. What is the difference between a View and a ViewGroup in Android?
+Q. What is the difference between a Service and a BroadcastReceiver in Android?
+Q. What is the difference between a ContentProvider and a SQLite database in Android?
+Q. What is the difference between a Thread and an AsyncTask in Android?
+Q. What is the difference between a Handler and a Thread in Android?
+Q. What is the Eventual Consistency?
+Q. What is Event Sourcing?
+Q. What is tree shaking?
+Q. What is Lightweight Injection Token?
+Q. What is elastic search?
+Q. What is ELK search?
+Q. What is the difference between a ViewModel and a LiveData in Android?
+Q. What is from Android - 
+    4. Data Handling: Describing different methods for fetching and caching data (e.g., 
+    REST API, WebSockets, SQLite, Keychain).
+    5. App Specifics: Considering elements like screen navigation, gestures, and responsive UI.
+Q. What are SSE API for real time updates.
+Q. What is infinite scroll.
+Q. What is pagination based on offset based vs cursor based.
+Q. What are design patterns and its anti pattern.
+Q. Clean architechture was proposed by Robert martin
+Q. What is The composible architechture (TCA)
+Q. What is GraphQL and how it is different from REST.
+Q. What is gRPC and how it is different from REST.
+Q. What is the difference between REST and GraphQL?
+Q. What is Domain driven architechture
+Q. How to open website using deeplink vs backlink
+Q. Pagination with Offset vs Keyset vs Cursor based.
+Q. What is debouncing and throttling.
+Q. What is MFE (Micro front end).
+Q. What is Long-Polling?
+Q. What is module federation?
+Q. Concept of BFF (Backend For Frontend)
+Q. API Model: The discussion covers HTTP protocols (HTTP/1 vs. HTTP/2) and various API 
+    communication styles like - polling, GraphQL, WebSockets, and Server-Sent Events. 
+    For the news feed example, GraphQL is recommended.
+Q. Details for - 
+        3. Data Model & API Model
+            This part of the interview involves designing the client-side data models and the API.
+
+            - Data Model: You should define data types for the application, user, and feed items, considering elements 
+            like server-driven UI and rich text content.
+
+            - API Model: The discussion covers HTTP protocols (HTTP/1 vs. HTTP/2) and various API communication styles like 
+            polling, GraphQL, WebSockets, and Server-Sent Events. For the news feed example, GraphQL is recommended [17:47].
+
+        4. Optimizations and Performance
+            This is the largest part of the interview, covering various optimization techniques.
+
+            - Network Performance: Techniques include using HTTP/2, compressing headers, caching, batching requests, optimizing
+            images, and bundle splitting.
+
+            - Rendering Performance: This includes ensuring mobile-friendliness, handling different loading states, considering 
+            server-side rendering, preloading resources, tree shaking, and using virtualization for long lists.
+
+        5.Accessibility & Security: The video also touches on important topics like using ARIA roles for accessibility 
+            and implementing measures like CORS, rate limiting, and sanitizing user input to prevent XSS attacks for security.
+Q. UI Design 1 - "Fill the details with explaination + images such that this can be used to teach candidates for interview" -
+        UI design concepts
+
+        HTTP1 vs HTTP2
+        Websocket vs Webhook
+        Polling/ Long Polling/Rest API vs GraphQL
+        Server side elements
+
+        Rendering ->
+            Tree shaking
+
+        Accessibility ->
+            Proper contrast
+            ARIA roles
+
+        Security ->
+            XSS
+            Rate Limiting
+            CORS
+Q. UI Design 1 - "Fill the details with explaination + images such that this can be used to teach candidates for interview. Provide example and language for each" -
+    Front-end Architechture (Re-Check)
+
+        This video provides a detailed overview of various front-end architecture patterns, discussing their benefits,
+        drawbacks, and suitable use cases. The speaker begins by defining front-end architecture, highlighting that 
+        its purpose is to create flexible, testable, and scalable applications, not just to organize files.
+
+    Foundational Patterns
+
+    MVC (Model-View-Controller): A foundational pattern that separates an application into three layers: Model 
+    (data), View (UI), and Controller (the bridge between them) [04:35]. The video discusses its workflow and 
+    limitations, such as the "fat controller" problem [11:37].
+
+    Web MVC - > 
+        Model (Data Store - Redux, Vuex, Pinia)
+        View (UI components - React, Vue Components)
+        Controllers (Hooks, composables)  
+
+    MVP (Model-View-Presenter): An evolution of MVC where the presenter handles all logic, making the view a 
+        passive UI layer to improve testability and structure.
+
+    MVVM (Model-View-ViewModel): This pattern introduces the ViewModel layer for UI-related logic and uses
+        two-way data binding, making it suitable for applications with complex UI interactions [16:58].
+
+    Advanced Patterns
+        Hierarchical MVC (HMVC): A scalable extension of MVC that breaks a large application into smaller, 
+        independent MVC units, ideal for large-scale projects.
+
+        MVVMC (Model-View-ViewModel-Coordinator): Extends MVVM with a "Coordinator" layer to specifically 
+        manage navigation and screen transitions.
+
+        Viper (View-Interactor-Presenter-Entity-Router): Primarily for mobile development, this pattern 
+        offers a highly structured approach with each component having a single, clear responsibility.
+
+    Modern Architectural Styles
+        Clean Architecture: Organizes software into concentric layers with dependencies pointing inward, ensuring 
+        that core business logic is independent of frameworks, databases, and the UI.
+
+        Hexagonal Architecture: Also known as Ports and Adapters, this pattern uses clear contracts for interactions,
+        making it useful for systems with multiple distributed parts.
+
+        Screaming Architecture: Suggests that a codebase's structure should be organized around business domains and 
+        features, not technical details.
+
+        Vertical Slices: A feature-based approach where each "slice" is a self-contained feature, containing its own 
+        logic, data, and UI components, which enhances modularity and is good for large teams.
+
+    Front-end Architechture (Re-Check)
+
+        This video provides a detailed overview of various front-end architecture patterns, discussing their benefits,
+        drawbacks, and suitable use cases. The speaker begins by defining front-end architecture, highlighting that 
+        its purpose is to create flexible, testable, and scalable applications, not just to organize files.
+
+    Foundational Patterns
+
+    MVC (Model-View-Controller): A foundational pattern that separates an application into three layers: Model 
+    (data), View (UI), and Controller (the bridge between them) [04:35]. The video discusses its workflow and 
+    limitations, such as the "fat controller" problem [11:37].
+
+    Web MVC - > 
+        Model (Data Store - Redux, Vuex, Pinia)
+        View (UI components - React, Vue Components)
+        Controllers (Hooks, composables)  
+
+    MVP (Model-View-Presenter): An evolution of MVC where the presenter handles all logic, making the view a 
+        passive UI layer to improve testability and structure.
+
+    MVVM (Model-View-ViewModel): This pattern introduces the ViewModel layer for UI-related logic and uses
+        two-way data binding, making it suitable for applications with complex UI interactions [16:58].
+
+    Advanced Patterns
+        Hierarchical MVC (HMVC): A scalable extension of MVC that breaks a large application into smaller, 
+        independent MVC units, ideal for large-scale projects.
+
+        MVVMC (Model-View-ViewModel-Coordinator): Extends MVVM with a "Coordinator" layer to specifically 
+        manage navigation and screen transitions.
+
+        Viper (View-Interactor-Presenter-Entity-Router): Primarily for mobile development, this pattern 
+        offers a highly structured approach with each component having a single, clear responsibility.
+
+    Modern Architectural Styles
+        Clean Architecture: Organizes software into concentric layers with dependencies pointing inward, ensuring 
+        that core business logic is independent of frameworks, databases, and the UI.
+
+        Hexagonal Architecture: Also known as Ports and Adapters, this pattern uses clear contracts for interactions,
+        making it useful for systems with multiple distributed parts.
+
+        Screaming Architecture: Suggests that a codebase's structure should be organized around business domains and 
+        features, not technical details.
+
+        Vertical Slices: A feature-based approach where each "slice" is a self-contained feature, containing its own 
+        logic, data, and UI components, which enhances modularity and is good for large teams.
+Q. What is boilerplate.
+Q. Security best practices for UI/ Front end (Populate details for each topic - Enhance with additional details) -
+    Concepts - 
+        DDOS attacks
+        Authorization/ Authentication 
+        CSP (Content security policies) - basically who can access the websites, who can inject data to the application.
+        CORS
+        Man in the middle
+
+    Performace and Optimization
+        Asset optimization
+        Delivery option
+        SSR (Server side rendering)
+        Service worker
+        Web vitals
+        Perceived performance
+
+    Testing
+        Behavioural testing
+        Unit testing
+        Individual testing
+        End to end testing
+
+        Testing Framework 
+            Jest
+            Mocha
+            Chai
+            Cypress
+            Selenium
+            Protactor
+            Playwright
+Q. What is Swift in IOS?
+Q. Details of - 
+    Retry Policies
+        - Exponential Backoff: A strategy for retrying failed requests where the wait time between retries 
+        increases exponentially. This prevents overwhelming the server with repeated requests during a 
+        temporary outage.
+        - Linear Backoff: Similar to exponential backoff, but the wait time increases linearly.
+        - Circuit Breakers: A design pattern that detects when a service is failing and automatically prevents 
+        subsequent requests from being sent to it for a period of time, giving the service a chance to recover.
+        - Retrying after OAuth token refresh: If a request fails due to an expired access token, the app can 
+        use the refresh token to get a new access token and then retry the original request.
+Q. Add details - 
+	API Evolution & Backward compatibility
+		- URI Versioning: A common practice where the API version is included in the URL (e.g., /api/v1/resource).
+		- Adding / removing fields: When evolving an API, it's important to ensure that new fields can be added 
+		without breaking existing clients, and that removing fields is done carefully to avoid disrupting users.
+Q. Add details - 
+    HLD - (Only design no machine code)
+
+        Concepts - 
+            1. Server
+            2. DNS
+            3. Proxy/ Reverse Proxy
+            4. Serverless
+            5. APIs     
+            6. Tier Architechture
+            7. Horizontal vs Vertical Scaling
+            8. API Gateways
+
+        Database in-depth
+            1. CAP theorem
+            2. Indexes in DB
+            3. Data replication and migration
+            4. Partition and Shrading
+            5. SQL vs NoSQL
+        
+        Cache
+            1. What is Cache. What are the different types of Cache available? - Redis Vs MemCache
+            2. Cache Invalidation Strategies
+                a. Time-based
+                b. Write-through
+                c. Write-back
+                d. Manual Invalidate
+            3. Cache eviction policies - [LRU, LFU etc]
+            4. Cache Placement - Where can you place cache
+                a. Client-side - Browser cache
+                b. CDN/ Edge-Cache - Near the user
+                c. Application Layer - In-Memory
+                d. Database Layer - Query result caching.
+
+        Load-Balancers - 
+            1. Types of Load-Balancers (Layer 4 vs Layer 7 LB)
+            2. Load Balancing algorithm - (Both Stateful vs Stateless)
+            3. Rate Limiting
+            4. Consistant Hashing
+
+        Networks - 
+            1. Core networking protocol - TCP/UDP/IP
+            2. HTTP vs HTTPS
+            3. Websockets - real time communication
+            4. WebRTC - Peer to Peer for Audio/ Video [Used in app like Zoom, Google Meet]
+
+        Monolith vs Microservice
+            1. Trade-off with microservice
+            2. Containerization Concepts
+
+        Message queue
+            1. Sync vs Async
+            2. Pub Sub model
+            3. Retry, Acknowledgement, Dead Letter queues.
+            4. Rabbit MQ, kafka, SQL - Deep Internal working
+            5. SQS vs SNS
+            6. Idempodency
+
+        Security
+            1. Different authorization protocols.
+Q. Details - REDIS CACHE, AWS ELASTIC SEARCH, ELK, Resilience4j
+Q. What are AutoScaler, Load Balancers
+Q. What is Sharding
+

@@ -6,6 +6,18 @@
 
 -------------------------------------------------------------------------------------------------------------
 
+***********Consumption Queue VS Peer-to-peer queue in Azure Service Bus
+
+	Consumption Queue - It is a queue where only one consumer can consume the message at a time. 
+	That is if there are multiple consumers then only one consumer will be able to consume the message at a time.
+	Once the message is consumed by one consumer it will not be available for other consumers.
+
+	Peer-to-peer Queue - It is a queue where multiple consumers can consume the message at the same time.
+	That is if there are multiple consumers then all the consumers will be able to consume the message at the same time.
+	Once the message is consumed by one consumer it will not be available for other consumers.
+
+-------------------------------------------------------------------------------------------------------------
+
 Message Broker - 
 
 	A message broker is a software or service that acts as an intermediary between different applications or components 
