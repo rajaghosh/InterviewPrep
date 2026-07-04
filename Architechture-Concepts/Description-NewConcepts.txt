@@ -1,0 +1,239 @@
+System Design
+1. What is the difference between redundancy and replication?
+
+
+AI and ML topics
+
+-------------------------------------------------------
+
+Learn more on IAAS (Infrastructure as a service)
+- Deep proficiency in HashiCorp Terraform and DevOps/GitOps models.
+- Solid understanding of cloud networking (subnets, routing, firewalls, load balancing).
+- Experience building enterprise-scale IaaS and PaaS solutions.
+
+-------------------------------------------------------
+
+
+
+-------------------------------------------------------
+
+TOGAF (Learn about that) - This framework is very important for enterprise architecture
+
+Enterprise Architecture (EA) frameworks provide standardized blueprints for aligning an organization's business goals with its IT infrastructure. They minimize system complexity and guide organizations through digital transformations by structuring how people, processes, and technology interact.The most prominent EA frameworks are categorized by how they are applied:1. Comprehensive FrameworksThese are vendor-neutral and broadly applicable across any industry or domain.TOGAF (The Open Group Architecture Framework): The industry-standard framework. It centers on the Architecture Development Method (ADM), a step-by-step, iterative cycle used to plan, design, implement, and govern enterprise architectures. Learn more via The Open Group.Zachman Framework: More of a classification matrix than a step-by-step process. It categorizes the enterprise based on what (data), how (function), where (network), who (people), when (time), and why (motivation).2. Industry-Specific FrameworksThese frameworks are pre-tailored to handle the unique compliance, data, and stakeholder requirements of specific sectors.DoDAF (Department of Defense Architecture Framework): Tailored specifically for defense, military, and national security agencies.FEAF (Federal Enterprise Architecture Framework): Designed to standardize and organize IT systems across the U.S. Federal Government.3. Domain FrameworksThese focus on specific functional disciplines within an organization rather than the entire enterprise.SABSA (Sherwood Applied Business Security Architecture): A specialized framework designed entirely around enterprise risk management and information security architecture.If you'd like, let me know:Your industryWhether you need a step-by-step methodology or just a classification modelWhat your primary business goals areI can help you evaluate which framework fits your organization best.
+
+
+------------------ QUESTIONS FOR AI ENGINEERS ------------------------- 08/07/2025
+
+1. Which LLM will you choose and why.
+2. Refer a use case.
+3. What is MCP server. Explain. 
+4. How to use MCP server. Best practices. Design patterns.
+5. What are temperature and top, and other parts of the GenUI query.
+6. What are User Query and System Query in GenUI prompts.
+7. What are tokens.
+8. How to create agents. How to use agents to create a workflow.
+9. What is RAG search. Utlities of RAG
+
+AI concepts - LLM, transformer, underlying algorithm, from base to LLM, Rag all concepts
+Tools, skills, hooks, agents , mcp, plugins
+
+Langgraph, Langchain, crewAi, 
+
+
+Multi agent system
+
+
+RAG
+MS Copilot
+
+
+Python tutorial
+
+
+Agentic AI Evaluation Framework
+
+RICEFWID????
+
+AI Agent 4 Part loop framework, structured graphs for Agentic AI, gaurdrail
+A2A protocol, framework, agent card
+AGI 
+
+9 AI Concepts Explained (Simple & Clear)
+1. Transformers (LLM Foundation)
+Analogy: A smart sorting machine that weighs and orders words.
+In simple terms: LLMs (like GPT) don’t read left-to-right like humans. They use “Transformers” with “Attention mechanisms.” Attention lets the model look at all words in a sentence at once and decide which words are most important to understand the context of any single word.
+Example: In “The bank of the river,” Attention helps the model know “bank” means the side of a river, not a financial institution.
+2. RAG (Retrieval-Augmented Generation)
+Analogy: Using Google before answering.
+In simple terms: Instead of relying only on its training data (which might be old), the LLM first searches a private database (vector store) for relevant documents and then uses that info to generate an answer.
+Diagram: Search → Retrieve → Generate
+3. RLHF (Reinforcement Learning from Human Feedback)
+Analogy: Training a dog with treats.
+In simple terms: It’s a fine-tuning process to make LLMs safer and more helpful.
+Stage 1: Supervised Fine-Tuning (SFT) - Teach it basic responses.
+Stage 2: Reward Model - Train a model to rank which answers are "good" or "bad."
+Stage 3: PPO (Proximal Policy Optimization) - Use the reward model to guide the LLM to produce better answers.
+4. Diffusion Models (Image Generation)
+Analogy: Sculpting from noise.
+In simple terms: Models like DALL-E or Stable Diffusion start with random noise and gradually "denoise" it step-by-step to create an image, guided by a text prompt.
+Process: Noise → Denoise (many steps) → Image
+5. LoRA (Low-Rank Adaptation)
+Analogy: Adding stickers to a book.
+In simple terms: Instead of retraining the whole giant LLM (too expensive!), LoRA freezes the original model and injects small, trainable "adapter" layers (matrices). This allows for fast, cheap fine-tuning.
+Math: ΔW = B × A (where B and A are small matrices).
+6. A2A (Agent to Agent) Protocol
+Analogy: A team of workers with standardized ID badges.
+In simple terms: A way for different AI agents to find, identify, and communicate with each other.
+Key Concept: “Agent Card” - A JSON file containing metadata (name, version, inputs, outputs) so agents can understand each other.
+7. AutoGen vs. Semantic Kernel
+Orchestration frameworks for multi-agent systems.
+AutoGen: More flexible, chat-focused. Great for diverse, custom agents collaborating (GroupChat).
+Semantic Kernel: More structured, plugin/tool-focused. Better for enterprise workflows calling existing code.
+8. RICEFWID Framework
+Purpose: Evaluating and designing autonomous AI agents.
+Stands for: Resources, Intent, Capabilities, Experience, Features, Workflows, Inputs, Data, Skills
+Helps you analyze: "Does this agent have what it needs to do this job?"
+9. AI Agent 4-Part Loop
+Core loop for any autonomous agent:
+Perception: Observe the environment (read files, user input).
+Reasoning: Think about what to do (plan, analyze).
+Action: Do something (write code, call API).
+Memory: Store results and learn (update context).
+(This is a general pattern; specific frameworks like LangGraph implement it.)
+
+
+AI Error regression model -> MAE vs MSE vs RMSE
+
+
+Regression error metrics help us understand how far off our model’s predictions are from the actual values. Here’s a clear breakdown of MAE, MSE, and RMSE — when to use them, and the key differences.
+
+
+-----------
+
+AI - Harness Engg, Design, Build, Testing and DevOps - 
+
+------
+
+Agentic AI Deployment Pattern / Strategy
+
+-----------
+
+
+7 Best Practices for Deploying Agents in Production
+
+
+Agentic AI Evaluation Framework - Deep Eval, Google ADK
+
+--------------
+
+Deploying Actual Multi Agent Systems in Production - 
+Crew AI
+AutoGen
+LangGraph
+
+--------------
+
+Claude Loops:
+- Temperature
+- Top P
+
+Claude Agentic Harness - https://platform.claude.com/docs/concepts-and-architecture
+
+-----------------
+
+Microsoft Co-pilot Studio
+- Full details
+- How to use
+
+Azure AI service for conversational AI and agentic AI. Text to Speech and Speech to Text
+
+Zero Shot to Few Shot to    
+
+•	•  Multi-step workflows with LLMs → common in RAG + automation pipelines 
+tool calling
+
+Multi-step workflows with Large Language Models (LLMs) break complex tasks into a sequence of steps rather than relying on a single prompt. By combining AI with tools, data, and human feedback, these workflows significantly improve the reliability, reasoning power, and autonomy of AI applications.Why Multi-Step Workflows MatterStandard prompting ("zero-shot") often leads to hallucinations or incomplete reasoning. Multi-step workflows address this by providing:Decomposition: Breaking hard problems into smaller, manageable subtasks.Tool Usage: Enabling the LLM to search the web, run code, or read databases.Reflection & Refactoring: Allowing one model to generate an answer, a second to critique it, and a third to refine it.Common Design PatternsWorkflows range from simple and predictable to highly autonomous multi-agent networks.1. Prompt ChainingThe output of one LLM call is passed as the input to the next. This allows the AI to refine data progressively (e.g., extracting entities from a document -> summarizing the entities -> translating the summary).2. RoutingUsing an LLM as a classifier to determine which tool or specialized LLM to call next. For example, a customer service query might be routed to a "billing agent" or a "technical support agent".3. Orchestrator-WorkersA central "orchestrator" LLM analyzes a main goal, decomposes it into subtasks, delegates those subtasks to independent "worker" LLMs or tools, and then synthesizes all the results into a final output.4. Human in the Loop (Evaluator-Optimizer)The LLM generates an outcome, but a human (or automated test suite) checks the output, provides feedback, and allows the LLM to try again based on that input.Frameworks and ToolsBuilding these workflows requires frameworks that manage state, memory, and tool integration:LangGraph: Highly favored for building cyclical, stateful, multi-agent workflows.CrewAI: A popular framework for creating role-playing agent teams that collaborate on a shared task.LangChain: Great for standard prompt chaining and data preprocessing pipelines.MCP (Model Context Protocol): A standard allowing agents to safely and directly connect to local files, servers, and data repositories.
+
+
+
+Scalable architecture
+
+
+exploration of LLMOps concepts (model integration, prompt iteration, evaluation feedback loops, and deployment considerations) as part of enterprise AI readiness initiatives.
+
+
+FAST APIS (PYTHON)
+
+Python Turorials.
+
+Pandas
+
+
+
+
+Existing	Improved
+AI Agents	AI Engineering
+Multi-Agent Systems	Multi-Agent Orchestration
+Agentic AI	Autonomous Agents
+AI Solution Architecture	Enterprise AI Architecture
+Workflow Automation	Intelligent Workflow Orchestration
+MCP	MCP-based Tool Integration
+AI Adoption	Enterprise AI Modernization
+AI Workflows	LLM Applications
+—	Tool Calling
+—	Function Calling
+—	Prompt Engineering
+—	Structured Outputs
+—	Context-aware Reasoning
+—	Agent Planning
+—	Agent Memory Concepts
+—	Human-in-the-loop
+—	Responsible AI
+
+
+API-First vs. Traditional Code-FirstFeatureAPI-First StrategyTraditional Code-First StrategyStarting PointFormal API contract and data structureCore application codebase and database architectureTeam WorkflowParallel (frontend, backend, and QA work simultaneously)Sequential (frontend waits for backend endpoints to be coded)ReusabilityHighly reusable across web, mobile, IoT, and third-party appsLow; features are often tightly coupled to a specific user interfaceSystem RisksReduced technical debt and fewer integration bugsHigher risk of fragmented interfaces and brittle systems
+
+AI engineering architectural patterns
+
+•	Designed enterprise AI solution architectures leveraging Azure AI Foundry, Azure OpenAI, Azure AI services, Model Context Protocol (MCP), AI Agents, and Multi-Agent System concepts to automate complex business workflows, improve decision-making, and accelerate enterprise AI adoption. 
+•	Evaluated and prototyped Agentic AI architectures incorporating tool calling, function calling, MCP-based tool integration, agent planning, multi-agent orchestration, context-aware reasoning, and autonomous task execution for enterprise workflow automation and integration scenarios. 
+•	Defined architectural patterns for AI engineering, including LLM application integration, prompt engineering strategies, structured outputs, retrieval-augmented workflows (RAG), agent memory concepts, workflow orchestration, human-in-the-loop interactions, and responsible AI design to support scalable enterprise AI adoption. 
+
+
+•	Implemented enterprise-grade security using OAuth 2.0, API Management policies, Managed Identity, Key Vault integration, secure API authentication, and governance controls aligned with enterprise compliance requirements. 
+•	Configured Azure AI services, Azure OpenAI, and AI Foundry for scalable AI deployments, including prompt engineering, agent orchestration, and integration with existing enterprise systems using secure, enterprise-ready patterns. 
+
+•	Designed enterprise AI solution architectures leveraging Azure AI Foundry, Azure OpenAI, Azure AI services, Model Context Protocol (MCP), AI Agents, and Multi-Agent System concepts to automate complex business workflows, improve decision-making, and accelerate enterprise AI adoption. 
+•	Evaluated and prototyped Agentic AI architectures incorporating tool calling, function calling, MCP-based tool integration, agent planning, multi-agent orchestration, context-aware reasoning, and autonomous task execution for enterprise workflow automation and integration scenarios. 
+•	Worked on AI engineering and enterprise architecture implementation for LLM-based applications, including prompt engineering, structured outputs, Retrieval-Augmented Generation (RAG), agent memory, context management, workflow orchestration, human-in-the-loop interactions, AI guardrails, and Responsible AI principles to enable scalable, secure, and production-ready enterprise AI solutions.
+
+
+Symantic Kernel
+Context Rot
+
+Tools vs skills vs hooks vs agents vs mcp
+
+
+Azure AI Search
+
+ML Ops , LLM Ops
+
+Toons (like JSON) - Other token utilization Strategy
+GaurdRail - Different Strategies
+
+AI Deployment pipelines
+
+Popular QUESTIONs related to AI Engineering, Basic and Advanced.
+
+Claude Concepts and terms
+
+MLOps, LLM Ops
+
+Toons
+Sharding
+
+AI Agent Loops
+
+
+AGI - Artificial General Intelligence
+

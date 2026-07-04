@@ -1,0 +1,12 @@
+https://platform.claude.com/cookbook/
+
+https://medium.com/@shrikulk20/using-claude-to-get-interviews-d8c47dbbfcdf
+
+https://institute.sfeir.com/en/claude-code/claude-code-resources/interview/
+
+https://www.turing.com/blog/agentic-coding-in-practice-questions-from-claude-code-workshop
+
+https://www.linkedin.com/pulse/under-hood-claude-code-agent-design-question-i-had-never-rohit-sharma-oy3zc/
+
+https://elsevanderberg.substack.com/p/claude-code-for-interview-synthesis
+

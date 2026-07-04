@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>.NET AI Guide — Diagram Viewer</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --bg:#0f172a;--sur:#1e293b;--sur2:#334155;
+  --acc:#6366f1;--tx:#f1f5f9;--mu:#94a3b8;--bd:#334155;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);color:var(--tx);display:flex;height:100vh;overflow:hidden}
+
+/* sidebar */
+#sb{width:268px;min-width:200px;background:var(--sur);
+  border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+#sbh{padding:13px 13px 10px;background:var(--sur2);border-bottom:1px solid var(--bd)}
+#sbh h1{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+#sbh p{font-size:11px;color:var(--mu);margin-top:3px}
+#srch{margin-top:7px;width:100%;padding:7px 10px;background:var(--bg);
+  border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-size:12px;outline:none}
+#srch:focus{border-color:var(--acc)}
+#lst{flex:1;overflow-y:auto;padding:5px 0}
+.lsec{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;
+  letter-spacing:.08em;padding:9px 12px 3px}
+.li{padding:7px 12px 7px 15px;font-size:12px;color:var(--mu);cursor:pointer;
+  border-left:3px solid transparent;transition:all .12s;line-height:1.4}
+.li:hover{background:var(--sur2);color:var(--tx)}
+.li.on{border-left-color:var(--acc);background:rgba(99,102,241,.13);color:var(--tx);font-weight:600}
+
+/* main */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#tb{display:flex;align-items:center;gap:5px;padding:7px 11px;
+  background:var(--sur);border-bottom:1px solid var(--bd);flex-shrink:0}
+#ttl{flex:1;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cnt{font-size:11px;color:var(--mu);background:var(--sur2);padding:3px 8px;border-radius:12px;flex-shrink:0}
+.btn{background:var(--sur2);border:1px solid var(--bd);color:var(--tx);font-size:12px;
+  padding:5px 9px;border-radius:6px;cursor:pointer;transition:background .12s;white-space:nowrap;flex-shrink:0}
+.btn:hover,.btn.hi{background:var(--acc);border-color:var(--acc)}
+#zl{font-size:11px;color:var(--mu);min-width:40px;text-align:center;flex-shrink:0}
+
+/* canvas */
+#cw{flex:1;overflow:hidden;position:relative;background:var(--bg);cursor:grab;user-select:none}
+#cw:active{cursor:grabbing}
+
+/* slots: absolutely fill canvas, default hidden */
+.slot{position:absolute;inset:0;display:none;overflow:hidden}
+.slot.on{display:block}
+
+/* panzoom wrapper: positioned at origin, transform-origin: top-left */
+.pzw{
+  position:absolute;top:0;left:0;
+  transform-origin:0 0;
+  display:inline-block;
+  line-height:0;
+  transition:none;
+}
+.pzw svg{
+  display:block;
+  max-width:none!important;
+  overflow:visible;
+}
+.pzw.anim{transition:transform .25s cubic-bezier(.4,0,.2,1)}
+
+/* error */
+.errc{background:#1e293b;border:1px solid #ef444455;border-radius:8px;
+  padding:20px;color:#ef4444;font-size:12px;max-width:560px;
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+
+/* loading overlay */
+#load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:12px;color:var(--mu);font-size:13px;
+  background:var(--bg);z-index:20;transition:opacity .4s}
+#load.out{opacity:0;pointer-events:none}
+.spin{width:30px;height:30px;border:3px solid var(--bd);
+  border-top-color:var(--acc);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#lprog{margin-top:4px;font-size:11px;color:var(--acc)}
+
+/* dots */
+#dots{display:flex;align-items:center;gap:3px;padding:7px 11px;
+  background:var(--sur);border-top:1px solid var(--bd);flex-shrink:0;overflow-x:auto}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--bd);
+  cursor:pointer;flex-shrink:0;transition:all .12s}
+.dot.on{background:var(--acc);transform:scale(1.5)}
+.dot:hover{background:var(--mu)}
+
+/* top progress stripe */
+#prog{position:absolute;top:0;left:0;height:2px;background:var(--acc);z-index:6;transition:width .2s}
+
+/* hint */
+#hint{position:absolute;bottom:50px;right:12px;background:var(--sur2);
+  border:1px solid var(--bd);border-radius:8px;padding:8px 11px;
+  font-size:11px;color:var(--mu);line-height:1.9;pointer-events:none;
+  opacity:1;transition:opacity .5s;z-index:5}
+#hint.off{opacity:0}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:4px}
+body.lt{--bg:#f8fafc;--sur:#fff;--sur2:#f1f5f9;--tx:#0f172a;--mu:#64748b;--bd:#e2e8f0}
+</style>
+</head>
+<body>
+
+<div id="sb">
+  <div id="sbh">
+    <h1>🤖 .NET AI Guide</h1>
+    <p>38 Architecture Diagrams</p>
+    <input id="srch" placeholder="Search diagrams…" oninput="flt(this.value)"/>
+  </div>
+  <div id="lst"></div>
+</div>
+
+<div id="main">
+  <div id="tb">
+    <button class="btn" onclick="nav(-1)" title="← Previous">◀</button>
+    <button class="btn" onclick="nav(1)"  title="Next →">▶</button>
+    <div id="ttl">Loading…</div>
+    <div id="cnt">— / 38</div>
+    <button class="btn" onclick="zi()"   title="Zoom in (+)">＋</button>
+    <span   id="zl">100%</span>
+    <button class="btn" onclick="zo()"   title="Zoom out (-)">－</button>
+    <button class="btn" onclick="zr()"   title="Reset (0)">⊙ Reset</button>
+    <button class="btn" onclick="fit()"  title="Fit to screen (F)" id="fitBtn">⊞ Fit</button>
+    <button class="btn" onclick="toggleTheme()">☀</button>
+  </div>
+  <div id="cw">
+    <div id="prog" style="width:0%"></div>
+    <div id="load"><div class="spin"></div><span>Rendering diagrams…</span><span id="lprog">0 / 38</span></div>
+    <div id="hint">🖱 Scroll to zoom · Drag to pan<br/>← → Navigate · + − Zoom<br/>F Fit · 0 Reset</div>
+  </div>
+  <div id="dots"></div>
+</div>
+
+<script>
+const D = [{"section": "The Six-Stage Journey", "title": "The Six-Stage Journey", "code": "flowchart LR\n    S1[\"1. .NET Foundations<br/>C#, DI, async, APIs\"] --> S2[\"2. Core AI Concepts<br/>LLMs, embeddings, prompting\"]\n    S2 --> S3[\"3. .NET AI Tooling<br/>MEAI, SK, ML.NET\"]\n    S3 --> S4[\"4. Data & Retrieval<br/>vectors, RAG\"]\n    S4 --> S5[\"5. Agents & Orchestration<br/>planners, tools, multi-agent\"]\n    S5 --> S6[\"6. Production & Scale<br/>Aspire, ONNX, observability\"]\n\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    class S1 success\n    class S2,S3,S4,S5 process\n    class S6 azure"}, {"section": "1. Stage 1: .NET Foundations for AI Workloads", "title": "Architecture Diagram", "code": "flowchart TB\n    Client([\"Browser / Mobile Client\"]) -->|\"HTTP (SSE stream)\"| API[\"Minimal API Endpoint\"]\n    API --> DI[\"DI Container\"]\n    DI --> Chat[\"IChatClient\"]\n    Chat --> Pipe[\"Polly v8<br/>Resilience Pipeline\"]\n    Pipe --> HC[\"HttpClient\"]\n    HC -->|\"streaming tokens\"| LLM[\"Azure OpenAI / LLM\"]\n    LLM -.->|\"IAsyncEnumerable\"| API\n    API -.->|\"token by token\"| Client\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef gateway fill:#0f172a,stroke:#020617,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    class Client actor\n    class API gateway\n    class DI,Chat,Pipe,HC process\n    class LLM azure"}, {"section": "Diagram", "title": "Diagram", "code": "stateDiagram-v2\n    [*] --> Closed\n    Closed --> Open: failure ratio > 50%\n    Open --> HalfOpen: break duration elapsed\n    HalfOpen --> Closed: trial succeeds\n    HalfOpen --> Open: trial fails\n    Closed --> Closed: success / retry transient 429\n\n    note right of Closed\n        Requests flow through normally.\n        Failures are counted in a rolling window.\n    end note\n    note right of Open\n        Calls fail fast (no upstream hit)\n        until the break duration elapses.\n    end note\n    note right of HalfOpen\n        A single trial request probes recovery.\n    end note"}, {"section": "1.5 How IAsyncEnumerable Enables Token Streaming", "title": "1.5 How IAsyncEnumerable Enables Token Streaming", "code": "sequenceDiagram\n    autonumber\n    participant C as Client\n    participant A as Minimal API\n    participant L as LLM\n    C->>A: POST /chat/stream\n    A->>L: GetStreamingResponseAsync\n    loop each token\n        L-->>A: token chunk\n        A-->>C: SSE data event\n    end\n    L-->>A: [DONE]\n    A-->>C: close stream\n    Note over C,A: Client disconnect cancels the<br/>upstream call via CancellationToken"}, {"section": "2. Stage 2: Core AI & ML Concepts", "title": "Architecture Diagram", "code": "flowchart LR\n    T([\"Raw Text\"]) --> Tok[\"Tokenizer<br/>text to token IDs\"]\n    Tok --> Emb[\"Embedding Layer<br/>token to vector\"]\n    Emb --> Att[\"Self-Attention Blocks<br/>each token attends to all\"]\n    Att --> FF[\"Feed-Forward Layers\"]\n    FF --> LN[\"LM Head + Softmax\"]\n    LN --> Next[\"Next Token Probability\"]\n    Next -->|\"sampled by temperature / top-p\"| Out([\"Output Token\"])\n    Out -->|\"append + repeat\"| Tok\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    class T,Out actor\n    class Tok,Emb,Att,FF,LN,Next process"}, {"section": "2.5 Context Windows: Limits, Chunking, Sliding Windows", "title": "2.5 Context Windows: Limits, Chunking, Sliding Windows", "code": "flowchart LR\n    Doc[\"Long Document\"] --> C1[(\"Chunk 1<br/>tokens 0-500\")]\n    Doc --> C2[(\"Chunk 2<br/>tokens 425-925\")]\n    Doc --> C3[(\"Chunk 3<br/>tokens 850-1350\")]\n    C1 -.->|\"75 token overlap\"| C2\n    C2 -.->|\"75 token overlap\"| C3\n\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef storage fill:#1e40af,stroke:#1e3a8a,color:#fff,font-weight:bold\n    class Doc process\n    class C1,C2,C3 storage"}, {"section": "2.8 Supervised vs Unsupervised vs Reinforcement Learning", "title": "2.8 Supervised vs Unsupervised vs Reinforcement Learning", "code": "flowchart TB\n    ML([\"Machine Learning\"]) --> S[\"Supervised<br/>labeled data\"]\n    ML --> U[\"Unsupervised<br/>find structure\"]\n    ML --> R[\"Reinforcement<br/>reward signal\"]\n    S --> SFT[\"Instruction Tuning\"]\n    U --> Pre[\"LLM Pretraining (self-supervised)\"]\n    R --> RLHF[\"RLHF Alignment\"]\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    class ML actor\n    class S,U,R process\n    class SFT,Pre,RLHF success"}, {"section": "3. Stage 3: .NET AI Tooling", "title": "Architecture Diagram", "code": "flowchart TB\n    App([\"Your .NET App\"]) --> MEAI[\"Microsoft.Extensions.AI<br/>IChatClient / IEmbeddingGenerator\"]\n    App --> SK[\"Semantic Kernel<br/>Kernel + Plugins + Agents\"]\n    App --> MLNET[\"ML.NET<br/>MLContext / IDataView\"]\n    MEAI --> AOAI[\"Azure OpenAI SDK\"]\n    SK --> MEAI\n    MLNET --> ONNX[\"ONNX Runtime\"]\n    AOAI --> Svc[\"Azure OpenAI Service\"]\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    class App actor\n    class MEAI,SK,MLNET,ONNX process\n    class AOAI,Svc azure"}, {"section": "4. Stage 4: Data & Retrieval — RAG Pipelines", "title": "Architecture Diagram", "code": "flowchart LR\n    Docs[\"Source Documents\"] --> Chunk[\"Chunker\"]\n    Chunk --> Embed[\"Embedding Generator\"]\n    Embed --> Index[(\"Vector Index\")]\n    Q([\"User Query\"]) --> QEmbed[\"Embed Query\"]\n    QEmbed --> Retr[\"Vector + Keyword Retrieval\"]\n    Index --> Retr\n    Retr --> Rerank[\"Reranker\"]\n    Rerank --> Aug[\"Augment Prompt with Context\"]\n    Aug --> LLM[\"LLM\"]\n    LLM --> Ans([\"Grounded Answer + Citations\"])\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef storage fill:#1e40af,stroke:#1e3a8a,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    class Q actor\n    class Index storage\n    class Docs,Chunk,Embed,QEmbed,Retr,Rerank,Aug process\n    class LLM azure\n    class Ans success"}, {"section": "4.5 Hybrid Search (BM25 + Vector, RRF Fusion)", "title": "4.5 Hybrid Search (BM25 + Vector, RRF Fusion)", "code": "flowchart LR\n    Q([\"Query\"]) --> V[\"Vector Search<br/>semantic similarity\"]\n    Q --> B[\"BM25 Keyword Search<br/>exact terms\"]\n    V --> RRF[\"Reciprocal Rank Fusion<br/>score = Σ 1 / (k + rank)\"]\n    B --> RRF\n    RRF --> Rank([\"Fused Ranked Results\"])\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    class Q actor\n    class V,B,RRF process\n    class Rank success"}, {"section": "5. Stage 5: Agents & Orchestration", "title": "Architecture Diagram", "code": "flowchart TB\n    Goal([\"User Goal\"]) --> Reason[\"Reason<br/>LLM plans next step\"]\n    Reason --> Decide{\"Tool needed?\"}\n    Decide -->|\"Yes\"| Act[\"Act<br/>call C# function / tool\"]\n    Act --> Observe[\"Observe<br/>tool result\"]\n    Observe --> Reason\n    Decide -->|\"No\"| Final([\"Final Answer\"])\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef decision fill:#fef3c7,stroke:#f59e0b,color:#92400e,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    class Goal actor\n    class Reason,Act,Observe process\n    class Decide decision\n    class Final success"}, {"section": "5.6 Multi-Agent Patterns", "title": "5.6 Multi-Agent Patterns", "code": "flowchart TB\n    User([\"User Goal\"]) --> Sup\n    subgraph SG [\"Supervisor Pattern\"]\n        Sup[\"Supervisor / Orchestrator\"] --> A1[\"Agent: Research\"]\n        Sup --> A2[\"Agent: Code\"]\n        Sup --> A3[\"Agent: Review\"]\n        A1 --> Sup\n        A2 --> Sup\n        A3 --> Sup\n    end\n    Sup --> Result([\"Aggregated Result\"])\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef gateway fill:#0f172a,stroke:#020617,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    class User actor\n    class Sup gateway\n    class A1,A2,A3 process\n    class Result success"}, {"section": "6. Stage 6: Production & Scale", "title": "Architecture Diagram", "code": "flowchart TB\n    Req([\"Request\"]) --> RL[\"Rate Limiter\"]\n    RL --> CS[\"Content Safety (input)\"]\n    CS --> Cache{\"Semantic Cache Hit?\"}\n    Cache -->|\"Yes\"| Cached([\"Return Cached\"])\n    Cache -->|\"No\"| Route[\"Model Router<br/>cheap to expensive\"]\n    Route --> LLM[\"LLM Inference\"]\n    LLM --> CSO[\"Content Safety (output)\"]\n    CSO --> Track[\"Token + Cost Tracking\"]\n    Track --> OTel[\"OpenTelemetry (gen_ai.*)\"]\n    Track --> Resp([\"Response\"])\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef warning fill:#f59e0b,stroke:#d97706,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef decision fill:#fef3c7,stroke:#f59e0b,color:#92400e,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    class Req actor\n    class RL,CS,CSO warning\n    class Route,Track,OTel process\n    class Cache decision\n    class LLM azure\n    class Cached,Resp success"}, {"section": "6.5 Observability — OpenTelemetry + gen_ai Semantic Conventions", "title": "6.5 Observability — OpenTelemetry + gen_ai Semantic Conventions", "code": "flowchart LR\n    App([\"AI App\"]) -->|\"gen_ai.* spans + metrics\"| OTel[\"OpenTelemetry SDK\"]\n    OTel -->|\"OTLP\"| Collector[\"OTel Collector\"]\n    Collector --> AI[\"App Insights / Grafana\"]\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    class App actor\n    class OTel,Collector process\n    class AI azure"}, {"section": "6.10 Cost Control — Budgets, Model Routing, Batching", "title": "6.10 Cost Control — Budgets, Model Routing, Batching", "code": "flowchart LR\n    Q([\"Request\"]) --> Classify{\"Complex?\"}\n    Classify -->|\"No\"| Cheap[\"gpt-4o-mini / Phi (cheap)\"]\n    Classify -->|\"Yes\"| Exp[\"gpt-4o (expensive)\"]\n    Cheap --> Chk{\"Good enough?\"}\n    Chk -->|\"No\"| Exp\n    Chk -->|\"Yes\"| Done([\"Return\"])\n    Exp --> Done\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    classDef warning fill:#f59e0b,stroke:#d97706,color:#fff,font-weight:bold\n    classDef decision fill:#fef3c7,stroke:#f59e0b,color:#92400e,font-weight:bold\n    class Q actor\n    class Cheap,Done success\n    class Exp warning\n    class Classify,Chk decision"}, {"section": "7. Azure AI Stack — Complete Reference", "title": "Architecture Diagram", "code": "flowchart TB\n    App([\"Your .NET App\"]) --> Foundry[\"Azure AI Foundry (Hub + Projects)\"]\n    Foundry --> AOAI[\"Azure OpenAI Service\"]\n    Foundry --> AgentSvc[\"Azure AI Agent Service\"]\n    Foundry --> Eval[\"Evaluations + Prompt Flow\"]\n    App --> Search[\"Azure AI Search\"]\n    App --> CS[\"Azure AI Content Safety\"]\n    App --> DocInt[\"Document Intelligence\"]\n    App --> Cosmos[(\"Cosmos DB (vector / DiskANN)\")]\n    App --> AML[\"Azure Machine Learning\"]\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef storage fill:#1e40af,stroke:#1e3a8a,color:#fff,font-weight:bold\n    class App actor\n    class Foundry,AOAI,AgentSvc,Eval,Search,CS,DocInt,AML azure\n    class Cosmos storage"}, {"section": "7.1 Azure OpenAI Service", "title": "7.1 Azure OpenAI Service", "code": "flowchart LR\n    App([\"App\"]) --> D1\n    App --> D2\n    App --> D3\n    subgraph AOAI [\"Azure OpenAI Resource\"]\n        D1[\"Deployment: gpt-4o (PTU)\"]\n        D2[\"Deployment: gpt-4o-mini (consumption)\"]\n        D3[\"Deployment: text-embedding-3-large\"]\n    end\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    class App actor\n    class D1,D2,D3 azure"}, {"section": "7.2 Azure AI Foundry", "title": "7.2 Azure AI Foundry", "code": "flowchart TB\n    Hub[\"AI Foundry Hub\"] --> P1[\"Project: Support Bot\"]\n    Hub --> P2[\"Project: Doc Search\"]\n    P1 --> Cat[\"Model Catalog\"]\n    P1 --> Flow[\"Prompt Flow\"]\n    P1 --> Ev[\"Evaluations\"]\n\n    classDef gateway fill:#0f172a,stroke:#020617,color:#fff,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    class Hub gateway\n    class P1,P2 azure\n    class Cat,Flow,Ev process"}, {"section": "7.4 Azure AI Content Safety", "title": "7.4 Azure AI Content Safety", "code": "flowchart LR\n    In([\"Input\"]) --> Shield[\"Prompt Shields\"]\n    Shield --> Cat[\"Harm Category Analysis\"]\n    Cat --> BL[\"Blocklist Check\"]\n    BL --> Out{\"Allow?\"}\n    Out -->|\"Yes\"| Pass([\"Proceed\"])\n    Out -->|\"No\"| Block([\"Reject\"])\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef warning fill:#f59e0b,stroke:#d97706,color:#fff,font-weight:bold\n    classDef decision fill:#fef3c7,stroke:#f59e0b,color:#92400e,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    classDef error fill:#ef4444,stroke:#dc2626,color:#fff,font-weight:bold\n    class In actor\n    class Shield,Cat,BL warning\n    class Out decision\n    class Pass success\n    class Block error"}, {"section": "7.6 Azure Machine Learning", "title": "7.6 Azure Machine Learning", "code": "flowchart LR\n    Data[(\"Datasets\")] --> Pipe[\"Training Pipeline\"]\n    Pipe --> Reg[(\"Model Registry\")]\n    Reg --> Online[\"Online Endpoint (real-time)\"]\n    Reg --> Batch[\"Batch Endpoint (offline)\"]\n    Compute[\"Compute Cluster (GPU)\"] --> Pipe\n\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef storage fill:#1e40af,stroke:#1e3a8a,color:#fff,font-weight:bold\n    class Pipe,Online,Batch,Compute azure\n    class Data,Reg storage"}, {"section": "7.9 Azure Cosmos DB for MongoDB — Vector Search with DiskANN", "title": "7.9 Azure Cosmos DB for MongoDB — Vector Search with DiskANN", "code": "flowchart LR\n    App([\"App\"]) --> Cosmos[(\"Cosmos DB for MongoDB (vCore)\")]\n    Cosmos --> Docs[(\"Documents + Embeddings\")]\n    Cosmos --> DiskANN[(\"DiskANN Vector Index\")]\n    App -->|\"$search vector query\"| DiskANN\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef storage fill:#1e40af,stroke:#1e3a8a,color:#fff,font-weight:bold\n    class App actor\n    class Cosmos,Docs,DiskANN storage"}, {"section": "8. Cross-Cutting Themes", "title": "8.1 Pattern Selection Decision Flowchart", "code": "flowchart TB\n    Start([\"New AI Requirement\"]) --> Q1{\"Need behavior / format<br/>change only?\"}\n    Q1 -->|\"Yes\"| Prompt([\"Prompt Engineering\"])\n    Q1 -->|\"No\"| Q2{\"Need private / fresh<br/>knowledge grounding?\"}\n    Q2 -->|\"Yes\"| Q3{\"Multi-step actions<br/>or tool use needed?\"}\n    Q2 -->|\"No\"| Q4{\"Consistent style / tone<br/>at scale, stable domain?\"}\n    Q3 -->|\"Yes\"| Agent([\"Agent + RAG (tools)\"])\n    Q3 -->|\"No\"| RAG([\"RAG Pipeline\"])\n    Q4 -->|\"Yes\"| FT([\"Fine-Tuning\"])\n    Q4 -->|\"No\"| Prompt\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef decision fill:#fef3c7,stroke:#f59e0b,color:#92400e,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    class Start actor\n    class Q1,Q2,Q3,Q4 decision\n    class Prompt,RAG,Agent,FT success"}, {"section": "8.4 End-to-End Reference Architecture", "title": "8.4 End-to-End Reference Architecture", "code": "flowchart TB\n    User([\"User\"]) --> API[\"Minimal API (.NET Aspire)\"]\n    API --> RL[\"Rate Limiter + Content Safety\"]\n    RL --> Orch[\"Semantic Kernel Orchestrator\"]\n    Orch --> Cache{\"Semantic Cache\"}\n    Cache -->|\"miss\"| RAG[\"RAG: Azure AI Search\"]\n    RAG --> Route[\"Model Router\"]\n    Route --> AOAI[\"Azure OpenAI (PTU + consumption)\"]\n    Orch --> Agents[\"Azure AI Agent Service (tools)\"]\n    API --> OTel[\"OpenTelemetry gen_ai.*\"]\n    Secrets[\"Key Vault (Managed Identity)\"] --> API\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef gateway fill:#0f172a,stroke:#020617,color:#fff,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef decision fill:#fef3c7,stroke:#f59e0b,color:#92400e,font-weight:bold\n    classDef warning fill:#f59e0b,stroke:#d97706,color:#fff,font-weight:bold\n    class User actor\n    class API gateway\n    class AOAI,RAG,Agents,Secrets azure\n    class Orch,Route,OTel process\n    class Cache decision\n    class RL warning"}, {"section": "9. Production Deployments — Infrastructure, CI/CD & Operations", "title": "End-to-End Production Architecture", "code": "flowchart TB\n    subgraph DEV [\"Developer Workflow\"]\n        Dev([\"Developer\"]) --> PR[\"Pull Request\"]\n        PR --> CI[\"GitHub Actions CI<br/>build / test / scan\"]\n        CI --> Registry[\"Azure Container Registry\"]\n    end\n\n    subgraph PIPE [\"Deployment Pipeline\"]\n        Registry --> CD[\"GitHub Actions CD<br/>Bicep deploy + rolling update\"]\n        CD --> ACA[\"Azure Container Apps<br/>or AKS\"]\n    end\n\n    subgraph PLAT [\"Azure AI Platform\"]\n        ACA --> APIM[\"Azure API Management<br/>rate-limit / auth / routing\"]\n        APIM --> AOAI[\"Azure OpenAI Service\"]\n        APIM --> Search[\"Azure AI Search\"]\n        ACA --> KV[\"Azure Key Vault<br/>Managed Identity\"]\n        ACA --> Redis[(\"Azure Cache for Redis<br/>semantic cache\")]\n    end\n\n    subgraph OBS [\"Observability\"]\n        ACA --> OTel[\"OpenTelemetry Collector\"]\n        APIM --> OTel\n        OTel --> AI[\"Application Insights<br/>+ Log Analytics\"]\n        AI --> Alert[\"Azure Monitor Alerts\"]\n    end\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef storage fill:#1e40af,stroke:#1e3a8a,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    classDef warning fill:#f59e0b,stroke:#d97706,color:#fff,font-weight:bold\n    class Dev actor\n    class AOAI,Search,KV,APIM,AI azure\n    class Redis storage\n    class PR,CI,CD,OTel process\n    class ACA success\n    class Alert warning"}, {"section": "9.1 Containerization — Docker Multi-Stage Build", "title": "9.1 Containerization — Docker Multi-Stage Build", "code": "flowchart LR\n    subgraph MSB [\"Multi-Stage Build\"]\n        S1[\"Stage 1: sdk image<br/>dotnet restore + publish\"] --> S2[\"Stage 2: runtime image<br/>copy published output only\"]\n    end\n    S2 --> Img([\"Final Image<br/>~250 MB vs 1 GB+ SDK image\"])\n\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    class S1 process\n    class S2 success\n    class Img success"}, {"section": "9.2 Azure Container Registry (ACR)", "title": "9.2 Azure Container Registry (ACR)", "code": "flowchart LR\n    CI[\"GitHub Actions\"] -->|\"az acr build\"| ACR[\"Azure Container Registry\"]\n    ACR -->|\"Managed Identity pull\"| ACA[\"Azure Container Apps / AKS\"]\n    ACR --> Quarantine[\"Image Quarantine<br/>+ Defender for Containers scan\"]\n\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef warning fill:#f59e0b,stroke:#d97706,color:#fff,font-weight:bold\n    class ACR,ACA azure\n    class CI process\n    class Quarantine warning"}, {"section": "9.3 Azure Container Apps — Serverless AI Scaling", "title": "9.3 Azure Container Apps — Serverless AI Scaling", "code": "flowchart TB\n    subgraph ACAENV [\"Azure Container Apps Environment\"]\n        Ingress[\"Managed Ingress<br/>HTTPS / HTTP2 / gRPC\"] --> App[\"AI API Replica 1..N\"]\n        App --> Sidecar[\"DAPR Sidecar<br/>(optional)\"]\n    end\n    KEDA[\"KEDA Scaler<br/>HTTP requests / queue depth / custom metric\"] -->|\"scale 0..N\"| App\n    App --> AOAI[\"Azure OpenAI\"]\n    App --> Search[\"Azure AI Search\"]\n\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef gateway fill:#0f172a,stroke:#020617,color:#fff,font-weight:bold\n    class AOAI,Search azure\n    class Ingress gateway\n    class KEDA,App,Sidecar process"}, {"section": "9.5 CI/CD Pipeline — GitHub Actions", "title": "9.5 CI/CD Pipeline — GitHub Actions", "code": "flowchart LR\n    Push([\"git push / PR merge\"]) --> Build[\"CI: dotnet build + test<br/>+ CodeQL scan\"]\n    Build --> DockerBuild[\"CI: ACR build + image scan<br/>(Defender for Containers)\"]\n    DockerBuild --> IaC[\"CD: Bicep what-if<br/>+ Bicep deploy\"]\n    IaC --> AppDeploy[\"CD: ACA update / AKS rolling update\"]\n    AppDeploy --> Smoke{\"Smoke Tests<br/>integration tests vs staging\"}\n    Smoke -->|\"pass\"| Prod([\"Promote to Production<br/>slot swap or traffic shift\"])\n    Smoke -->|\"fail\"| Rollback([\"Auto Rollback<br/>previous revision\"])\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    classDef error fill:#ef4444,stroke:#dc2626,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef decision fill:#fef3c7,stroke:#f59e0b,color:#92400e,font-weight:bold\n    class Push actor\n    class Build,DockerBuild process\n    class IaC,AppDeploy azure\n    class Smoke decision\n    class Prod success\n    class Rollback error"}, {"section": "9.6 Infrastructure as Code — Bicep", "title": "9.6 Infrastructure as Code — Bicep", "code": "flowchart TD\n    Bicep[\"main.bicep<br/>(entry point)\"] --> AOAI[\"module: azure-openai.bicep\"]\n    Bicep --> Search[\"module: ai-search.bicep\"]\n    Bicep --> ACA[\"module: container-apps.bicep\"]\n    Bicep --> KV[\"module: keyvault.bicep\"]\n    Bicep --> ACR[\"module: acr.bicep\"]\n    Bicep --> Monitor[\"module: monitoring.bicep\"]\n\n    classDef gateway fill:#0f172a,stroke:#020617,color:#fff,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    class Bicep gateway\n    class AOAI,Search,ACA,KV,ACR,Monitor azure"}, {"section": "9.7 Secrets Management — Azure Key Vault + Managed Identity", "title": "9.7 Secrets Management — Azure Key Vault + Managed Identity", "code": "flowchart LR\n    App[\"AI API<br/>(Managed Identity)\"] -->|\"GetSecretAsync<br/>no password\"| KV[\"Azure Key Vault\"]\n    KV -->|\"secret value\"| App\n    App --> AOAI[\"Azure OpenAI<br/>(also via Managed Identity)\"]\n\n    KV --> Audit[\"Key Vault Audit Log<br/>(who accessed what, when)\"]\n    KV --> Rotation[\"Secret Rotation<br/>(Event Grid trigger)\"]\n\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef storage fill:#1e40af,stroke:#1e3a8a,color:#fff,font-weight:bold\n    class AOAI,Audit,Rotation azure\n    class KV storage\n    class App process"}, {"section": "Diagram", "title": "Diagram", "code": "sequenceDiagram\n    autonumber\n    participant KV as Key Vault\n    participant EG as Event Grid\n    participant Func as Azure Function\n    participant App as AI API\n\n    KV->>EG: SecretNearExpiry event\n    EG->>Func: Trigger rotation function\n    Func->>KV: SetSecretAsync (new value)\n    Func->>App: POST /admin/config/reload (optional hot-reload)\n    Note over App: IOptionsMonitor auto-reloads from KV binding"}, {"section": "9.8 Health Checks — Readiness, Liveness, Startup", "title": "9.8 Health Checks — Readiness, Liveness, Startup", "code": "flowchart TD\n    K8s([\"Kubernetes / ACA\"]) --> Start[\"startupProbe<br/>/healthz/startup<br/>fails: restart pod\"]\n    Start -->|\"ready\"| Live[\"livenessProbe<br/>/healthz/live<br/>fails: restart pod\"]\n    Live -->|\"alive\"| Ready[\"readinessProbe<br/>/healthz/ready<br/>fails: remove from load balancer\"]\n\n    Ready --> AzureOAI[\"Check: Azure OpenAI ping\"]\n    Ready --> QdrantHC[\"Check: Qdrant ping\"]\n    Ready --> RedisHC[\"Check: Redis ping\"]\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    classDef warning fill:#f59e0b,stroke:#d97706,color:#fff,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    class K8s actor\n    class Start,Live success\n    class Ready warning\n    class AzureOAI,QdrantHC,RedisHC azure"}, {"section": "9.9 Blue/Green & Canary Deployments", "title": "9.9 Blue/Green & Canary Deployments", "code": "flowchart TB\n    Users([\"Users\"]) --> FD[\"Azure Front Door<br/>or APIM\"]\n    FD -->|\"90% traffic\"| Blue[\"Blue Slot<br/>(current stable)\"]\n    FD -->|\"10% traffic\"| Green[\"Green Slot<br/>(new version)\"]\n\n    Green --> Eval{\"AI Evaluation<br/>groundedness, relevance\"}\n    Eval -->|\"metrics ok\"| Promote([\"Promote Green → 100%<br/>Blue becomes standby\"])\n    Eval -->|\"metrics degrade\"| Rollback([\"Rollback: 0% Green<br/>instant\"])\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef error fill:#ef4444,stroke:#dc2626,color:#fff,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef decision fill:#fef3c7,stroke:#f59e0b,color:#92400e,font-weight:bold\n    class Users actor\n    class Blue success\n    class Green process\n    class Promote success\n    class Rollback error\n    class FD azure\n    class Eval decision"}, {"section": "9.10 Azure API Management (APIM) — AI Gateway", "title": "9.10 Azure API Management (APIM) — AI Gateway", "code": "flowchart LR\n    Client([\"Client App\"]) --> APIM[\"Azure API Management\"]\n    APIM --> Auth[\"JWT / OAuth2 Validation\"]\n    Auth --> QuotaCheck[\"Token Budget Check<br/>(per subscription)\"]\n    QuotaCheck --> Cache{\"Semantic Cache<br/>(APIM built-in)\"}\n    Cache -->|\"miss\"| LB[\"Load Balancer Policy<br/>round-robin / priority\"]\n    LB --> AOAI1[\"Azure OpenAI East US<br/>(primary)\"]\n    LB --> AOAI2[\"Azure OpenAI West US<br/>(failover)\"]\n    Cache -->|\"hit\"| Return([\"Return cached response\"])\n\n    classDef actor fill:#f0fdf4,stroke:#22c55e,color:#166534,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef gateway fill:#0f172a,stroke:#020617,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef decision fill:#fef3c7,stroke:#f59e0b,color:#92400e,font-weight:bold\n    classDef success fill:#22c55e,stroke:#16a34a,color:#fff,font-weight:bold\n    class Client actor\n    class APIM gateway\n    class AOAI1,AOAI2 azure\n    class Auth,QuotaCheck,LB process\n    class Cache decision\n    class Return success"}, {"section": "Key Azure Monitor Alerts to Configure", "title": "Key Azure Monitor Alerts to Configure", "code": "flowchart TD\n    Metrics[\"Azure Monitor Metrics\"] --> A1[\"Alert: Token Rate<br/>> 80% quota used<br/>Severity 2\"]\n    Metrics --> A2[\"Alert: Latency P99<br/>> 10 seconds<br/>Severity 1\"]\n    Metrics --> A3[\"Alert: Error Rate<br/>> 5% HTTP 5xx<br/>Severity 1\"]\n    Metrics --> A4[\"Alert: Cost Daily<br/>> $100 USD<br/>Severity 3\"]\n    Metrics --> A5[\"Alert: Content Safety Blocks<br/>> 50/hr<br/>Severity 2\"]\n\n    A1 --> AG[\"Action Group<br/>Email + Teams + PagerDuty\"]\n    A2 --> AG\n    A3 --> AG\n    A4 --> AG\n    A5 --> AG\n\n    classDef warning fill:#f59e0b,stroke:#d97706,color:#fff,font-weight:bold\n    classDef error fill:#ef4444,stroke:#dc2626,color:#fff,font-weight:bold\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    class A1,A4,A5 warning\n    class A2,A3 error\n    class Metrics,AG azure"}, {"section": "9.12 Model Versioning & A/B Testing", "title": "9.12 Model Versioning & A/B Testing", "code": "sequenceDiagram\n    autonumber\n    participant User\n    participant Router as Model Router\n    participant ModelA as gpt-4o-2024-08-06 (A)\n    participant ModelB as gpt-4o-2024-11-20 (B)\n    participant Eval as AI Evaluator\n\n    User->>Router: Request\n    Router->>Router: 90% A / 10% B (hash(userId) % 10)\n    alt Group A\n        Router->>ModelA: Prompt\n        ModelA-->>Router: Response A\n    else Group B\n        Router->>ModelB: Prompt\n        ModelB-->>Router: Response B\n    end\n    Router->>Eval: Log (response, ground truth label)\n    Eval->>Eval: Score: groundedness, relevance, coherence\n    Router-->>User: Response (with X-Model-Version header)\n    Note over Router,Eval: Same user always maps to same variant<br/>for stable, comparable metrics"}, {"section": "9.14 Cost Governance at Scale", "title": "9.14 Cost Governance at Scale", "code": "flowchart LR\n    Spend[\"Azure Cost Management<br/>daily budget alerts\"] --> Quota[\"APIM Token Quota<br/>per subscription per day\"]\n    Quota --> Router[\"Model Router<br/>gpt-4o-mini first\"]\n    Router --> Cache{\"Semantic Cache<br/>reuse embeddings\"}\n    Cache --> Batch[\"Embedding Batcher<br/>group 100 docs/call\"]\n    Batch --> Budget[\"Per-Tenant Token Budget<br/>reject over-budget\"]\n\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef decision fill:#fef3c7,stroke:#f59e0b,color:#92400e,font-weight:bold\n    class Spend,Quota azure\n    class Router,Batch,Budget process\n    class Cache decision"}, {"section": "9.15 Private Networking — VNet Integration", "title": "9.15 Private Networking — VNet Integration", "code": "flowchart TB\n    subgraph VNET [\"Azure VNet\"]\n        subgraph APPSUB [\"App Subnet\"]\n            ACA[\"Azure Container Apps<br/>or AKS Pods\"]\n        end\n        subgraph PESUB [\"Private Endpoints Subnet\"]\n            PE_AOAI[\"Private Endpoint<br/>Azure OpenAI\"]\n            PE_Search[\"Private Endpoint<br/>AI Search\"]\n            PE_KV[\"Private Endpoint<br/>Key Vault\"]\n        end\n        DNS[\"Azure Private DNS Zones<br/>cognitiveservices.azure.com<br/>search.windows.net<br/>vault.azure.net\"]\n    end\n\n    ACA --> PE_AOAI\n    ACA --> PE_Search\n    ACA --> PE_KV\n    PE_AOAI --> DNS\n    PE_Search --> DNS\n    PE_KV --> DNS\n\n    classDef azure fill:#0078D4,stroke:#005a9e,color:#fff,font-weight:bold\n    classDef process fill:#8b5cf6,stroke:#7c3aed,color:#fff,font-weight:bold\n    classDef storage fill:#1e40af,stroke:#1e3a8a,color:#fff,font-weight:bold\n    class PE_AOAI,PE_Search,PE_KV azure\n    class DNS storage\n    class ACA process"}];
+const N = D.length;
+
+// Per-diagram state: transform + whether auto-fit has run
+const T       = D.map(() => ({s:1, x:0, y:0}));
+const autofit = new Set();  // diagrams that have been auto-fitted
+
+let cur = 0, rdy = false;
+let drag = false, dragOX = 0, dragOY = 0;
+
+const cw   = document.getElementById('cw');
+const zldEl = document.getElementById('zl');
+const ttlEl = document.getElementById('ttl');
+const cntEl = document.getElementById('cnt');
+const prog  = document.getElementById('prog');
+const lprog = document.getElementById('lprog');
+
+// ── DOM helpers ──────────────────────────────────────────────────────────
+const slot = i => document.getElementById('sl'+i);
+const pzw  = i => document.getElementById('pw'+i);
+const getSvg = i => pzw(i)?.querySelector('svg');
+
+function canvW() { return cw.clientWidth; }
+function canvH() { return cw.clientHeight; }
+
+// ── Natural SVG size (before any CSS transform) ──────────────────────────
+function natSize(i) {
+  const el = getSvg(i);
+  if (!el) return {w:800, h:400};
+  const vb = el.viewBox?.baseVal;
+  if (vb && vb.width  > 0) return {w: vb.width,  h: vb.height};
+  const bb = el.getBBox?.();
+  if (bb && bb.width  > 0) return {w: bb.width,   h: bb.height};
+  return {w: el.clientWidth || 800, h: el.clientHeight || 400};
+}
+
+// ── Apply transform ──────────────────────────────────────────────────────
+function applyT(i, animate) {
+  const pw = pzw(i);
+  if (!pw) return;
+  const {s, x, y} = T[i];
+  if (animate) pw.classList.add('anim');
+  else         pw.classList.remove('anim');
+  pw.style.transform = `translate(${x.toFixed(2)}px,${y.toFixed(2)}px) scale(${s})`;
+  if (i === cur) zldEl.textContent = Math.round(s * 100) + '%';
+}
+
+// ── Fit to canvas ────────────────────────────────────────────────────────
+// Must be called AFTER the slot is display:block so SVG has dimensions.
+function fit(i, animate) {
+  i = (i === undefined) ? cur : i;
+  const {w, h} = natSize(i);
+  if (!w || !h) return;
+  const W = canvW(), H = canvH(), pad = 64;
+  const s = Math.min((W - pad) / w, (H - pad) / h, 4);
+  T[i] = { s, x: (W - w * s) / 2, y: (H - h * s) / 2 };
+  autofit.add(i);
+  applyT(i, animate);
+}
+
+// ── Zoom helpers ─────────────────────────────────────────────────────────
+function zoomAt(cx, cy, ds) {
+  const t  = T[cur];
+  const ns = Math.max(0.05, Math.min(15, t.s + ds));
+  const r  = ns / t.s;
+  T[cur]   = { s: ns, x: cx - r * (cx - t.x), y: cy - r * (cy - t.y) };
+  applyT(cur);
+}
+function zi() { zoomAt(canvW()/2, canvH()/2,  0.2); }
+function zo() { zoomAt(canvW()/2, canvH()/2, -0.2); }
+function zr() { T[cur] = {s:1, x:0, y:0}; applyT(cur, true); }
+
+// ── Show a diagram ────────────────────────────────────────────────────────
+function show(i) {
+  if (!rdy) return;
+  // hide old
+  slot(cur)?.classList.remove('on');
+  cur = i;
+  // show new slot (must happen BEFORE fit so SVG has layout)
+  const sl = slot(i);
+  if (sl) sl.classList.add('on');
+
+  // update UI
+  ttlEl.textContent = D[i].title;
+  cntEl.textContent = (i + 1) + ' / ' + N;
+  prog.style.width  = ((i + 1) / N * 100) + '%';
+  document.querySelectorAll('.li').forEach(el =>
+    el.classList.toggle('on', +el.dataset.i === i));
+  document.querySelectorAll('.dot').forEach((el, j) =>
+    el.classList.toggle('on', j === i));
+
+  // auto-fit first visit; otherwise restore stored transform
+  if (!autofit.has(i)) {
+    // double rAF: first frame makes slot visible, second frame has layout
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      fit(i);
+    }));
+  } else {
+    applyT(i);
+  }
+}
+
+function nav(d) {
+  const n = (cur + d + N) % N;
+  show(n);
+  document.querySelector(`.li[data-i="${n}"]`)?.scrollIntoView({block: 'nearest'});
+}
+
+// ── Drag to pan ──────────────────────────────────────────────────────────
+cw.addEventListener('mousedown', e => {
+  if (e.button !== 0) return;
+  drag = true;
+  dragOX = e.clientX - T[cur].x;
+  dragOY = e.clientY - T[cur].y;
+});
+window.addEventListener('mousemove', e => {
+  if (!drag) return;
+  T[cur].x = e.clientX - dragOX;
+  T[cur].y = e.clientY - dragOY;
+  applyT(cur);
+});
+window.addEventListener('mouseup', () => { drag = false; });
+
+// ── Scroll to zoom ───────────────────────────────────────────────────────
+cw.addEventListener('wheel', e => {
+  e.preventDefault();
+  const r = cw.getBoundingClientRect();
+  zoomAt(e.clientX - r.left, e.clientY - r.top, -e.deltaY * 0.0015);
+}, {passive: false});
+
+// ── Touch ────────────────────────────────────────────────────────────────
+let t0 = null;
+cw.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) {
+    t0 = {type:'pan', x: e.touches[0].clientX - T[cur].x, y: e.touches[0].clientY - T[cur].y};
+  } else if (e.touches.length === 2) {
+    const [a, b] = [e.touches[0], e.touches[1]];
+    t0 = {type:'pinch', d: Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY),
+           s0: T[cur].s, cx:(a.clientX+b.clientX)/2, cy:(a.clientY+b.clientY)/2};
+  }
+}, {passive:true});
+cw.addEventListener('touchmove', e => {
+  if (!t0) return;
+  e.preventDefault();
+  if (t0.type === 'pan' && e.touches.length === 1) {
+    T[cur].x = e.touches[0].clientX - t0.x;
+    T[cur].y = e.touches[0].clientY - t0.y;
+    applyT(cur);
+  } else if (t0.type === 'pinch' && e.touches.length === 2) {
+    const [a, b] = [e.touches[0], e.touches[1]];
+    const d  = Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY);
+    const ns = Math.max(0.05, Math.min(15, t0.s0 * (d / t0.d)));
+    const r  = cw.getBoundingClientRect();
+    zoomAt(t0.cx - r.left, t0.cy - r.top, ns - T[cur].s);
+  }
+}, {passive:false});
+cw.addEventListener('touchend', () => { t0 = null; }, {passive:true});
+
+// ── Keyboard ─────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nav(1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   nav(-1);
+  if (e.key === '+' || e.key === '=') zi();
+  if (e.key === '-')                  zo();
+  if (e.key === '0')                  zr();
+  if (e.key === 'f' || e.key === 'F') fit(cur, true);
+});
+
+// ── Sidebar ──────────────────────────────────────────────────────────────
+function buildList(f) {
+  f = (f || '').toLowerCase();
+  const c = document.getElementById('lst');
+  c.innerHTML = '';
+  let sec = null;
+  D.forEach((d, i) => {
+    if (f && !d.title.toLowerCase().includes(f) && !d.section.toLowerCase().includes(f)) return;
+    if (d.section !== sec) {
+      const lbl = document.createElement('div');
+      lbl.className = 'lsec';
+      lbl.textContent = d.section;
+      c.appendChild(lbl);
+      sec = d.section;
+    }
+    const el = document.createElement('div');
+    el.className = 'li' + (i === cur ? ' on' : '');
+    el.dataset.i = i;
+    el.textContent = d.title.length > 44 ? d.title.slice(0, 44) + '…' : d.title;
+    el.onclick = () => show(i);
+    c.appendChild(el);
+  });
+}
+function flt(v) { buildList(v); }
+
+function buildDots() {
+  const bar = document.getElementById('dots');
+  bar.innerHTML = '';
+  D.forEach((d, i) => {
+    const el = document.createElement('div');
+    el.className = 'dot' + (i === 0 ? ' on' : '');
+    el.title = d.title;
+    el.onclick = () => show(i);
+    bar.appendChild(el);
+  });
+}
+
+// ── Resize: re-fit current diagram ───────────────────────────────────────
+new ResizeObserver(() => { if (rdy) fit(cur); }).observe(cw);
+
+// ── Theme ─────────────────────────────────────────────────────────────────
+function toggleTheme() { document.body.classList.toggle('lt'); }
+setTimeout(() => document.getElementById('hint').classList.add('off'), 5000);
+
+// ── Render all diagrams ───────────────────────────────────────────────────
+async function renderAll() {
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'dark',
+    themeVariables: {
+      primaryColor:         '#6366f1',
+      primaryTextColor:     '#f1f5f9',
+      primaryBorderColor:   '#818cf8',
+      lineColor:            '#94a3b8',
+      secondaryColor:       '#1e293b',
+      tertiaryColor:        '#334155',
+      background:           '#0f172a',
+      mainBkg:              '#1e293b',
+      nodeBorder:           '#475569',
+      clusterBkg:           '#1e293b',
+      titleColor:           '#f1f5f9',
+      edgeLabelBackground:  '#1e293b',
+      fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",
+      fontSize: '14px',
+    },
+    flowchart:  { curve: 'basis', htmlLabels: true, padding: 24 },
+    sequence:   { mirrorActors: false, messageAlign: 'center' },
+  });
+
+  for (let i = 0; i < N; i++) {
+    const d = D[i];
+
+    // Slot — fills canvas, hidden by default
+    const sl = document.createElement('div');
+    sl.id        = 'sl' + i;
+    sl.className = 'slot';   // NOT 'on' — show() manages visibility
+
+    // Panzoom wrapper — positioned at (0,0)
+    const pw = document.createElement('div');
+    pw.id        = 'pw' + i;
+    pw.className = 'pzw';
+
+    try {
+      const { svg: svgStr } = await mermaid.render('mm' + i, d.code);
+      pw.innerHTML = svgStr;
+      const el = pw.querySelector('svg');
+      if (el) {
+        el.style.maxWidth = 'none';
+        el.style.height   = 'auto';
+        // Enforce pixel dimensions so layout is consistent
+        const vb = el.viewBox?.baseVal;
+        if (vb && vb.width > 0) {
+          el.setAttribute('width',  vb.width);
+          el.setAttribute('height', vb.height);
+        }
+      }
+    } catch (err) {
+      pw.innerHTML = `<div class="errc"><b>⚠ ${d.title}</b><br/><br/><code>${err.message}</code></div>`;
+    }
+
+    sl.appendChild(pw);
+    cw.appendChild(sl);
+
+    // Update load progress
+    lprog.textContent = (i + 1) + ' / ' + N;
+  }
+
+  // Fade out loading overlay
+  const loadEl = document.getElementById('load');
+  loadEl.classList.add('out');
+  setTimeout(() => loadEl.style.display = 'none', 400);
+
+  rdy = true;
+  buildList();
+  buildDots();
+
+  // Show diagram 0 — show() will auto-fit via double-rAF
+  show(0);
+}
+
+renderAll();
+</script>
+</body>
+</html>

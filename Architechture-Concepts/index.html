@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<!-- MD_INDEX_GENERATED: 2026-06-29 -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Architecture Concepts — Knowledge Base</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link  rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sb-bg:      #0f172a;
+      --sb-hover:   #1e293b;
+      --sb-active:  rgba(59,130,246,.18);
+      --sb-border:  #1e293b;
+      --sb-text:    #cbd5e1;
+      --sb-muted:   #475569;
+      --sb-width:   290px;
+      --accent:     #3b82f6;
+      --accent2:    #8b5cf6;
+      --border:     #e2e8f0;
+      --shadow:     0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-lg:  0 4px 16px rgba(0,0,0,.08);
+    }
+
+    html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+    /* ── Layout ── */
+    .layout { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sb-width);
+      min-width: var(--sb-width);
+      background: var(--sb-bg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-right: 1px solid var(--sb-border);
+      position: relative;
+      z-index: 10;
+    }
+
+    .sidebar-header {
+      padding: 18px 16px 10px;
+      border-bottom: 1px solid var(--sb-border);
+      flex-shrink: 0;
+    }
+
+    .sidebar-header .back-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10px; color: #475569; text-decoration: none;
+      margin-bottom: 10px; letter-spacing: .03em;
+      transition: color .15s;
+    }
+    .sidebar-header .back-link:hover { color: #94a3b8; }
+
+    .sidebar-header h1 {
+      font-size: 13px; font-weight: 700;
+      color: #f8fafc; letter-spacing: .02em;
+    }
+
+    .sidebar-header .meta {
+      font-size: 11px; color: var(--sb-muted); margin-top: 3px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .sidebar-header .meta .dot { color: #1e293b; }
+
+    /* Search */
+    .search-wrap { padding: 10px 12px 6px; flex-shrink: 0; }
+    .search-wrap input {
+      width: 100%; padding: 7px 10px 7px 30px;
+      background: #1e293b; border: 1px solid #334155;
+      border-radius: 6px; color: #e2e8f0; font-size: 12px;
+      outline: none; transition: border-color .2s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 9px center;
+    }
+    .search-wrap input::placeholder { color: #475569; }
+    .search-wrap input:focus { border-color: var(--accent); }
+
+    .search-shortcut {
+      display: block; text-align: right;
+      font-size: 10px; color: #334155; padding: 3px 12px 4px;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      display: flex; gap: 0;
+      border-bottom: 1px solid var(--sb-border);
+      flex-shrink: 0;
+    }
+    .stat-pill {
+      flex: 1; padding: 7px 4px; text-align: center;
+      border-right: 1px solid var(--sb-border);
+    }
+    .stat-pill:last-child { border-right: none; }
+    .stat-pill .num { font-size: 16px; font-weight: 800; color: var(--accent); line-height: 1; }
+    .stat-pill .lbl { font-size: 9px; color: var(--sb-muted); margin-top: 2px; letter-spacing: .04em; text-transform: uppercase; }
+
+    /* Nav */
+    .nav { flex: 1; overflow-y: auto; padding: 4px 0 16px; }
+    .nav::-webkit-scrollbar { width: 4px; }
+    .nav::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+
+    .group-section { margin-bottom: 2px; }
+
+    .group-label {
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 14px 4px;
+      font-size: 10px; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; color: var(--sb-muted);
+      cursor: pointer; user-select: none;
+      transition: color .15s;
+    }
+    .group-label:hover { color: #94a3b8; }
+
+    .group-label .g-emoji { font-size: 12px; }
+    .group-label .g-count {
+      margin-left: auto;
+      background: #1e293b; color: #64748b;
+      font-size: 10px; padding: 1px 6px;
+      border-radius: 10px; font-weight: 600;
+    }
+    .group-label .chevron {
+      font-size: 8px; color: #334155;
+      transition: transform .2s; margin-right: 1px;
+    }
+    .group-label.collapsed .chevron { transform: rotate(-90deg); }
+
+    .file-list { list-style: none; }
+    .file-list.hidden { display: none; }
+
+    .file-list li { position: relative; }
+
+    .file-list li a {
+      display: flex; align-items: flex-start; gap: 0;
+      padding: 0;
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: background .12s, border-color .12s;
+    }
+
+    .file-list li a:hover { background: var(--sb-hover); border-left-color: #334155; }
+    .file-list li a.active {
+      background: var(--sb-active); border-left-color: var(--accent);
+    }
+
+    .file-entry {
+      display: flex; flex-direction: column;
+      padding: 7px 12px 7px 18px; width: 100%;
+    }
+
+    .file-name {
+      font-size: 12px; color: var(--sb-text); line-height: 1.35;
+      font-weight: 400;
+    }
+    .file-list li a.active .file-name { color: #93c5fd; font-weight: 500; }
+
+    .file-meta {
+      display: flex; align-items: center; gap: 6px;
+      margin-top: 2px;
+    }
+
+    .file-badge {
+      font-size: 9px; padding: 1px 5px;
+      border-radius: 4px; font-weight: 600;
+      letter-spacing: .02em;
+    }
+    .badge-sections { background: #1e3a5f; color: #60a5fa; }
+    .badge-lines   { background: #1a2e1a; color: #4ade80; }
+
+    /* ── Main area ── */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #f1f5f9; }
+
+    /* Top bar */
+    .topbar {
+      height: 46px; background: #1e293b;
+      border-bottom: 1px solid #334155;
+      display: flex; align-items: center;
+      padding: 0 20px; gap: 10px; flex-shrink: 0;
+    }
+
+    .breadcrumb { font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+    .breadcrumb .crumb-folder { color: #64748b; white-space: nowrap; }
+    .breadcrumb .crumb-sep { color: #334155; }
+    .breadcrumb .crumb-file { color: #e2e8f0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .topbar-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    .tb-btn {
+      padding: 4px 10px;
+      background: #334155; border: 1px solid #475569;
+      border-radius: 5px; color: #cbd5e1;
+      font-size: 11px; cursor: pointer;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 4px;
+      transition: background .15s, color .15s;
+      white-space: nowrap;
+    }
+    .tb-btn:hover { background: #475569; color: #f1f5f9; }
+    .tb-btn.copied { background: #14532d; border-color: #166534; color: #86efac; }
+
+    /* Content */
+    .content-scroll { flex: 1; overflow-y: auto; padding: 28px 32px 60px; }
+    .content-scroll::-webkit-scrollbar { width: 6px; }
+    .content-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+    /* Welcome */
+    .welcome {
+      max-width: 760px; margin: 0 auto; padding: 20px 0;
+    }
+
+    .welcome-hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+      border-radius: 14px; padding: 36px 40px;
+      margin-bottom: 24px; position: relative; overflow: hidden;
+    }
+    .welcome-hero::after {
+      content: '🏗️';
+      position: absolute; right: 32px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 80px; opacity: .15;
+    }
+
+    .welcome-hero h2 { font-size: 22px; font-weight: 800; color: #f8fafc; margin-bottom: 8px; }
+    .welcome-hero p  { font-size: 13px; color: #94a3b8; line-height: 1.6; max-width: 440px; }
+
+    .welcome-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px; margin-bottom: 20px;
+    }
+
+    .topic-card {
+      background: white; border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px;
+      cursor: pointer; transition: box-shadow .2s, transform .15s;
+      box-shadow: var(--shadow);
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .topic-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+
+    .topic-card .tc-emoji { font-size: 22px; }
+    .topic-card .tc-name { font-size: 13px; font-weight: 700; color: #1e293b; }
+    .topic-card .tc-count { font-size: 11px; color: #64748b; }
+
+    .welcome-hint {
+      background: #f8fafc; border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 16px;
+      font-size: 12px; color: #64748b; text-align: center;
+    }
+    .welcome-hint code {
+      background: #e2e8f0; padding: 2px 6px;
+      border-radius: 4px; font-family: monospace; color: #334155;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 300px; flex-direction: column; gap: 14px;
+    }
+    .spinner {
+      width: 30px; height: 30px;
+      border: 3px solid #e2e8f0; border-top-color: var(--accent);
+      border-radius: 50%; animation: spin .65s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading p { font-size: 13px; color: #94a3b8; }
+
+    /* MD body */
+    .md-body {
+      max-width: 880px; background: white;
+      border-radius: 12px; box-shadow: var(--shadow-lg);
+      padding: 44px 52px; margin: 0 auto;
+    }
+
+    /* Markdown typography */
+    .md-body h1 { font-size: 26px; font-weight: 800; color: #0f172a; margin: 0 0 18px; padding-bottom: 14px; border-bottom: 2px solid #f1f5f9; }
+    .md-body h2 { font-size: 19px; font-weight: 700; color: #1e293b; margin: 34px 0 12px; scroll-margin-top: 20px; }
+    .md-body h3 { font-size: 15px; font-weight: 600; color: #334155; margin: 22px 0 8px; }
+    .md-body h4 { font-size: 13px; font-weight: 600; color: #475569; margin: 14px 0 6px; }
+    .md-body p  { font-size: 14px; line-height: 1.8; color: #374151; margin-bottom: 14px; }
+    .md-body ul, .md-body ol { padding-left: 22px; margin-bottom: 14px; }
+    .md-body li { font-size: 14px; line-height: 1.8; color: #374151; margin-bottom: 3px; }
+    .md-body a  { color: var(--accent); text-decoration: none; }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body strong { color: #1e293b; }
+    .md-body em { color: #475569; }
+
+    .md-body code {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 12.5px; background: #f1f5f9;
+      border: 1px solid #e2e8f0; border-radius: 4px;
+      padding: 1px 5px; color: #e11d48;
+    }
+
+    .md-body pre {
+      background: #0d1117 !important; border-radius: 10px;
+      margin: 16px 0; overflow: auto;
+      border: 1px solid #1e293b;
+      position: relative;
+    }
+    .md-body pre code {
+      background: transparent !important; border: none !important;
+      padding: 18px 20px !important; color: #e2e8f0 !important;
+      display: block; font-size: 12.5px; line-height: 1.65;
+    }
+
+    .md-body blockquote {
+      border-left: 4px solid var(--accent);
+      background: linear-gradient(90deg, #eff6ff, #f8fafc);
+      padding: 12px 16px; margin: 16px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .md-body blockquote p { color: #1e40af; margin-bottom: 0; font-size: 13.5px; }
+
+    .md-body table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    .md-body table th { background: #f8fafc; font-weight: 600; color: #374151; padding: 10px 14px; text-align: left; border: 1px solid var(--border); }
+    .md-body table td { padding: 8px 14px; border: 1px solid var(--border); color: #374151; vertical-align: top; }
+    .md-body table tr:nth-child(even) td { background: #f8fafc; }
+    .md-body table tr:hover td { background: #eff6ff; }
+
+    .md-body hr { border: none; border-top: 1px solid #f1f5f9; margin: 28px 0; }
+    .md-body img { max-width: 100%; border-radius: 8px; margin: 8px 0; }
+
+    /* Mermaid */
+    .md-body .mermaid {
+      background: #fafbfc; border: 1px solid var(--border);
+      border-radius: 10px; padding: 24px 16px;
+      margin: 20px 0; overflow-x: auto; text-align: center;
+    }
+
+    /* TOC (auto-generated) */
+    .toc-box {
+      background: #f8fafc; border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px 18px;
+      margin-bottom: 24px; display: none;
+    }
+    .toc-box.visible { display: block; }
+    .toc-box h4 { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+    .toc-box ul { list-style: none; padding: 0; }
+    .toc-box ul li { padding: 2px 0; }
+    .toc-box ul li a { font-size: 12px; color: #64748b; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+    .toc-box ul li a:hover { color: var(--accent); }
+    .toc-box ul li.toc-h3 { padding-left: 14px; }
+    .toc-box ul li.toc-h3 a { font-size: 11.5px; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .sidebar { width: 240px; min-width: 240px; }
+      .md-body { padding: 28px 24px; }
+      .content-scroll { padding: 16px; }
+    }
+    @media (max-width: 640px) {
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a class="back-link" href="../index.html">← Back to root index</a>
+      <h1>🏗️ Architecture Concepts</h1>
+      <div class="meta">
+        <span id="total-count">0</span> documents
+        <span class="dot">·</span>
+        <span>Press <kbd style="background:#1e293b;border:1px solid #334155;padding:1px 4px;border-radius:3px;font-size:9px;color:#94a3b8">/</kbd> to search</span>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <input type="text" id="search" placeholder="Search documents…" autocomplete="off" />
+    </div>
+
+    <div class="stats-bar" id="stats-bar"></div>
+
+    <nav class="nav" id="nav"></nav>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="topbar">
+      <div class="breadcrumb" id="breadcrumb">
+        <span class="crumb-folder">Architechture-Concepts</span>
+        <span class="crumb-sep">/</span>
+        <span class="crumb-file" id="crumb-file" style="color:#475569">Select a document →</span>
+      </div>
+      <div class="topbar-actions">
+        <a id="raw-btn" class="tb-btn" style="display:none" target="_blank">↗ Raw</a>
+        <button class="tb-btn" id="toc-btn" style="display:none" onclick="toggleToc()">☰ TOC</button>
+        <button class="tb-btn" id="copy-btn" onclick="copyLink()">🔗 Link</button>
+      </div>
+    </div>
+
+    <div class="content-scroll" id="content-scroll">
+
+      <!-- Welcome screen -->
+      <div class="welcome" id="welcome">
+        <div class="welcome-hero">
+          <h2>Architecture Concepts</h2>
+          <p>17 reference documents covering Azure AI, MLOps, system design patterns, and interview prep. Select any document from the sidebar to read it here.</p>
+        </div>
+
+        <div class="welcome-grid" id="topic-grid"></div>
+
+        <div class="welcome-hint">
+          Serve locally: <code>python3 -m http.server 8080</code> → open <code>http://localhost:8080/Architechture-Concepts/</code>
+        </div>
+      </div>
+
+      <!-- TOC -->
+      <div class="toc-box" id="toc-box"><h4>Contents</h4><ul id="toc-list"></ul></div>
+
+      <!-- MD content -->
+      <div class="md-body" id="md-body" style="display:none"></div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   FILE REGISTRY
+   Agent patches between /* FILES_START * / and /* FILES_END * /
+───────────────────────────────────────────────────────────── */
+/* FILES_START */
+const GROUPS = [
+  {
+    name: "Azure AI Services",
+    emoji: "☁️",
+    color: "#0078D4",
+    files: [
+      { name: "Azure AI Foundry Agents — Hands-On Tutorial",       file: "Azure-AI-Foundry-Agents-Hands-On.md",      sections: 19, lines: 768  },
+      { name: "Azure AI Search — Complete Pro Guide",              file: "Azure-AI-Search-Complete-Guide.md",         sections: 14, lines: 1300 },
+      { name: "Azure AI Stack — Complete Reference Guide",         file: "Azure-AI-Stack.md",                        sections: 10, lines: 929  },
+      { name: "Azure AI Stack — 4-Pillar Production Stack",        file: "Azure-AI-Stack2.md",                       sections: 11, lines: 815  },
+      { name: "Top 25 Azure Interview Questions",                  file: "Azure-Interview-Questions-Top25.md",       sections: 13, lines: 441  },
+      { name: "Agentic RAG with Azure AI Search",                  file: "Agentic-RAG-Azure-AI-Search.md",           sections: 17, lines: 813  },
+      { name: "Building Azure AI Agents — Microsoft Foundry",      file: "Microsoft-Foundry-Agent-Guide.md",         sections: 13, lines: 624  }
+    ]
+  },
+  {
+    name: "AI & ML Concepts",
+    emoji: "🤖",
+    color: "#8b5cf6",
+    files: [
+      { name: "AI Architect — Complete Interview Concepts Guide",   file: "AI_Architect_Interview_Concepts.md",       sections: 23, lines: 1062 },
+      { name: "AI Architect / Azure GenAI — JD Analysis",          file: "AI_Architect_JD_Analysis_Complete.md",     sections: 13, lines: 262  },
+      { name: "Microsoft AI & ML Interview Questions",             file: "Microsoft-AI-ML-Interview-Questions.md",   sections: 12, lines: 320  },
+      { name: "Semantic Kernel — AI Agent Development",            file: "Semantic-Kernel-AI-Agent-Development.md",  sections: 15, lines: 845  }
+    ]
+  },
+  {
+    name: "MLOps",
+    emoji: "⚙️",
+    color: "#f59e0b",
+    files: [
+      { name: "MLOps — Beginners Project Guide",                   file: "MLOps-Beginners-Project-Guide.md",         sections: 13, lines: 502  },
+      { name: "MLOps — Deploy to Kubernetes Hands-On",             file: "MLOps-Kubernetes-Hands-On.md",             sections: 13, lines: 453  }
+    ]
+  },
+  {
+    name: "Architecture & Design (.NET)",
+    emoji: "🏗️",
+    color: "#10b981",
+    files: [
+      { name: "Additional Architecture Concepts — Complete (.NET)", file: "AdditionalConcepts-Complete.md",           sections: 7,  lines: 1442 },
+      { name: "Architecture & System Design — Insta Reference",    file: "Description-Architecture-Insta-Complete.md", sections: 20, lines: 1839 }
+    ]
+  },
+  {
+    name: "Interview Prep",
+    emoji: "📝",
+    color: "#e11d48",
+    files: [
+      { name: "UI & Architecture Interview Concepts",              file: "Description-UI-Questions-Clean.md",        sections: 41, lines: 1442 },
+      { name: "LinkedIn Tech Knowledge Digest",                    file: "LinkedIn-1-Clean.md",                      sections: 25, lines: 1035 }
+    ]
+  }
+];
+/* FILES_END */
+
+/* ─────────────────────────────────────────────────────────────
+   INIT
+───────────────────────────────────────────────────────────── */
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'default',
+  securityLevel: 'loose',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  flowchart: { curve: 'basis' }
+});
+
+marked.setOptions({ breaks: true, gfm: true });
+
+let currentFile = null;
+let tocVisible = false;
+
+const totalFiles = GROUPS.reduce((s, g) => s + g.files.length, 0);
+document.getElementById('total-count').textContent = totalFiles;
+
+/* ─────────────────────────────────────────────────────────────
+   BUILD SIDEBAR
+───────────────────────────────────────────────────────────── */
+function buildSidebar(filter = '') {
+  const nav = document.getElementById('nav');
+  const statsBar = document.getElementById('stats-bar');
+  nav.innerHTML = '';
+  statsBar.innerHTML = '';
+
+  let shown = 0;
+
+  GROUPS.forEach(group => {
+    const matches = filter
+      ? group.files.filter(f => f.name.toLowerCase().includes(filter.toLowerCase()))
+      : group.files;
+
+    if (matches.length === 0) return;
+    shown += matches.length;
+
+    const section = document.createElement('div');
+    section.className = 'group-section';
+
+    const label = document.createElement('div');
+    label.className = 'group-label';
+    label.innerHTML = `
+      <span class="chevron">▼</span>
+      <span class="g-emoji">${group.emoji}</span>
+      <span>${group.name}</span>
+      <span class="g-count">${matches.length}</span>
+    `;
+
+    const ul = document.createElement('ul');
+    ul.className = 'file-list';
+
+    matches.forEach(f => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = '#';
+      a.dataset.file = f.file;
+
+      const sizeLabel = f.lines > 1000 ? `${(f.lines/1000).toFixed(1)}k` : f.lines;
+
+      a.innerHTML = `
+        <div class="file-entry">
+          <div class="file-name">${f.name}</div>
+          <div class="file-meta">
+            <span class="file-badge badge-sections">§ ${f.sections}</span>
+            <span class="file-badge badge-lines">↕ ${sizeLabel}</span>
+          </div>
+        </div>
+      `;
+
+      if (currentFile === f.file) a.classList.add('active');
+
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        loadFile(f.file, f.name, group.name, group.emoji);
+      });
+
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+
+    label.addEventListener('click', () => {
+      label.classList.toggle('collapsed');
+      ul.classList.toggle('hidden');
+    });
+
+    section.appendChild(label);
+    section.appendChild(ul);
+    nav.appendChild(section);
+  });
+
+  // Stats bar
+  statsBar.innerHTML = `
+    <div class="stat-pill"><div class="num">${totalFiles}</div><div class="lbl">Docs</div></div>
+    <div class="stat-pill"><div class="num">${GROUPS.length}</div><div class="lbl">Topics</div></div>
+    <div class="stat-pill"><div class="num">${shown !== totalFiles ? shown : totalFiles}</div><div class="lbl">Shown</div></div>
+  `;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   WELCOME — TOPIC GRID
+───────────────────────────────────────────────────────────── */
+function buildTopicGrid() {
+  const grid = document.getElementById('topic-grid');
+  GROUPS.forEach(g => {
+    const card = document.createElement('div');
+    card.className = 'topic-card';
+    card.innerHTML = `
+      <div class="tc-emoji">${g.emoji}</div>
+      <div class="tc-name">${g.name}</div>
+      <div class="tc-count">${g.files.length} document${g.files.length > 1 ? 's' : ''}</div>
+    `;
+    card.style.borderTop = `3px solid ${g.color}`;
+    card.addEventListener('click', () => {
+      // Load first file in group
+      const f = g.files[0];
+      loadFile(f.file, f.name, g.name, g.emoji);
+    });
+    grid.appendChild(card);
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LOAD & RENDER FILE
+───────────────────────────────────────────────────────────── */
+async function loadFile(fileName, displayName, groupName, groupEmoji) {
+  currentFile = fileName;
+
+  // Sidebar active state
+  document.querySelectorAll('.file-list a').forEach(a => a.classList.remove('active'));
+  const active = document.querySelector(`.file-list a[data-file="${fileName}"]`);
+  if (active) {
+    active.classList.add('active');
+    active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  // Top bar
+  document.getElementById('crumb-file').textContent = displayName;
+  document.getElementById('crumb-file').style.color = '';
+  document.getElementById('raw-btn').href = fileName;
+  document.getElementById('raw-btn').style.display = 'inline-flex';
+  document.getElementById('toc-btn').style.display = 'inline-flex';
+
+  // Show loading
+  document.getElementById('welcome').style.display = 'none';
+  document.getElementById('toc-box').className = 'toc-box';
+  tocVisible = false;
+
+  const body = document.getElementById('md-body');
+  body.style.display = 'block';
+  body.innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading ${displayName}…</p>
+    </div>
+  `;
+  document.getElementById('content-scroll').scrollTo({ top: 0 });
+
+  try {
+    const res = await fetch(fileName);
+    if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
+    const markdown = await res.text();
+
+    // Render markdown → HTML
+    body.innerHTML = marked.parse(markdown);
+
+    // Post-process: mermaid code blocks → div.mermaid
+    body.querySelectorAll('code.language-mermaid').forEach(el => {
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = el.textContent;
+      el.closest('pre').replaceWith(div);
+    });
+
+    // Syntax highlight
+    body.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
+
+    // Render Mermaid diagrams
+    const diagrams = body.querySelectorAll('.mermaid');
+    if (diagrams.length > 0) await mermaid.run({ nodes: diagrams });
+
+    // Build TOC from H2/H3 headings
+    buildToc(body);
+
+    // URL hash
+    window.location.hash = encodeURIComponent(fileName);
+
+  } catch (err) {
+    body.innerHTML = `
+      <div style="padding:48px;text-align:center">
+        <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+        <h3 style="color:#ef4444;margin-bottom:8px">Could not load file</h3>
+        <p style="color:#64748b;font-size:13px;margin-bottom:16px">${err.message}</p>
+        <div style="background:#f1f5f9;border-radius:8px;padding:12px;display:inline-block;font-size:12px;color:#64748b">
+          Serve via local HTTP server:<br/>
+          <code style="background:#e2e8f0;padding:2px 6px;border-radius:4px">python3 -m http.server 8080</code>
+        </div>
+      </div>
+    `;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TOC
+───────────────────────────────────────────────────────────── */
+function buildToc(body) {
+  const headings = body.querySelectorAll('h2, h3');
+  if (headings.length < 3) return;
+
+  const list = document.getElementById('toc-list');
+  list.innerHTML = '';
+
+  headings.forEach((h, i) => {
+    const id = `toc-${i}`;
+    h.id = id;
+    const li = document.createElement('li');
+    li.className = h.tagName === 'H3' ? 'toc-h3' : '';
+    li.innerHTML = `<a href="#${id}">${h.textContent}</a>`;
+    li.querySelector('a').addEventListener('click', e => {
+      e.preventDefault();
+      h.scrollIntoView({ behavior: 'smooth' });
+    });
+    list.appendChild(li);
+  });
+}
+
+function toggleToc() {
+  tocVisible = !tocVisible;
+  const box = document.getElementById('toc-box');
+  box.className = tocVisible ? 'toc-box visible' : 'toc-box';
+  if (tocVisible) box.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   COPY LINK
+───────────────────────────────────────────────────────────── */
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✅ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '🔗 Link'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   KEYBOARD SHORTCUTS
+───────────────────────────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  const search = document.getElementById('search');
+  if (e.key === '/' && document.activeElement !== search) {
+    e.preventDefault(); search.focus();
+  }
+  if (e.key === 'Escape') {
+    search.blur(); search.value = ''; buildSidebar();
+  }
+  // Arrow keys to navigate files
+  if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && document.activeElement === search) {
+    e.preventDefault();
+    const links = [...document.querySelectorAll('.file-list a')];
+    if (links.length) { links[0].focus(); }
+  }
+});
+
+document.getElementById('search').addEventListener('input', e => buildSidebar(e.target.value));
+
+/* ─────────────────────────────────────────────────────────────
+   RESTORE FROM HASH
+───────────────────────────────────────────────────────────── */
+function restoreFromHash() {
+  if (!window.location.hash) return;
+  const fileName = decodeURIComponent(window.location.hash.slice(1));
+  GROUPS.forEach(g => {
+    const match = g.files.find(f => f.file === fileName);
+    if (match) loadFile(match.file, match.name, g.name, g.emoji);
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BOOT
+───────────────────────────────────────────────────────────── */
+buildSidebar();
+buildTopicGrid();
+restoreFromHash();
+</script>
+</body>
+</html>
