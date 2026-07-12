@@ -28,6 +28,63 @@ Activate this agent when the user:
 
 ---
 
+## Token Optimization Protocol
+
+> **Calls:** `TokenOptimizer Agent` — see `Agent-Skills/token-optimizer-agent.md`
+
+After reading all reference documents (Skill 1.3) and before generating any module, pass all collected reference content through the TokenOptimizer.
+
+### Invocation Pattern
+
+```
+═══════════════════════════════════════════════════════════
+PHASE 0 — TOKEN OPTIMIZATION (TokenOptimizer Agent)
+═══════════════════════════════════════════════════════════
+content      : [brief file content + all reference document content, concatenated]
+task_context : "Generate a multi-module technical tutorial series with diagrams and code"
+source_type  : "mixed"
+
+→ Run TokenOptimizer Skills 1–8:
+   • Deduplicate concepts repeated across multiple reference documents
+   • TOON-convert any uniform data arrays (config tables, feature lists, SDK method tables)
+   • Strip document navigation, legal notices, version boilerplate from reference docs
+   • Compact-engineer verbose reference prose (preserve all code and architecture details)
+   • Build DEDUP_GLOSSARY for terms repeated across reference files
+→ Store OPTIMIZED_CONTENT (use for Skill 5 knowledge extraction and all module generation)
+→ Store TOKEN_REPORT (display after all modules are written)
+═══════════════════════════════════════════════════════════
+```
+
+### Per-Module Optimization
+
+For large tutorial series (10+ modules), re-invoke the TokenOptimizer before each module generation:
+
+```
+Per-module invocation:
+  content      : [OPTIMIZED_CONTENT sections relevant to this module only]
+  task_context : "Generate module NN: {module title}"
+  source_type  : "file_content"
+```
+
+This prevents sending the full reference corpus for every module — only relevant slices.
+
+### Token Usage Report (display once after all modules are complete)
+
+```
+═══════════════════════════════════════════════════════════
+Token Usage Report — Full Series
+═══════════════════════════════════════════════════════════
+Estimated without optimization:  ~{original_tokens_estimate} tokens
+Actual (with optimization):      ~{optimized_tokens_estimate} tokens
+Savings:                         ~{savings_tokens} tokens ({savings_percent}%)
+Techniques applied:              {techniques_applied}
+Modules generated:               {N}
+═══════════════════════════════════════════════════════════
+* Estimates: prose chars ÷ 4, code chars ÷ 3. Actual API usage varies by model.
+```
+
+---
+
 ## Skill 1 — Brief Analysis and Session Configuration
 
 **This is always the first skill to run.** Read the brief file and extract the series configuration before generating anything.
@@ -889,6 +946,14 @@ Choose Related links based on **semantic proximity**, not numerical proximity:
 | Performance / Cost module | System Design + Deployment module |
 | End-to-end project module | All framework modules used in the project |
 | Interview Prep | The 3–5 highest-weight conceptual modules |
+
+---
+
+## Token Optimization Workflow Note
+
+> **Phase 0 (Token Optimization) runs after Skill 1.3 (Read Reference Documents) and before any module generation.**
+> For series of 10+ modules, Phase 0 also runs once per module with only the relevant content slice.
+> See Token Optimization Protocol section above for integration details.
 
 ---
 

@@ -6,3 +6,14 @@ Save to md file
 
 ❯ for https://www.youtube.com/watch?v=8MIx4HLHljA extract content and create md file. use @Agent-Skills/youtube-to-md-agent.md   
   if needed        
+
+
+
+  -----------
+
+  for all the topics under @Architechture-Concepts/DOC_1.2.txt extrapolate to get maximum details. use                                  
+  @Agent-Skills/concept-txt-to-md-agent.md  
+
+  ---------------
+
+  

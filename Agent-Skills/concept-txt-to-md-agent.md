@@ -23,6 +23,66 @@ Activate this agent when the user:
 
 ---
 
+## Token Optimization Protocol
+
+> **Calls:** `TokenOptimizer Agent` — see `Agent-Skills/token-optimizer-agent.md`
+
+After reading the source `.txt` file and before writing any output, pass all collected content through the TokenOptimizer.
+
+### Invocation Pattern
+
+```
+═══════════════════════════════════════════════════════════
+PHASE 0 — TOKEN OPTIMIZATION (TokenOptimizer Agent)
+═══════════════════════════════════════════════════════════
+content      : [full source .txt file content]
+task_context : "Expand concept blocks into Markdown with code, diagrams, and Q&A"
+source_type  : "file_content"
+
+→ Run TokenOptimizer Skills 1–8:
+   • Strip redundant dividers and repeated boilerplate headers
+   • TOON-convert any uniform concept tables found in source
+   • Compact-engineer verbose section intros (preserve all technical content)
+   • Deduplicate any repeated concept definitions across sections
+→ Store OPTIMIZED_CONTENT (use for concept expansion in Skills 2–6)
+→ Store TOKEN_REPORT (display after output file is written)
+═══════════════════════════════════════════════════════════
+```
+
+### Generalization — Language-Agnostic Mode
+
+This agent detects the primary language from the source file before applying any mappings:
+
+```
+IF source contains Java/Spring patterns (@Autowired, KafkaTemplate, etc.):
+  → Apply .NET/C# mapping table (Skill 2 below)
+
+IF source contains Python patterns (import flask, asyncio, etc.):
+  → Map to Python idioms: async/await, pydantic, FastAPI, asyncpg
+
+IF source contains TypeScript patterns (interface, Promise<T>, etc.):
+  → Map to TypeScript idioms: async/await, Zod, tRPC, Prisma
+
+IF source is language-agnostic (pseudocode, architecture notes):
+  → Use the primary language specified by the user, defaulting to Python
+```
+
+### Token Usage Report (append after output file is written)
+
+```
+═══════════════════════════════════════════════════════════
+Token Usage Report
+═══════════════════════════════════════════════════════════
+Estimated without optimization:  ~{original_tokens_estimate} tokens
+Actual (with optimization):      ~{optimized_tokens_estimate} tokens
+Savings:                         ~{savings_tokens} tokens ({savings_percent}%)
+Techniques applied:              {techniques_applied}
+═══════════════════════════════════════════════════════════
+* Estimates: prose chars ÷ 4, code chars ÷ 3. Actual API usage varies by model.
+```
+
+---
+
 ## Skills Taxonomy
 
 ### Skill 1 — Source File Analysis
@@ -108,13 +168,15 @@ For each concept block in the source `.txt`, produce a section following this ex
 [2-4 sentences explaining what this is, why it matters in production]
 
 ### Architecture Diagram
-```mermaid
-[primary architecture diagram — flowchart TD or LR]
+```text
+[Insert: flowchart TD for layered architecture OR flowchart LR for pipeline/flow]
+[Use classDef color palette from Skill 4 — assign class to every node]
 ```
 
 ### [Sub-flow or State Diagram — if applicable]
-```mermaid
-[sequence / state / secondary diagram]
+```text
+[Insert: sequenceDiagram for retry/request flows OR stateDiagram-v2 for state machines]
+[Select diagram type using Skill 4 Selection Matrix]
 ```
 
 ### Service / Component N — [Name]
@@ -308,12 +370,16 @@ STRUCTURE CHECKS:
 
 ## Full Agent Workflow
 
+> **Phase 0 (Token Optimization) runs immediately after reading the source file and before Phase 1 (Analyse).**
+> See Token Optimization Protocol section above for details.
+
 ```mermaid
 flowchart TD
     Start(["User provides\n.txt concept file"]) --> Read["Read source .txt file\n(full content)"]
+    Read --> TokenOpt["⚡ Phase 0 — TokenOptimizer\nStrip divider boilerplate\nTOON tables · Compact prose\nStore TOKEN_REPORT"]
 
     subgraph Phase1 ["Phase 1 — Analyse"]
-        Read --> INV["Build concept inventory\n(identify all sections)"]
+        TokenOpt --> INV["Build concept inventory\n(identify all sections)"]
         INV --> MAP["Map Java → .NET tech\n(Skill 2 mapping table)"]
         MAP --> PLAN["Plan diagrams per concept\n(Skill 4 selection matrix)"]
     end

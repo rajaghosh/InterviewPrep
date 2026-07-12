@@ -1,0 +1,9 @@
+8 Fundamental AI Engineering topics - 
+1. LLM APIs and Prompt Design
+2. RAG
+3. Embedding and Vector DB
+4. Agent Orchestration
+5. Evaluation & observability
+6. Gaurdrails and Output Validation
+7. Context window management
+8. Fine-tune vs Prompt Trade-off

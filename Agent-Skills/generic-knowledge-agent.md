@@ -27,6 +27,63 @@ Activate this agent when the user:
 
 ---
 
+## Token Optimization Protocol
+
+> **Calls:** `TokenOptimizer Agent` — see `Agent-Skills/token-optimizer-agent.md`
+
+After all sources are ingested (Skill 1) and before building the Knowledge Map (Skill 2), pass all collected content through the TokenOptimizer.
+
+### Invocation Pattern
+
+```
+═══════════════════════════════════════════════════════════
+PHASE 0 — TOKEN OPTIMIZATION (TokenOptimizer Agent)
+═══════════════════════════════════════════════════════════
+content      : [all ingested source content concatenated — files, URLs, etc.]
+task_context : "Synthesize knowledge into {output_mode} artifact"
+source_type  : [auto-detect: "fetched_webpage" | "file_content" | "mixed"]
+
+→ Run TokenOptimizer Skills 1–8:
+   • Deduplicate concepts repeated across multiple sources (PRIMARY wins)
+   • TOON-convert any uniform data arrays found in structured sources
+   • Strip navigation, legal, boilerplate from fetched web sources
+   • Compact-engineer verbose prose; preserve all code, definitions, examples
+   • Build DEDUP_GLOSSARY for terminology repeated across sources
+→ Store OPTIMIZED_CONTENT (use for Skill 2 Knowledge Extraction and all generation)
+→ Store TOKEN_REPORT (display after final artifact is saved)
+═══════════════════════════════════════════════════════════
+```
+
+### Generalization — Any Source, Any Output
+
+This agent requires no domain configuration. The TokenOptimizer adapts automatically:
+
+```
+Content with JSON/YAML data arrays → TOON conversion applied
+Content with prose documentation   → Compact engineering applied
+Content from multiple URLs         → Semantic deduplication applied
+Content for structured extraction  → Structured output framing applied
+Single file, single pass           → Minimal optimization (boilerplate only)
+```
+
+### Token Usage Report (append to end of every output artifact)
+
+```
+═══════════════════════════════════════════════════════════
+Token Usage Report
+═══════════════════════════════════════════════════════════
+Estimated without optimization:  ~{original_tokens_estimate} tokens
+Actual (with optimization):      ~{optimized_tokens_estimate} tokens
+Savings:                         ~{savings_tokens} tokens ({savings_percent}%)
+Techniques applied:              {techniques_applied}
+Sources processed:               {N} source(s)
+Output mode:                     {output_mode}
+═══════════════════════════════════════════════════════════
+* Estimates: prose chars ÷ 4, code chars ÷ 3. Actual API usage varies by model.
+```
+
+---
+
 ## Skill 1 — Source Discovery and Ingestion
 
 **Always run first.** Before generating anything, read and index every source the user has provided.
@@ -802,6 +859,14 @@ mindmap
 |---|---|---|
 | {concept} | {file} | ✅ Complete / 🔄 In Progress / ❌ Not started |
 ```
+
+---
+
+## Token Optimization Workflow Note
+
+> **Phase 0 (Token Optimization) runs after Skill 1 (Source Discovery and Ingestion) and before Skill 2 (Knowledge Extraction).**
+> The TokenOptimizer deduplicates across all sources before the Knowledge Map is built, eliminating redundant concepts before they ever enter the generation step.
+> See Token Optimization Protocol section above for integration details.
 
 ---
 

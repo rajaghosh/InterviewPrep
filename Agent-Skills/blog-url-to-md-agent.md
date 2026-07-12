@@ -26,7 +26,33 @@ Activate this agent when the user:
 
 ---
 
-## Token Optimization Principles
+## Token Optimization Protocol
+
+> **Calls:** `TokenOptimizer Agent` — see `Agent-Skills/token-optimizer-agent.md`
+
+All content fetched by this agent must pass through the TokenOptimizer **after** collection and **before** the enrichment and write steps.
+
+### Invocation Pattern
+
+```
+═══════════════════════════════════════════════════════════
+PHASE 0 — TOKEN OPTIMIZATION (TokenOptimizer Agent)
+═══════════════════════════════════════════════════════════
+content      : [all fetched page text from Steps 1–3, concatenated]
+task_context : "Generate enriched Markdown reference with Mermaid diagrams"
+source_type  : "fetched_webpage"
+
+→ Run TokenOptimizer Skills 1–8:
+   • Strip navigation, legal, cookie notices, feedback widgets
+   • Deduplicate any concepts repeated across primary + reference URLs
+   • TOON-convert any uniform data arrays found in fetched JSON
+   • Compact-engineer verbose prose sections
+→ Store OPTIMIZED_CONTENT (use for enrichment and write steps)
+→ Store TOKEN_REPORT (display after file is written)
+═══════════════════════════════════════════════════════════
+```
+
+### Fetch-Level Token Principles
 
 | Principle | Rule |
 |---|---|
@@ -38,6 +64,20 @@ Activate this agent when the user:
 | **Enrichment mode** | Even if primary URL fails entirely, write a comprehensive file from reference URLs + domain knowledge. Mark missing source sections with a blockquote note. |
 | **Single-pass write** | Write the entire MD file in one `Write` call — no incremental edits after the initial write. |
 | **Pre-check duplicates** | `ls` the target directory before writing — update if file exists rather than duplicating. |
+
+### Token Usage Report (append after output file is written)
+
+```
+═══════════════════════════════════════════════════════════
+Token Usage Report
+═══════════════════════════════════════════════════════════
+Estimated without optimization:  ~{original_tokens_estimate} tokens
+Actual (with optimization):      ~{optimized_tokens_estimate} tokens
+Savings:                         ~{savings_tokens} tokens ({savings_percent}%)
+Techniques applied:              {techniques_applied}
+═══════════════════════════════════════════════════════════
+* Estimates: prose chars ÷ 4, code chars ÷ 3. Actual API usage varies by model.
+```
 
 ---
 
@@ -394,11 +434,10 @@ flowchart TD
 
 [Mermaid pipeline or sequence diagram — MANDATORY]
 
-```mermaid
-flowchart LR / sequenceDiagram
-    ...
-    classDef ...
-    class ...
+```text
+[Insert: flowchart LR for data pipelines OR sequenceDiagram for request/response flows]
+[Include full classDef block with Azure color palette]
+[All class assignments applied to every node]
 ```
 
 [Step-by-step numbered explanation]
@@ -481,9 +520,13 @@ flowchart LR / sequenceDiagram
 
 ## Full Agent Workflow
 
+> **Phase 0 (Token Optimization) runs after all fetches complete and before Phase 4 (Enrich & Plan).**
+> See Token Optimization Protocol section above for details.
+
 ```mermaid
 flowchart TD
     Start(["👤 User provides URLs\nPrimary + optional references\n+ optional enrichment instruction"])
+    TokenOpt["⚡ Phase 0 — TokenOptimizer\nStrip boilerplate · Deduplicate\nTOON arrays · Compact prose"]
 
     subgraph Phase1["Phase 1 — Inventory"]
         P1A["ls Architechture-Concepts/\ngrep topic keyword"]
@@ -535,7 +578,7 @@ flowchart TD
     P1B -->|"Yes"| Inform --> Phase2
     P1B -->|"No"| Phase2
     Phase2 --> RefFetch
-    RefFetch --> Phase4
+    RefFetch --> TokenOpt --> Phase4
     Phase4 --> Phase5
     Phase5 --> Done
 
@@ -553,6 +596,7 @@ flowchart TD
     class RefFetch ph3
     class Phase4 ph4
     class Phase5 ph5
+    class TokenOpt infoNode
     class Inform infoNode
 ```
 

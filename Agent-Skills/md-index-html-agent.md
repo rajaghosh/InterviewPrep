@@ -23,6 +23,64 @@ Activate this agent when the user:
 
 ---
 
+## Token Optimization Protocol
+
+> **Calls:** `TokenOptimizer Agent` — see `Agent-Skills/token-optimizer-agent.md`
+
+After discovering all `.md` files (Skill 1) and before generating the HTML, pass the collected file metadata through the TokenOptimizer. This agent's content is primarily structured data (file lists), making it a strong TOON candidate.
+
+### Invocation Pattern
+
+```
+═══════════════════════════════════════════════════════════
+PHASE 0 — TOKEN OPTIMIZATION (TokenOptimizer Agent)
+═══════════════════════════════════════════════════════════
+content      : [file list with paths, folder groups, display titles — as structured data]
+task_context : "Generate index.html portal for Markdown file navigation"
+source_type  : "structured_data"
+
+→ Run TokenOptimizer Skills 1–8:
+   • TOON-convert the file list array (uniform: path, folder, title, emoji)
+   • Strip any duplicate folder entries from the discovery output
+   • Compact-represent the file metadata for the generation prompt
+   • Structured output framing: request FILES array in JSON schema format
+→ Store OPTIMIZED_CONTENT (use for HTML FILES array generation)
+→ Store TOKEN_REPORT (display after index.html is written)
+═══════════════════════════════════════════════════════════
+```
+
+**TOON example for file list:**
+
+Before (verbose per-file JSON):
+```json
+[{"name":"AI Architect Concepts","file":"AI_Architect_Interview_Concepts.md","folder":"Architechture-Concepts"},
+ {"name":"Azure AI Stack","file":"Azure-AI-Stack2.md","folder":"Architechture-Concepts"}]
+```
+
+After (TOON — more compact for generation prompt):
+```
+md_files[N]{name,file,folder}:
+  AI Architect Concepts,AI_Architect_Interview_Concepts.md,Architechture-Concepts
+  Azure AI Stack,Azure-AI-Stack2.md,Architechture-Concepts
+```
+
+### Token Usage Report (append after index.html is written)
+
+```
+═══════════════════════════════════════════════════════════
+Token Usage Report
+═══════════════════════════════════════════════════════════
+Estimated without optimization:  ~{original_tokens_estimate} tokens
+Actual (with optimization):      ~{optimized_tokens_estimate} tokens
+Savings:                         ~{savings_tokens} tokens ({savings_percent}%)
+Techniques applied:              {techniques_applied}
+Files indexed:                   {N}
+═══════════════════════════════════════════════════════════
+* Estimates: prose chars ÷ 4, code chars ÷ 3. Actual API usage varies by model.
+```
+
+---
+
 ## Skills Taxonomy
 
 ### Skill 1 — File Discovery
@@ -257,6 +315,10 @@ UX CHECKS:
 
 ## Full Agent Workflow
 
+> **Phase 0 (Token Optimization) runs after file discovery and before HTML generation.**
+> The file list is a uniform data array — a prime TOON candidate for the generation prompt.
+> See Token Optimization Protocol section above for details.
+
 ```mermaid
 flowchart TD
     Start(["User triggers agent"]) --> CHECK{index.html\nalready exists?}
@@ -273,7 +335,8 @@ flowchart TD
 
     SCAN1 --> GROUP["Group files by directory\nAssign folder emoji"]
     GROUP --> META["Extract display title\nfrom filename"]
-    META --> GENHTML["Generate full index.html\nwith marked + mermaid + hljs"]
+    META --> TokenOpt["⚡ Phase 0 — TokenOptimizer\nTOON-convert file list array\nStructured output framing"]
+    TokenOpt --> GENHTML["Generate full index.html\nwith marked + mermaid + hljs"]
     GENHTML --> SAVE
 
     SAVE --> DONE(["✅ index.html ready\nServe with:\npython3 -m http.server 8080"])

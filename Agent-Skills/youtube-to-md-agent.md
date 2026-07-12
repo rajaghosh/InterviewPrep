@@ -22,9 +22,35 @@ Activate this agent when the user:
 
 ---
 
-## Token Optimization Principles
+## Token Optimization Protocol
 
-These rules govern every decision the agent makes:
+> **Calls:** `TokenOptimizer Agent` — see `Agent-Skills/token-optimizer-agent.md`
+
+All content fetched by this agent must pass through the TokenOptimizer **after** all web calls complete and **before** the Markdown write step.
+
+### Invocation Pattern
+
+```
+═══════════════════════════════════════════════════════════
+PHASE 0 — TOKEN OPTIMIZATION (TokenOptimizer Agent)
+═══════════════════════════════════════════════════════════
+content      : [title + video description + all fetched docs content, concatenated]
+task_context : "Generate Markdown reference file with architecture diagrams and Q&A"
+source_type  : "fetched_webpage"
+
+→ Run TokenOptimizer Skills 1–8:
+   • Strip navigation, legal, cookie notices, feedback widgets from docs pages
+   • Deduplicate concepts repeated across docs URL 1 and URL 2
+   • TOON-convert any uniform data arrays in fetched content
+   • Compact-engineer verbose prose; preserve code samples exactly
+→ Store OPTIMIZED_CONTENT (use for Markdown generation step)
+→ Store TOKEN_REPORT (display after file is written)
+═══════════════════════════════════════════════════════════
+```
+
+### Fetch-Level Token Principles
+
+These rules govern every web call decision:
 
 | Principle | Rule |
 |---|---|
@@ -36,6 +62,20 @@ These rules govern every decision the agent makes:
 | **Single-pass writing** | Write the entire MD file in one `Write` call — no incremental edits |
 | **Pre-check duplicates** | `ls` the target directory before writing — skip if file already covers the same video |
 | **No redundant search** | If title clearly identifies the topic (e.g., "Azure AI Search BRK142"), skip generic searches |
+
+### Token Usage Report (append after output file is written)
+
+```
+═══════════════════════════════════════════════════════════
+Token Usage Report
+═══════════════════════════════════════════════════════════
+Estimated without optimization:  ~{original_tokens_estimate} tokens
+Actual (with optimization):      ~{optimized_tokens_estimate} tokens
+Savings:                         ~{savings_tokens} tokens ({savings_percent}%)
+Techniques applied:              {techniques_applied}
+═══════════════════════════════════════════════════════════
+* Estimates: prose chars ÷ 4, code chars ÷ 3. Actual API usage varies by model.
+```
 
 ---
 
@@ -223,9 +263,9 @@ Write the entire file in one `Write` call using this template:
 
 [Mermaid diagram of the overall system architecture]
 
-```mermaid
-flowchart TD / LR
-...
+```text
+[Insert: flowchart TD for top-down architecture OR flowchart LR for pipeline]
+[Use classDef with Azure color palette — see Skill 8]
 ```
 
 ---
@@ -245,9 +285,9 @@ flowchart TD / LR
 
 [Mermaid sequenceDiagram or numbered flowchart]
 
-```mermaid
-sequenceDiagram / flowchart LR
-...
+```text
+[Insert: sequenceDiagram for request/response flows OR flowchart LR for pipelines]
+[Use participant labels matching the components in Section 5]
 ```
 
 [Numbered list explaining each step]
@@ -398,9 +438,13 @@ Neutral containers:     fill:#EFF6FC,stroke:#0078D4 (light blue bg)
 
 ## Full Agent Workflow
 
+> **Phase 0 (Token Optimization) runs after all web calls complete and before Phase 3 (Write).**
+> See Token Optimization Protocol section above for details.
+
 ```mermaid
 flowchart TD
     Start(["👤 User pastes\nYouTube URL"])
+    TokenOpt["⚡ Phase 0 — TokenOptimizer\nStrip nav/boilerplate · Deduplicate docs\nTOON arrays · Compact prose"]
 
     subgraph Phase1 ["Phase 1 — Check (0 tokens)"]
         P1A["Extract video ID from URL"]
@@ -429,7 +473,7 @@ flowchart TD
     Start --> Phase1
     P1C -->|"Duplicate found"| Inform(["Inform user:\nfile exists at path\nAsk: update or skip?"])
     P1C -->|"No duplicate"| Phase2
-    Phase2 --> Phase3
+    Phase2 --> TokenOpt --> Phase3
     Phase3 --> Done
 
     style Start fill:#0078D4,color:#fff,stroke:none

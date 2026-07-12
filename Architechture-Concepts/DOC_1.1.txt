@@ -1,0 +1,119 @@
+The most notable "new" API verb being adopted in modern web architecture is QUERY, a dedicated HTTP request method designed specifically for executing complex data searches.While traditional core API verbs handle basic CRUD operations, QUERY fills a long-standing architectural gap for data-driven applications.Why the QUERY Verb was IntroducedHistorically, developers had to compromise when sending complex search criteria (like large arrays, deep nesting, and extensive filtering/sorting rules):The GET problem: GET is safe and idempotent but forces all parameters into the URL string. Extremely long URLs risk hitting server size limitations (causing 414 URI Too Long errors).The POST workaround: Developers frequently defaulted to using POST just to utilize its request body. However, POST is explicitly designed for creating resources and is architecturally defined as non-idempotent.The QUERY verb solves this by acting as a safe, idempotent method that accepts a configuration payload inside the request body without altering any server state.Core Overview of Standard API VerbsTo contextualize where the new verb fits, here is how the primary HTTP methods are structured across web services:HTTP VerbPrimary ActionIdempotent?Request Body?QUERYFetches data using complex filtersYesYesGETRetrieves a specific resource or listYesNoPOSTCreates a brand-new subordinate resourceNoYesPUTReplaces an entire existing resourceYesYesPATCHModifies a portion of an existing resourceNo/DependsYesDELETERemoves a specified resource completelyYesNoImportant Architectural Best PracticesKeep paths noun-based: Always use nouns for endpoints (e.g., /customers or /books) instead of verbs. The chosen HTTP method handles the action automatically.Understand idempotency: Safe operations like GET and QUERY can be run repeatedly without changing data or throwing errors.Are you looking to implement the QUERY verb in a specific framework (like Node.js, Go, or Python), or are you design-testing a new endpoint for a project? Let me know so I can provide customized routing examples.
+
+
+------------------------------------
+
+
+Claude CAVEMAN strategy implementation 
+
+SHORT POLLING vs Server Sent events
+
+
+Rate limit sliding window
+
+-----------
+
+If you’re trying to learn Retrieval-Augmented Generation (RAG) but are overwhelmed by scattered resources, this repository is for you.
+
+I’ve put together a complete conceptual roadmap that takes you from beginner to advanced, all in one place.
+
+Inside, you’ll learn:
+✅ What RAG is and why it matters
+✅ Embeddings and Vector Databases
+✅ Chunking strategies
+✅ Indexing & Retrieval
+✅ Similarity Search
+✅ Re-ranking
+✅ Hybrid Search
+✅ Query Transformation
+✅ Context Engineering
+✅ Evaluation techniques
+✅ Advanced RAG concepts
+✅ And much more…
+
+Whether you’re preparing for AI interviews, building GenAI applications, or simply want to understand how modern AI systems retrieve knowledge, this repository gives you a structured path without jumping between dozens of articles.
+
+Comment “RAG” below, and I’ll send you the FREE GitHub Repository in your DM.
+
+[Retrieval Augmented Generation, RAG, Generative AI, GenAI, Large Language Models, LLM, AI Engineer, Machine Learning, Deep Learning, Vector Database, Embeddings, FAISS, ChromaDB, Pinecone, Weaviate, LangChain, LlamaIndex, Semantic Search, Hybrid Search, Re-ranking, Chunking, AI Roadmap, AI Learning, AI Interview Preparation, AI Projects, Prompt Engineering, AI Development, Artificial Intelligence, Python, Open Source]
+
+
+
+
+----------------------------
+
+
+𝐌𝐨𝐬𝐭 "𝐀𝐈 𝐚𝐫𝐜𝐡𝐢𝐭𝐞𝐜𝐭𝐮𝐫𝐞𝐬" 𝐢𝐧 𝐩𝐫𝐨𝐝𝐮𝐜𝐭𝐢𝐨𝐧 𝐫𝐢𝐠𝐡𝐭 𝐧𝐨𝐰 𝐚𝐫𝐞 𝐨𝐧𝐞 𝐏𝐲𝐭𝐡𝐨𝐧 𝐬𝐜𝐫𝐢𝐩𝐭 𝐚𝐧𝐝 𝐚 𝐩𝐫𝐚𝐲𝐞𝐫.
+
+That works for prototypes. It does not work for enterprise scale, multi-vendor reality, or systems that need to survive a model swap, a vendor change, or a regulator. Real AI architecture is about patterns battle-tested ways to organize agents, models, data, and governance.
+
+𝐇𝐞𝐫𝐞 𝐚𝐫𝐞 𝟔 𝐩𝐚𝐭𝐭𝐞𝐫𝐧𝐬 𝐞𝐯𝐞𝐫𝐲 𝐀𝐈 𝐚𝐫𝐜𝐡𝐢𝐭𝐞𝐜𝐭 𝐬𝐡𝐨𝐮𝐥𝐝 𝐤𝐧𝐨𝐰:
+
+1. Agentic Mesh
+• Best for: scaling many agents across the enterprise without chaos
+• Agents: custom and SaaS agents working as peers, not silos
+• Governance: identity, guardrails, audit wrap every action
+• Exchange: shared context flows across all agents
+• Network: decentralized, no single point of failure
+• Tools: unified registry, reusable across workflows
+
+2. RAG Pattern
+• Best for: grounding LLMs in your enterprise data without retraining
+• Source attribution is non-negotiable for trust and compliance
+
+3. LLM Router
+• Best for: controlling cost and latency across a model portfolio
+• Small/local model: simple classification, formatting, extraction
+• Mid-tier API: standard reasoning, summaries, drafts
+• Frontier model: complex reasoning, code, multi-step planning
+• Fallback: retry path when primary fails
+• Stop sending every query to your most expensive model
+
+4. Hub-and-Spoke
+• Best for: centralizing AI governance while letting business units innovate
+• Hub (central platform): models, guardrails, observability, FinOps
+• Spokes (business units and domain teams): build use cases on platform standards, own domain logic
+• Standards (shared layer): reusable APIs, prompt libraries, evals
+• Center of Excellence: sets policy, audits, upskills
+
+5. Event-Driven Agents
+• Best for: real-time, asynchronous agent workflows at scale
+• Event bus: single source of truth for what happened
+• Publishers: agents emit events, never call directly
+• Subscribers: agents react to events they care about
+• Replay: full audit trail, deterministic debugging
+• Decoupling: add or remove agents without breaking flow
+
+6. Hexagonal Architecture for AI
+• Best for: keeping your AI system swappable as models and vendors change
+• LLM port: swap GPT, Claude, Gemini without rewriting
+• Vector port: swap Pinecone, Weaviate, pgvector freely
+• Tool port: add new APIs without touching core logic
+• UI port: same brain, different interfaces
+• Observability: logging, tracing, evals plug in cleanly
+
+The takeaway
+
+Your model will get cheaper. Your vendor will change. Your data will multiply. 
+Your agent count will explode.
+
+The architects who win in 2026 will be the ones who designed for swap-ability, governance, and scale from day one not the ones who shipped a clever demo and called it a system.
+
+♻️ Repost to help your team build for the long game
+
+
+------------------------
+
+Event sourcing
+
+
+
+
+
+
+
+
+
+
+
+

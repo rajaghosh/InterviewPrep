@@ -23,6 +23,70 @@ Activate this agent when the user:
 
 ---
 
+## Token Optimization Protocol
+
+> **Calls:** `TokenOptimizer Agent` — see `Agent-Skills/token-optimizer-agent.md`
+
+After converting the document to raw Markdown (Skill 1) and before the cleaning and diagram-generation steps, pass the raw converted content through the TokenOptimizer.
+
+### Invocation Pattern
+
+```
+═══════════════════════════════════════════════════════════
+PHASE 0 — TOKEN OPTIMIZATION (TokenOptimizer Agent)
+═══════════════════════════════════════════════════════════
+content      : [raw pandoc-converted Markdown content]
+task_context : "Clean and enrich Markdown with Mermaid diagrams and structured tables"
+source_type  : "file_content"
+
+→ Run TokenOptimizer Skills 1–8:
+   • Strip residual HTML tags, inline styles, broken image refs
+   • Remove "Here's a visual representation:" orphan lines
+   • Strip repeated "Interview Language" header boilerplate
+   • TOON-convert any uniform comparison tables from the source
+   • Compact-engineer verbose filler sentences
+→ Store OPTIMIZED_CONTENT (use for Skills 2–5 below)
+→ Store TOKEN_REPORT (display after output file is written)
+═══════════════════════════════════════════════════════════
+```
+
+### Generalization — Any Document Domain
+
+This agent is domain-agnostic. It adapts diagram types and color palettes to the document's subject matter:
+
+```
+IF document is Azure / Microsoft tech:
+  → Use Azure brand color palette (blue #0078D4, purple #7719AA, etc.)
+
+IF document is AWS tech:
+  → Override primary color to AWS orange (#ff9900)
+
+IF document is Kubernetes / cloud-native:
+  → Use CNCF palette (blue #326CE5, teal #00B294)
+
+IF document is language/framework-specific (Java, Python, .NET):
+  → Diagram node labels use that language's terminology
+
+IF document domain is unknown:
+  → Use neutral dark palette (#0f172a, #1e40af, #059669)
+```
+
+### Token Usage Report (append after output file is written)
+
+```
+═══════════════════════════════════════════════════════════
+Token Usage Report
+═══════════════════════════════════════════════════════════
+Estimated without optimization:  ~{original_tokens_estimate} tokens
+Actual (with optimization):      ~{optimized_tokens_estimate} tokens
+Savings:                         ~{savings_tokens} tokens ({savings_percent}%)
+Techniques applied:              {techniques_applied}
+═══════════════════════════════════════════════════════════
+* Estimates: prose chars ÷ 4, code chars ÷ 3. Actual API usage varies by model.
+```
+
+---
+
 ## Skills Taxonomy
 
 ### Skill 1 – File Format Detection & Conversion
@@ -394,6 +458,9 @@ Rules:
 
 ## Full Agent Workflow
 
+> **Phase 0 (Token Optimization) runs after document conversion and before content analysis and cleaning.**
+> See Token Optimization Protocol section above for details.
+
 ```mermaid
 flowchart TD
     Start["User provides file\n(.docx / .pdf / .html)"] --> Detect["Detect file format"]
@@ -406,7 +473,8 @@ flowchart TD
     PandocPDF --> Verify
     PandocHTML --> Verify
     Verify -->|"HTML found"| Reclean["Re-convert from\n.docx source"]
-    Verify -->|"Clean"| Analyze["Extract structure\ngrep H1 headings\nCount topics"]
+    Verify -->|"Clean"| TokenOpt["⚡ Phase 0 — TokenOptimizer\nStrip HTML remnants · Boilerplate\nTOON tables · Compact prose"]
+    TokenOpt --> Analyze["Extract structure\ngrep H1 headings\nCount topics"]
     Analyze --> ReadContent["Read full content\nin sections"]
     ReadContent --> Plan["Plan output:\nDiagram type per topic\nTable candidates"]
     Plan --> Write["Write clean .md:\n1. TOC\n2. Each topic +\nMermaid diagram +\nTables + Interview quote"]

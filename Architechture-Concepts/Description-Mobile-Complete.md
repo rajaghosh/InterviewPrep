@@ -1,948 +1,1282 @@
-# Mobile System Design — Complete Reference Guide
-
-> Consolidates: Mobile System Design · UI Frameworks · API & Networking · Storage · Testing · Privacy · Advanced Topics · Design Patterns · Interview Strategy
+# Mobile System Design — Complete Reference (Swift / Kotlin)
 
 ---
 
 ## Table of Contents
 
-1. [UI Frameworks](#1-ui-frameworks)
-2. [Lifecycle Management](#2-lifecycle-management)
-3. [Threading & Concurrency](#3-threading--concurrency)
-4. [Navigation](#4-navigation)
-5. [Data Binding](#5-data-binding)
-6. [Data Storage](#6-data-storage)
-7. [API Communication Protocols](#7-api-communication-protocols)
-8. [Real-Time Updates](#8-real-time-updates)
-9. [Pagination Strategies](#9-pagination-strategies)
-10. [Caching Strategies](#10-caching-strategies)
-11. [Authentication](#11-authentication)
-12. [Retry Policies & Resilience](#12-retry-policies--resilience)
-13. [Performance & Optimization](#13-performance--optimization)
-14. [Observability & Testing](#14-observability--testing)
-15. [Privacy & Security](#15-privacy--security)
-16. [App-Wide Architecture Patterns](#16-app-wide-architecture-patterns)
-17. [GoF Design Patterns](#17-gof-design-patterns)
-18. [SOLID Principles for Mobile](#18-solid-principles-for-mobile)
-19. [Advanced Topics](#19-advanced-topics)
-20. [Interview Strategy](#20-interview-strategy)
+1. [Data Storage](#1-data-storage)
+2. [UI Frameworks](#2-ui-frameworks)
+3. [Observability & Testing](#3-observability--testing)
+4. [Privacy & Security](#4-privacy--security)
+5. [Cross-Cutting Themes](#5-cross-cutting-themes)
 
 ---
 
-## 1. UI Frameworks
+## 1. Data Storage
 
 ### Overview
-Mobile UI frameworks define how the user interface is constructed and updated. The industry has shifted from **imperative** (tell the system *how* to change the UI step by step) to **declarative** frameworks (describe *what* the UI should look like for a given state, and the framework handles the rest).
+Choosing the right storage mechanism directly impacts performance, security, and maintainability. The decision flows from data size and sensitivity: tiny settings → key-value; structured relational data → embedded DB; sensitive credentials → OS-protected secure storage; blobs/media → file system; typed complex objects → binary/proto store.
 
-### Declarative vs Imperative
+### Storage Selection Architecture
 
 ```mermaid
-flowchart LR
-    subgraph Declarative ["Declarative (Modern — State Drives UI)"]
-        DS["State changes → Framework re-renders UI automatically\nDev describes the desired outcome"]
-        iOS_D["iOS: SwiftUI\n(2019+, all Apple platforms)"]
-        AND_D["Android: Jetpack Compose\n(2021+, replaces XML layouts)"]
-    end
+flowchart TD
+    Start(["Data to Store"]) --> Q1{"Sensitive?<br>Credentials / Tokens"}
+    Q1 -->|Yes| SEC["Secure Storage<br>Keychain / EncryptedSharedPreferences"]
+    Q1 -->|No| Q2{"Data Type?"}
+    Q2 -->|"Simple key-value<br>Settings / Flags"| KV["Key-Value Store<br>UserDefaults / DataStore"]
+    Q2 -->|"Structured Relational"| DB["Database<br>Core Data / Room"]
+    Q2 -->|"Large files<br>Media / Docs"| FS["File Storage<br>Documents / Internal Storage"]
+    Q2 -->|"Complex typed objects"| BIN["Binary Storage<br>Proto DataStore"]
 
-    subgraph Imperative ["Imperative (Traditional — Manual UI Updates)"]
-        IS["Dev explicitly calls UI update methods\nbutton.setText(), view.setVisibility()"]
-        iOS_I["iOS: UIKit\n(2008–present, battle-tested)"]
-        AND_I["Android: View System (XML + Code)\n(2008–present)"]
-    end
-
-    STATE(["App State"]) -->|"Automatically re-renders"| Declarative
-    STATE -->|"Dev manually triggers"| Imperative
-
-    style DS fill:#22c55e,color:#fff
-    style iOS_D fill:#0078D4,color:#fff
-    style AND_D fill:#22c55e,color:#fff
-    style IS fill:#f59e0b,color:#fff
-    style iOS_I fill:#8b5cf6,color:#fff
-    style AND_I fill:#8b5cf6,color:#fff
-    style STATE fill:#0f172a,color:#fff
+    classDef secure fill:#ef4444,color:#fff
+    classDef kv fill:#22c55e,color:#fff
+    classDef db fill:#1e40af,color:#fff
+    classDef fs fill:#8b5cf6,color:#fff
+    classDef bin fill:#f59e0b,color:#fff
+    class SEC secure
+    class KV kv
+    class DB db
+    class FS fs
+    class BIN bin
 ```
 
-### Framework Comparison
+---
 
-| Aspect | SwiftUI (iOS) | Jetpack Compose (Android) | UIKit (iOS) | View System (Android) |
-|---|---|---|---|---|
-| **Paradigm** | Declarative | Declarative | Imperative | Imperative |
-| **Language** | Swift | Kotlin | Swift / Obj-C | Kotlin / Java / XML |
-| **State management** | `@State`, `@ObservedObject`, `@EnvironmentObject` | `remember`, `mutableStateOf`, `ViewModel` | Manual / KVO / Combine | LiveData / Flow / ViewModel |
-| **Performance** | Good — diff algorithm | Good — smart recomposition | Excellent — battle-tested | Excellent — very mature |
-| **Learning curve** | Medium | Medium | High (Obj-C roots) | High (XML + Java) |
-| **Best for** | Greenfield iOS apps | Greenfield Android apps | Complex legacy iOS | Complex legacy Android |
+### 1.1 Key-Value Storage
 
-### Interview Talking Points
+**Overview:** Lightweight persistence for user preferences, settings flags, and small primitives. Not suited for complex objects or queries. iOS uses `UserDefaults`; Android's modern equivalent is `Preferences DataStore` — async, coroutine-based, and crash-safe.
+
+```swift
+// iOS — UserDefaults
+class SettingsStore {
+    private let defaults = UserDefaults.standard
+
+    var isDarkModeEnabled: Bool {
+        get { defaults.bool(forKey: "darkMode") }
+        set { defaults.set(newValue, forKey: "darkMode") }
+    }
+
+    func reset() { defaults.removeObject(forKey: "darkMode") }
+}
+```
+
+```kotlin
+// Android — Preferences DataStore (Jetpack)
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
+class SettingsRepository(private val dataStore: DataStore<Preferences>) {
+    private val DARK_MODE = booleanPreferencesKey("darkMode")
+
+    val isDarkModeEnabled: Flow<Boolean> = dataStore.data
+        .map { prefs -> prefs[DARK_MODE] ?: false }
+
+    suspend fun setDarkMode(enabled: Boolean) {
+        dataStore.edit { prefs -> prefs[DARK_MODE] = enabled }
+    }
+}
+```
+
+**Interview Talking Points:**
 
 | Question | Answer |
 |---|---|
-| What is the key benefit of declarative UI? | The UI is a pure function of state — when state changes, the framework computes the minimal set of UI updates needed. Developers stop thinking about *how* to update (add this view, remove that button) and start thinking about *what* the UI should look like in each state. |
-| When would you still use UIKit over SwiftUI? | For apps targeting iOS < 13, for complex custom animations where UIKit APIs are richer, for very performance-sensitive custom views, or when integrating with existing UIKit codebases. SwiftUI and UIKit can interoperate via `UIViewRepresentable`. |
-| What is Jetpack Compose recomposition? | When state observed by a composable function changes, Compose automatically re-executes (recomposes) only the affected composable subtrees. It skips functions whose inputs haven't changed (smart recomposition). |
+| Why prefer DataStore over SharedPreferences on Android? | SharedPreferences is synchronous and can cause ANRs on the main thread; DataStore is fully async via Kotlin Flow and handles exceptions without crashing |
+| Can UserDefaults store complex objects? | Only NSData, NSString, NSNumber, NSDate, NSArray, NSDictionary natively; for custom types use `Codable` + `Data` serialization |
+| What happens to UserDefaults on app delete? | iOS clears it; but iCloud-synced keys persist in iCloud — always explicit-clear sensitive data before logout |
 
 ---
 
-## 2. Lifecycle Management
+### 1.2 Database Storage
+
+**Overview:** Use an embedded database for structured data requiring queries, sorting, and relational integrity. Room (Android) and Core Data (iOS) are the platform ORMs; both sit on top of SQLite.
+
+```mermaid
+flowchart LR
+    App["App Layer"] --> ORM["ORM Layer<br>Room / Core Data"]
+    ORM --> SQLite[("SQLite Engine")]
+    ORM --> Cache["In-Memory Cache<br>DAO / NSFetchedResultsController"]
+
+    classDef app fill:#0f172a,color:#fff
+    classDef orm fill:#8b5cf6,color:#fff
+    classDef db fill:#1e40af,color:#fff
+    class App app
+    class ORM orm
+    class SQLite,Cache db
+```
+
+```swift
+// iOS — Core Data stack
+import CoreData
+
+class PersistenceController {
+    static let shared = PersistenceController()
+    let container: NSPersistentContainer
+
+    init() {
+        container = NSPersistentContainer(name: "Model")
+        container.loadPersistentStores { _, error in
+            if let error { fatalError("CoreData load failed: \(error)") }
+        }
+        container.viewContext.automaticallyMergesChangesFromParent = true
+    }
+
+    func save() throws {
+        let ctx = container.viewContext
+        guard ctx.hasChanges else { return }
+        try ctx.save()
+    }
+}
+```
+
+```kotlin
+// Android — Room Database
+@Entity(tableName = "users")
+data class UserEntity(
+    @PrimaryKey val id: String,
+    val name: String,
+    val email: String
+)
+
+@Dao
+interface UserDao {
+    @Query("SELECT * FROM users WHERE id = :id")
+    suspend fun findById(id: String): UserEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(user: UserEntity)
+}
+
+@Database(entities = [UserEntity::class], version = 1)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun userDao(): UserDao
+
+    companion object {
+        fun build(context: Context) = Room
+            .databaseBuilder(context, AppDatabase::class.java, "app-db")
+            .build()
+    }
+}
+```
+
+**Interview Talking Points:**
+
+| Question | Answer |
+|---|---|
+| When would you choose Room over raw SQLite? | Room provides compile-time SQL verification, typed DAOs, Flow/LiveData integration, and migration helpers — eliminating boilerplate and catching errors at build time |
+| What is Core Data's biggest thread-safety risk? | NSManagedObjectContext is not thread-safe; always use `perform` / `performAndWait` or a dedicated background context for off-main-thread work |
+| How do you handle schema migrations in Room? | Provide `Migration(from, to)` objects with SQL; Room validates the schema hash on open and applies migrations in order; use `fallbackToDestructiveMigration()` only in dev |
+| Realm vs Room — when to prefer Realm? | Realm excels at object-graph traversals and cross-platform shared logic (KMM); Room has better Jetpack ecosystem integration and compile-time SQL safety |
+| How do you test DAOs? | Use `Room.inMemoryDatabaseBuilder()` in instrumented tests — fast, no disk I/O, auto-cleaned after each test run |
+
+---
+
+### 1.3 Secure Storage
+
+**Overview:** Auth tokens, passwords, and cryptographic keys must live in OS-managed encrypted containers — never in plain `UserDefaults` or `SharedPreferences`.
+
+```swift
+// iOS — Keychain wrapper
+import Security
+
+struct KeychainHelper {
+    static func save(_ data: Data, service: String, account: String) throws {
+        let query: [String: Any] = [
+            kSecClass as String:       kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecValueData as String:   data
+        ]
+        SecItemDelete(query as CFDictionary)
+        let status = SecItemAdd(query as CFDictionary, nil)
+        guard status == errSecSuccess else { throw KeychainError.saveFailed(status) }
+    }
+
+    static func load(service: String, account: String) throws -> Data {
+        let query: [String: Any] = [
+            kSecClass as String:       kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecReturnData as String:  true
+        ]
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess, let data = result as? Data else {
+            throw KeychainError.notFound
+        }
+        return data
+    }
+}
+
+enum KeychainError: Error { case saveFailed(OSStatus), notFound }
+```
+
+```kotlin
+// Android — EncryptedSharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+
+class SecurePreferences(context: Context) {
+    private val masterKey = MasterKey.Builder(context)
+        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+        .build()
+
+    private val prefs = EncryptedSharedPreferences.create(
+        context, "secure_prefs", masterKey,
+        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+    )
+
+    fun saveToken(token: String) = prefs.edit().putString("auth_token", token).apply()
+    fun getToken(): String? = prefs.getString("auth_token", null)
+    fun clearToken() = prefs.edit().remove("auth_token").apply()
+}
+```
+
+**Interview Talking Points:**
+
+| Question | Answer |
+|---|---|
+| Why not store tokens in UserDefaults / SharedPreferences? | Both are plain-text files readable from device backups or with physical access; Keychain / EncryptedSharedPreferences use hardware-backed encryption |
+| What is the Android Keystore system? | Hardware-backed key store (TEE / StrongBox) that keeps key material inside a secure enclave — key extraction is impossible even with root |
+| How does iOS Keychain accessibility affect UX? | `kSecAttrAccessibleWhenUnlockedThisDeviceOnly` is most secure (no iCloud sync, device-only), but breaks cross-device scenarios; balance with sensitivity |
+| Does Keychain data survive app reinstall on iOS? | Yes by default — Keychain items persist unless explicitly deleted. Android `EncryptedSharedPreferences` does NOT survive reinstall (key is app-bound) |
+
+---
+
+### 1.4 File Storage
+
+**Overview:** Large unstructured data (images, audio, documents) belongs on the file system. iOS and Android each provide organized directory hierarchies with different backup and eviction behaviors.
+
+```mermaid
+flowchart TD
+    subgraph iOS_Storage ["iOS File System"]
+        Docs["Documents/<br>User files — iCloud backed"]
+        Lib["Library/<br>App support + Caches<br>OS may evict Caches/"]
+        Tmp["tmp/<br>Temporary — OS may delete"]
+    end
+    subgraph Android_Storage ["Android File System"]
+        Int["Internal Storage<br>App-private, no permissions"]
+        Ext["External / Shared Storage<br>Requires READ_EXTERNAL_STORAGE"]
+    end
+
+    classDef ios fill:#0f172a,color:#fff
+    classDef android fill:#22c55e,color:#fff
+    class Docs,Lib,Tmp ios
+    class Int,Ext android
+```
+
+```swift
+// iOS — Documents directory read/write
+func saveDocument(data: Data, filename: String) throws -> URL {
+    let docURL = FileManager.default
+        .urls(for: .documentDirectory, in: .userDomainMask).first!
+    let fileURL = docURL.appendingPathComponent(filename)
+    try data.write(to: fileURL, options: .atomic)
+    return fileURL
+}
+
+func readDocument(filename: String) throws -> Data {
+    let docURL = FileManager.default
+        .urls(for: .documentDirectory, in: .userDomainMask).first!
+    return try Data(contentsOf: docURL.appendingPathComponent(filename))
+}
+```
+
+```kotlin
+// Android — internal file storage
+class FileRepository(private val context: Context) {
+    fun saveFile(filename: String, content: ByteArray) {
+        context.openFileOutput(filename, Context.MODE_PRIVATE).use { it.write(content) }
+    }
+
+    fun readFile(filename: String): ByteArray =
+        context.openFileInput(filename).use { it.readBytes() }
+
+    fun deleteFile(filename: String): Boolean = context.deleteFile(filename)
+}
+```
+
+---
+
+### 1.5 Binary Storage — Proto DataStore (Android)
+
+**Overview:** Proto DataStore stores structured, type-safe objects as Protocol Buffers — eliminating string-key typos, providing schema evolution, and offering better type safety than Preferences DataStore.
+
+```kotlin
+// Proto DataStore setup
+// 1. Define .proto schema (user_prefs.proto)
+// syntax = "proto3";
+// message UserPrefs { bool dark_mode = 1; string locale = 2; }
+
+object UserPrefsSerializer : Serializer<UserPrefs> {
+    override val defaultValue: UserPrefs = UserPrefs.getDefaultInstance()
+    override suspend fun readFrom(input: InputStream): UserPrefs = UserPrefs.parseFrom(input)
+    override suspend fun writeTo(t: UserPrefs, output: OutputStream) = t.writeTo(output)
+}
+
+val Context.userPrefsStore by dataStore("user_prefs.pb", UserPrefsSerializer)
+
+class UserPrefsRepository(private val dataStore: DataStore<UserPrefs>) {
+    val prefs: Flow<UserPrefs> = dataStore.data
+
+    suspend fun setDarkMode(enabled: Boolean) {
+        dataStore.updateData { current -> current.toBuilder().setDarkMode(enabled).build() }
+    }
+}
+```
+
+**Interview Talking Points:**
+
+| Question | Answer |
+|---|---|
+| Proto DataStore vs Preferences DataStore? | Proto DataStore uses a Protobuf schema for strong typing and schema evolution; Preferences DataStore uses string keys with no compile-time safety |
+| How does Proto DataStore handle schema migration? | Add new fields with new field numbers; old data deserializes with default values for new fields — backward-compatible by design |
+| What is ObjectBox and when to prefer it? | ObjectBox is a NoSQL object-persistence engine with very fast object graph traversal; prefer over Room when you have deeply nested object graphs or need cross-platform Kotlin support |
+
+---
+
+### 1.6 Performance & Optimization
+
+**Overview:** App performance spans memory management, CPU/battery efficiency, rendering smoothness, startup speed, and download footprint. Each axis has distinct tooling and trade-offs.
+
+```mermaid
+flowchart TD
+    Perf(["Performance Axes"]) --> Mem["a. Memory<br>Leak detection<br>Xcode Instruments / Android Profiler"]
+    Perf --> CPU["b. CPU and Battery<br>Background task scheduling<br>WorkManager / BackgroundTasks"]
+    Perf --> Render["c. Rendering<br>60fps target<br>Avoid main-thread work"]
+    Perf --> Start["d. App Startup<br>Deferred init<br>Lazy loading"]
+    Perf --> Size["e. App Size<br>Asset compression<br>App Bundles / On-demand resources"]
+
+    classDef perf fill:#8b5cf6,color:#fff
+    classDef axis fill:#1e40af,color:#fff
+    class Perf perf
+    class Mem,CPU,Render,Start,Size axis
+```
+
+```swift
+// iOS — Background task scheduling (BackgroundTasks framework)
+import BackgroundTasks
+
+func registerBackgroundTask() {
+    BGTaskScheduler.shared.register(
+        forTaskWithIdentifier: "com.app.refresh", using: nil
+    ) { task in handleRefresh(task: task as! BGAppRefreshTask) }
+}
+
+func scheduleRefresh() {
+    let request = BGAppRefreshTaskRequest(identifier: "com.app.refresh")
+    request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
+    try? BGTaskScheduler.shared.submit(request)
+}
+
+private func handleRefresh(task: BGAppRefreshTask) {
+    scheduleRefresh() // reschedule
+    task.expirationHandler = { task.setTaskCompleted(success: false) }
+    // perform sync work...
+    task.setTaskCompleted(success: true)
+}
+```
+
+```kotlin
+// Android — WorkManager for deferred background work
+class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
+    override suspend fun doWork(): Result = try {
+        // perform sync
+        Result.success()
+    } catch (e: Exception) {
+        if (runAttemptCount < 3) Result.retry() else Result.failure()
+    }
+}
+
+fun schedulePeriodic(context: Context) {
+    val request = PeriodicWorkRequestBuilder<SyncWorker>(15, TimeUnit.MINUTES)
+        .setConstraints(
+            Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+        ).build()
+    WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+        "sync", ExistingPeriodicWorkPolicy.KEEP, request
+    )
+}
+```
+
+**Interview Talking Points — Performance:**
+
+| Question | Answer |
+|---|---|
+| What causes memory leaks in iOS Swift? | Strong reference cycles: delegates / closures capturing `self` strongly. Fix with `[weak self]` or `[unowned self]` in closures |
+| What causes memory leaks in Android? | Holding an `Activity` or `Context` reference in a static field or long-lived singleton; use `WeakReference<Activity>` or `applicationContext` instead |
+| How does Doze Mode affect your app? | Doze defers alarms, network, and jobs. Use `WorkManager` with constraints — not exact `AlarmManager` timers — for deferred background work |
+| What is jank and how do you fix it? | Jank = dropped frames below 60 fps caused by main-thread work. Move heavy operations to background threads / coroutines; use `RecyclerView` recycling; eliminate overdraw |
+| How do App Bundles reduce download size? | Play generates split APKs per ABI, screen density, and language — users download only slices matching their device |
+
+---
+
+## 2. UI Frameworks
 
 ### Overview
-Lifecycle management refers to how apps and their UI components respond to state changes — foreground, background, termination — triggered by the OS or user actions.
+Mobile UI frameworks split into **declarative** (describe desired state, framework diffs and updates) and **imperative** (explicitly mutate the view hierarchy). Both platforms have shifted to declarative as the modern default — SwiftUI and Jetpack Compose — while UIKit and the XML View System remain production-scale.
 
-### iOS Lifecycle
+### Framework Taxonomy
+
+```mermaid
+flowchart LR
+    subgraph iOS_UI ["iOS"]
+        SwiftUI["SwiftUI<br>Declarative<br>State-driven"]
+        UIKit["UIKit<br>Imperative<br>ViewController-based"]
+    end
+    subgraph Android_UI ["Android"]
+        Compose["Jetpack Compose<br>Declarative<br>Composable functions"]
+        ViewSys["View System XML<br>Imperative<br>Activity / Fragment"]
+    end
+    SwiftUI <-->|"Interop<br>UIViewRepresentable"| UIKit
+    Compose <-->|"Interop<br>AndroidView"| ViewSys
+
+    classDef decl fill:#22c55e,color:#fff
+    classDef imp fill:#8b5cf6,color:#fff
+    class SwiftUI,Compose decl
+    class UIKit,ViewSys imp
+```
+
+---
+
+### 2.1 Declarative UI
+
+```swift
+// iOS — SwiftUI reactive counter
+struct CounterView: View {
+    @State private var count = 0
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("Count: \(count)").font(.largeTitle)
+            Button("Increment") { count += 1 }.buttonStyle(.borderedProminent)
+        }
+    }
+}
+```
+
+```kotlin
+// Android — Jetpack Compose reactive counter
+@Composable
+fun CounterScreen(vm: CounterViewModel = viewModel()) {
+    val count by vm.count.collectAsState()
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text("Count: $count", style = MaterialTheme.typography.headlineLarge)
+        Button(onClick = vm::increment) { Text("Increment") }
+    }
+}
+
+class CounterViewModel : ViewModel() {
+    private val _count = MutableStateFlow(0)
+    val count: StateFlow<Int> = _count.asStateFlow()
+    fun increment() { _count.update { it + 1 } }
+}
+```
+
+**Interview Talking Points:**
+
+| Question | Answer |
+|---|---|
+| What is recomposition in Jetpack Compose? | When state changes, Compose re-executes only the composable functions that read that state — not the entire tree |
+| How does SwiftUI know when to re-render? | It observes `@State`, `@ObservedObject`, and `@EnvironmentObject` properties; when they change, only the affected `View.body` is recomputed |
+| When should you still use UIKit over SwiftUI? | Complex custom gesture recognizers, performance-critical lists with heterogeneous cells, or targeting iOS < 14 |
+
+---
+
+### 2.2 Lifecycle Management
 
 ```mermaid
 stateDiagram-v2
     [*] --> NotRunning
-    NotRunning --> Inactive : Launch
-    Inactive --> Active : Became active
-    Active --> Inactive : Interrupt (call, notification)
-    Inactive --> Background : Home button / swipe
-    Background --> Suspended : OS suspends (low memory)
-    Suspended --> Background : Wake up
-    Background --> NotRunning : Terminated
-    Suspended --> NotRunning : Terminated
+    NotRunning --> Foreground : Launch
+    Foreground --> Background : Home / Switch app
+    Background --> Foreground : Resume
+    Background --> Suspended : OS pauses
+    Suspended --> NotRunning : OS kills
+    Foreground --> NotRunning : Terminate
 ```
 
-| iOS Component | Responsibility |
-|---|---|
-| `AppDelegate` | App-level lifecycle (launch, terminate, push token registration) |
-| `SceneDelegate` | Per-window/scene lifecycle (multiple windows on iPad) |
-| `UIViewController` | Individual screen lifecycle (`viewDidLoad`, `viewWillAppear`, `viewDidDisappear`) |
-| `SwiftUI View` | Lifecycle managed by state; use `onAppear` / `onDisappear` modifiers |
+```swift
+// iOS — SwiftUI scene phase lifecycle
+struct MyApp: App {
+    @Environment(\.scenePhase) private var scenePhase
 
-### Android Lifecycle
-
-```mermaid
-stateDiagram-v2
-    [*] --> Created : onCreate()
-    Created --> Started : onStart()
-    Started --> Resumed : onResume()
-    Resumed --> Paused : onPause()
-    Paused --> Resumed : User returns
-    Paused --> Stopped : onStop()
-    Stopped --> Started : onRestart()
-    Stopped --> Destroyed : onDestroy()
-    Destroyed --> [*]
+    var body: some Scene {
+        WindowGroup { ContentView() }
+            .onChange(of: scenePhase) { phase in
+                switch phase {
+                case .active:     print("active")
+                case .inactive:   print("inactive")
+                case .background: print("background — save state")
+                @unknown default: break
+                }
+            }
+    }
+}
 ```
 
-| Android Component | Responsibility |
-|---|---|
-| `Application` | App-level init; singleton for app-wide state |
-| `Activity` | Single full-screen UI; has `onCreate/onStart/onResume/onPause/onStop/onDestroy` |
-| `Fragment` | Reusable UI component nested inside Activity; has its own lifecycle |
-| `ViewModel` | Survives configuration changes (rotation); stores UI-related data |
-| `Jetpack Compose` | Composables managed via `LaunchedEffect`, `DisposableEffect` |
+```kotlin
+// Android — ProcessLifecycleOwner observer
+class AppLifecycleObserver : DefaultLifecycleObserver {
+    override fun onStart(owner: LifecycleOwner) = println("foregrounded")
+    override fun onStop(owner: LifecycleOwner)  = println("backgrounded — save state")
+}
 
----
-
-## 3. Threading & Concurrency
-
-### Overview
-All UI updates must happen on the main thread. Any heavy work (network, disk I/O, computation) must be offloaded to background threads. Violating this causes ANR (App Not Responding) on Android and UI freeze on iOS.
-
-### Threading Model Comparison
-
-```mermaid
-flowchart TD
-    subgraph iOS ["iOS Concurrency Evolution"]
-        GCD["GCD (Grand Central Dispatch)\nLow-level C API\nDispatchQueue.global().async{}"]
-        OQ["Operation Queue\nNSOperationQueue\nDependency management"]
-        SW["Swift async/await + Tasks + Actors\nStructured concurrency\nSafe shared mutable state"]
-        GCD --> OQ --> SW
-    end
-
-    subgraph Android ["Android Concurrency Evolution"]
-        LP["Looper + Handler + MessageQueue\nLow-level thread communication"]
-        TP["ThreadPoolExecutor\nManaged thread pool"]
-        CR["Kotlin Coroutines\nviewModelScope.launch{}\nStructured, lightweight"]
-        LP --> TP --> CR
-    end
-
-    UI(["Main Thread / UI Thread\n(ALL UI updates here)"]) -.->|"Dispatch back to main"| iOS
-    UI -.->|"Dispatch back to main"| Android
-
-    style UI fill:#0f172a,color:#fff
-    style SW fill:#22c55e,color:#fff
-    style CR fill:#22c55e,color:#fff
+// In Application.onCreate()
+ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())
 ```
 
-### ANR vs Crash
-
-| | ANR (App Not Responding) | Crash |
-|---|---|---|
-| **Cause** | Main thread blocked > 5s (Android) | Unhandled exception or fatal error |
-| **User sees** | "App not responding" dialog | App closes abruptly |
-| **Fix** | Move work off main thread | Fix the exception / add error handling |
-| **Detection** | Android Studio + StrictMode | Crashlytics, Sentry |
-
----
-
-## 4. Navigation
-
-### Overview
-Navigation manages how users move between screens. Modern approaches use a navigation stack (push/pop) and support deep links — URLs that open specific screens within an app.
-
-### Navigation Architecture
-
-```mermaid
-flowchart LR
-    subgraph iOS_NAV ["iOS Navigation"]
-        UINav["UINavigationController\n(UIKit — stack-based)"]
-        SWNav["SwiftUI NavigationStack\n(declarative, value-based)"]
-        COORD["Coordinator Pattern\nDecouples navigation logic\nfrom ViewControllers\nSingle navigation object\nmanages flow"]
-    end
-
-    subgraph AND_NAV ["Android Navigation"]
-        NAVCOMP["Navigation Component\n(Jetpack)\nNavGraph + NavController\nBack stack management\nDeep link support"]
-    end
-
-    DEEPLINK["Deep Links\napp://product/123\nhttps://contoso.com/product/123\n\nOpen specific screen\ndirectly from URL"]
-
-    iOS_NAV --> DEEPLINK
-    AND_NAV --> DEEPLINK
-
-    style UINav fill:#0078D4,color:#fff
-    style SWNav fill:#22c55e,color:#fff
-    style COORD fill:#8b5cf6,color:#fff
-    style NAVCOMP fill:#22c55e,color:#fff
-    style DEEPLINK fill:#f59e0b,color:#fff
-```
-
-### Coordinator Pattern (iOS)
-
-```mermaid
-flowchart TD
-    APP["AppCoordinator\n(Root — manages app flow)"] --> AUTH["AuthCoordinator\n(Login, Register, ForgotPwd)"]
-    APP --> MAIN["MainCoordinator\n(Tab bar + child flows)"]
-    MAIN --> HOME["HomeCoordinator"]
-    MAIN --> PROFILE["ProfileCoordinator"]
-
-    style APP fill:#0f172a,color:#fff
-    style AUTH fill:#8b5cf6,color:#fff
-    style MAIN fill:#0078D4,color:#fff
-    style HOME fill:#22c55e,color:#fff
-    style PROFILE fill:#22c55e,color:#fff
-```
-
----
-
-## 5. Data Binding
-
-### Overview
-Data binding synchronizes UI state with underlying data models — when the model changes, the UI updates automatically, and vice versa.
-
-### Binding Approaches
-
-```mermaid
-flowchart LR
-    subgraph iOS_BIND ["iOS Data Binding"]
-        OBJ["ObservableObject + @Published\n(SwiftUI — reactive)"]
-        COMB["Combine Framework\nPublisher/Subscriber\nasync event streams"]
-        KVO["KVO (Key-Value Observing)\nObjective-C legacy\nObserves property changes"]
-        CH["Completion Handlers\nSimple async callback\nfor one-time results"]
-    end
-
-    subgraph AND_BIND ["Android Data Binding"]
-        LD["LiveData\nLifecycle-aware observable\nOnly updates active observers"]
-        SF["StateFlow / Flow\nKotlin Coroutines\nStateful reactive streams"]
-    end
-
-    UI(["UI Layer"]) <-->|"Two-way binding"| iOS_BIND
-    UI <-->|"Two-way binding"| AND_BIND
-    DATA(["Data / ViewModel"]) --> iOS_BIND
-    DATA --> AND_BIND
-
-    style OBJ fill:#22c55e,color:#fff
-    style SF fill:#22c55e,color:#fff
-    style LD fill:#0078D4,color:#fff
-    style COMB fill:#8b5cf6,color:#fff
-    style UI fill:#0f172a,color:#fff
-```
-
----
-
-## 6. Data Storage
-
-### Storage Type Decision Tree
-
-```mermaid
-flowchart TD
-    Q(["What data to store?"]) --> Q1{"Sensitive?\n(tokens, passwords)"}
-    Q1 -->|"Yes"| SEC["Secure Storage\niOS: Keychain\nAndroid: EncryptedSharedPreferences\n+ Android KeyStore"]
-    Q1 -->|"No"| Q2{"Simple key-value?\n(settings, prefs)"}
-    Q2 -->|"Yes"| KV["Key-Value Storage\niOS: UserDefaults\nAndroid: Preferences DataStore"]
-    Q2 -->|"No"| Q3{"Structured / relational?\n(users, orders, products)"}
-    Q3 -->|"Yes"| DB["Database\niOS: Core Data / SQLite / Realm\nAndroid: Room / ObjectBox"]
-    Q3 -->|"No"| Q4{"Large binary?\n(images, video, docs)"}
-    Q4 -->|"Yes"| FILE["File Storage\niOS: Documents / Caches dirs\nAndroid: Internal / External storage"]
-    Q4 -->|"No"| PROTO["Binary Storage\nAndroid: Proto DataStore\n(typed, Protocol Buffers)"]
-
-    style SEC fill:#ef4444,color:#fff
-    style KV fill:#22c55e,color:#fff
-    style DB fill:#0078D4,color:#fff
-    style FILE fill:#8b5cf6,color:#fff
-    style PROTO fill:#f59e0b,color:#fff
-```
-
-### Storage Options Comparison
-
-| Type | iOS | Android | Use Case | Limit |
-|---|---|---|---|---|
-| **Key-Value** | `UserDefaults` | `SharedPreferences` / `Preferences DataStore` | Settings, toggles, small preferences | Small (< 1MB) |
-| **Database** | `Core Data`, `SQLite`, `Realm` | `Room`, `SQLite`, `ObjectBox` | Relational/structured data with queries | GB (device storage) |
-| **Secure** | `Keychain` | `EncryptedSharedPreferences` + `KeyStore` | Auth tokens, passwords, crypto keys | Small |
-| **File** | Documents / Caches dirs | Internal / External storage | Images, video, large documents | Device storage |
-| **Binary** | — | `Proto DataStore` | Type-safe structured binary data | Device storage |
-
----
-
-## 7. API Communication Protocols
-
-### Overview
-Mobile apps communicate with backends via several protocols, each with different trade-offs in performance, complexity, and use case fit.
-
-### Protocol Comparison
-
-```mermaid
-flowchart LR
-    CLIENT(["Mobile Client"]) --> REST
-    CLIENT --> WS
-    CLIENT --> GQL
-    CLIENT --> GRPC
-
-    subgraph REST ["REST"]
-        R1["HTTP verbs: GET POST PUT DELETE\nStateless, resource-based\nJSON over HTTP/1.1 or HTTP/2\nSimple, widely understood\nCan over-fetch / under-fetch"]
-    end
-
-    subgraph WS ["WebSockets"]
-        W1["Persistent TCP connection\nFull-duplex bi-directional\nws:// or wss://\nLow latency — ideal for chat,\ngaming, collaborative apps"]
-    end
-
-    subgraph GQL ["GraphQL"]
-        G1["Query language for APIs\nClient specifies exact fields needed\nSingle endpoint\nPrevents over-fetching\nComplex caching"]
-    end
-
-    subgraph GRPC ["gRPC"]
-        GR1["HTTP/2 + Protocol Buffers\nStrong typing, code gen\nHigh performance, low latency\nIdeal for microservices\nBinary format (not human-readable)"]
-    end
-
-    style R1 fill:#0078D4,color:#fff
-    style W1 fill:#22c55e,color:#fff
-    style G1 fill:#8b5cf6,color:#fff
-    style GR1 fill:#f59e0b,color:#fff
-    style CLIENT fill:#0f172a,color:#fff
-```
-
-### When to Use Each
-
-| Protocol | Best For | Avoid When |
-|---|---|---|
-| **REST** | Standard CRUD, public APIs, simple request-response | Real-time needs, high-frequency updates |
-| **WebSockets** | Live chat, multiplayer games, collaborative editing, live feeds | Infrequent updates (overkill), server simplicity required |
-| **GraphQL** | Complex UIs needing flexible data shapes, BFF pattern | Simple data models, teams unfamiliar with GraphQL tooling |
-| **gRPC** | Internal microservice-to-service communication, IoT | Public APIs (binary format hard to debug), browser support (limited) |
-
----
-
-## 8. Real-Time Updates
-
-### Update Strategy Comparison
-
-```mermaid
-flowchart TD
-    Q(["Need real-time updates?"]) --> FREQ{"How frequent?"}
-
-    FREQ -->|"Occasional\n(every 30s+)"| POLL["HTTP Polling\nSimple: client pings server every N seconds\nInefficient: many wasted requests\nGood for: simple dashboards"]
-
-    FREQ -->|"Variable —\nwhen data is ready"| LP["HTTP Long Polling\nServer holds connection open\nSends response when data arrives\nBetter than polling, more complex"]
-
-    FREQ -->|"Server pushing\nupdates to client only"| SSE["Server-Sent Events (SSE)\nOne-way: server → client\nSingle HTTP connection\nAuto-reconnect built in\nGood for: news feeds, notifications"]
-
-    FREQ -->|"True bi-directional\nreal-time"| WSO["WebSockets\nFull-duplex persistent connection\nLowest latency\nGood for: chat, gaming, collaboration"]
-
-    FREQ -->|"App not running"| PUSH["Push Notifications\nAPNs (iOS) / FCM (Android)\nBattery-efficient\nGood for: alerts, re-engagement"]
-
-    style POLL fill:#f59e0b,color:#fff
-    style LP fill:#f59e0b,color:#fff
-    style SSE fill:#0078D4,color:#fff
-    style WSO fill:#22c55e,color:#fff
-    style PUSH fill:#8b5cf6,color:#fff
-```
-
-| Strategy | Latency | Battery | Complexity | Direction |
-|---|---|---|---|---|
-| HTTP Polling | High | Draining | Low | Client → Server |
-| Long Polling | Medium | Medium | Medium | Client → Server (held open) |
-| SSE | Low | Good | Low-Medium | Server → Client only |
-| WebSockets | Lowest | Medium | High | Bidirectional |
-| Push Notifications | Low (delivery varies) | Excellent | Medium | Server → Device OS |
-
----
-
-## 9. Pagination Strategies
-
-### Overview
-Pagination splits large datasets into smaller chunks to avoid loading everything at once — essential for performance and bandwidth.
-
-### Strategy Comparison
-
-```mermaid
-flowchart TD
-    DATA(["Large Dataset"]) --> Q{"Pagination\nStrategy?"}
-
-    Q --> LO["Limit-Offset\nGET /items?limit=20&offset=40\nSimple, universal\nCON: Slow on large offsets\nCON: Skips/duplicates if data changes"]
-
-    Q --> PB["Page-Based\nGET /items?page=3&size=20\nFamiliar to users\nSame cons as offset"]
-
-    Q --> KS["Keyset / Index-Based\nGET /items?after_id=1234\nFast: uses DB index\nStable: add/delete doesn't shift pages\nCON: No random page jump"]
-
-    Q --> CB["Cursor-Based\nGET /items?cursor=eyJpZCI6MTIzNH0=\nOpaque cursor (base64 encoded pointer)\nMost stable and efficient\nIdeal for infinite scroll\nCON: No random page jump"]
-
-    style LO fill:#f59e0b,color:#fff
-    style PB fill:#f59e0b,color:#fff
-    style KS fill:#22c55e,color:#fff
-    style CB fill:#22c55e,color:#fff
-```
-
-### Offset vs Cursor — The Key Difference
-
-```mermaid
-sequenceDiagram
-    participant C as Client
-    participant S as Server/DB
-
-    Note over C,S: OFFSET PROBLEM: New item inserted shifts all pages
-
-    C->>S: GET /posts?offset=20 (page 2)
-    Note over S: New post inserted at top
-    S-->>C: Posts 21-40 (post 20 duplicated, post 41 missed)
-
-    Note over C,S: CURSOR SOLUTION: Anchor to a stable point
-
-    C->>S: GET /posts?cursor=<timestamp or ID of last seen post>
-    S-->>C: Posts AFTER that cursor (stable, no duplicates)
-```
-
-### Interview Talking Points — Pagination
+**Interview Talking Points:**
 
 | Question | Answer |
 |---|---|
-| Why is offset pagination problematic for social feeds? | Social feeds have frequent inserts at the top. Offset-based pagination shifts all records — a new post at position 0 pushes everything down, causing page 2 to duplicate the last item from page 1 or skip items. Cursor pagination anchors to a stable point in the dataset. |
-| How does cursor pagination work? | The server returns a cursor (opaque token — usually a base64-encoded timestamp or ID of the last item). The client sends this cursor on the next request. The server queries `WHERE created_at < cursor_timestamp LIMIT 20` — always returns the next stable page regardless of inserts/deletes. |
-| When is offset pagination acceptable? | For datasets that rarely change (product catalogs, archived documents), or when users need to jump to arbitrary pages (page 50 of 200). |
+| What is `onSaveInstanceState` for? | Persists transient UI state (scroll position, text input) across process death or configuration changes; not for large objects — use ViewModel for those |
+| What is the difference between onStop and onDestroy in Android? | `onStop` = app backgrounded but alive; `onDestroy` = activity finishing (back press) or system recreation (rotation) |
+| How does SceneDelegate differ from AppDelegate in iOS? | AppDelegate handles app-level events; SceneDelegate handles scene (window) lifecycle — enabling multiple-window support on iPad |
 
 ---
 
-## 10. Caching Strategies
+### 2.3 Threading & Concurrency
 
-### Cache Layers in Mobile
+```mermaid
+flowchart TD
+    UI["Main Thread<br>UI Updates Only"] -->|"async/await<br>Coroutines"| BG["Background Thread<br>Network · DB · CPU"]
+    BG -->|"DispatchQueue.main<br>withContext(Dispatchers.Main)"| UI
+
+    subgraph iOS_Conc ["iOS Concurrency"]
+        GCD["GCD DispatchQueue<br>Low-level C API"]
+        Async["Swift async/await<br>Structured concurrency"]
+        Actor["Actors<br>Thread-safe mutable state"]
+    end
+    subgraph And_Conc ["Android Concurrency"]
+        Coro["Kotlin Coroutines<br>viewModelScope / lifecycleScope"]
+        FlowS["Flow / StateFlow<br>Reactive streams"]
+    end
+
+    classDef main fill:#ef4444,color:#fff
+    classDef bg fill:#22c55e,color:#fff
+    class UI main
+    class BG bg
+```
+
+```swift
+// iOS — Swift Actor for thread-safe cache
+actor UserCache {
+    private var cache: [String: User] = [:]
+    func get(id: String) -> User? { cache[id] }
+    func set(id: String, user: User) { cache[id] = user }
+}
+
+// Fetching with async/await
+func fetchUser(id: String) async throws -> User {
+    let url = URL(string: "https://api.example.com/users/\(id)")!
+    let (data, _) = try await URLSession.shared.data(from: url)
+    return try JSONDecoder().decode(User.self, from: data)
+}
+```
+
+```kotlin
+// Android — Coroutines with StateFlow
+class UserViewModel(private val repo: UserRepository) : ViewModel() {
+    val user: StateFlow<User?> = repo.userFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    fun loadUser(id: String) {
+        viewModelScope.launch {
+            runCatching { withContext(Dispatchers.IO) { repo.fetchUser(id) } }
+                .onFailure { /* handle error */ }
+        }
+    }
+}
+```
+
+**Interview Talking Points:**
+
+| Question | Answer |
+|---|---|
+| What is a Swift Actor? | A reference type with compiler-enforced mutual exclusion; mutable state can only be accessed from within the actor's executor, eliminating data races at compile time |
+| What is `viewModelScope`? | A `CoroutineScope` tied to the ViewModel lifecycle that auto-cancels all coroutines when the ViewModel is cleared — preventing memory leaks |
+| GCD vs Swift async/await? | GCD is callback-based and error-prone for complex flows; async/await provides structured concurrency with propagated cancellation and linear, readable code |
+| How does `Dispatchers.IO` differ from `Dispatchers.Default`? | IO is for blocking I/O (up to 64 threads); Default is for CPU-bound work (threads = CPU cores). Never block on `Dispatchers.Main` |
+
+---
+
+### 2.4 Navigation
+
+```swift
+// iOS — SwiftUI NavigationStack with type-safe routing
+struct RootView: View {
+    var body: some View {
+        NavigationStack {
+            HomeView()
+                .navigationTitle("Home")
+                .navigationDestination(for: User.self) { UserDetailView(user: $0) }
+        }
+    }
+}
+
+// Coordinator pattern for UIKit
+protocol Coordinator: AnyObject {
+    var navigationController: UINavigationController { get }
+    func start()
+}
+
+class AppCoordinator: Coordinator {
+    let navigationController: UINavigationController
+    init(nav: UINavigationController) { navigationController = nav }
+
+    func start() {
+        let vc = HomeViewController()
+        vc.coordinator = self
+        navigationController.pushViewController(vc, animated: false)
+    }
+}
+```
+
+```kotlin
+// Android — Navigation Component in Compose
+@Composable
+fun AppNavigation() {
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = "home") {
+        composable("home") {
+            HomeScreen(onUserClick = { id -> navController.navigate("user/$id") })
+        }
+        composable(
+            "user/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.StringType })
+        ) { entry ->
+            UserDetailScreen(userId = entry.arguments?.getString("id")!!)
+        }
+    }
+}
+```
+
+**Interview Talking Points:**
+
+| Question | Answer |
+|---|---|
+| What is the Coordinator pattern? | Decouples navigation logic from view controllers; VCs delegate routing decisions to a Coordinator, making them independently testable |
+| What is a deep link? | A URL that navigates directly to specific in-app content. iOS handles via `onOpenURL`; Android via `<intent-filter>` with `ACTION_VIEW` |
+| How does Navigation Component handle back stack on Android? | It manages a `NavBackStack` automatically; `popUpTo` with `inclusive = true` clears destinations to prevent stacking on re-navigation |
+
+---
+
+### 2.5 Data Binding
+
+```swift
+// iOS — Combine + ObservableObject
+class LoginViewModel: ObservableObject {
+    @Published var email = ""
+    @Published var password = ""
+
+    var isLoginEnabled: AnyPublisher<Bool, Never> {
+        Publishers.CombineLatest($email, $password)
+            .map { !$0.isEmpty && $1.count >= 6 }
+            .eraseToAnyPublisher()
+    }
+}
+
+struct LoginView: View {
+    @StateObject private var vm = LoginViewModel()
+    @State private var canLogin = false
+
+    var body: some View {
+        Form {
+            TextField("Email", text: $vm.email)
+            SecureField("Password", text: $vm.password)
+            Button("Login") { /* login */ }.disabled(!canLogin)
+        }
+        .onReceive(vm.isLoginEnabled) { canLogin = $0 }
+    }
+}
+```
+
+```kotlin
+// Android — Compose state + derivedStateOf
+class LoginViewModel : ViewModel() {
+    var email    by mutableStateOf("")
+    var password by mutableStateOf("")
+    val isLoginEnabled by derivedStateOf { email.isNotBlank() && password.length >= 6 }
+}
+
+@Composable
+fun LoginScreen(vm: LoginViewModel = viewModel()) {
+    Column {
+        TextField(value = vm.email,    onValueChange = { vm.email = it },    label = { Text("Email") })
+        TextField(value = vm.password, onValueChange = { vm.password = it }, label = { Text("Password") })
+        Button(onClick = { /* login */ }, enabled = vm.isLoginEnabled) { Text("Login") }
+    }
+}
+```
+
+**Interview Talking Points:**
+
+| Question | Answer |
+|---|---|
+| LiveData vs StateFlow? | StateFlow has no Activity/Fragment dependency, works in any coroutine scope, and has `value` as a non-null property. LiveData is lifecycle-aware but tightly coupled to Android architecture |
+| What is KVO? | Key-Value Observing — Objective-C runtime mechanism to observe property changes via `addObserver`; replaced by Combine / `@Published` in modern Swift |
+| What does `derivedStateOf` do in Compose? | Creates a state that only triggers recomposition when its computed value changes, not every time its inputs change — important for expensive derivations |
+
+---
+
+### 2.6 Runtime
+
+**Overview:** iOS compiles Swift to native ARM64 machine code via LLVM, giving deterministic performance. Android compiles to DEX bytecode; ART applies AOT + JIT compilation at runtime with profile-guided optimization.
 
 ```mermaid
 flowchart LR
-    SERVER(["Backend Server"]) --> CDN["CDN / Edge Cache\nGeographically distributed\nCaches static assets\nHTTP Cache-Control headers"]
-    CDN --> NET["Network Cache\nHTTP ETag / Last-Modified\n304 Not Modified responses\nOS-level HTTP caching"]
-    NET --> MEM["Memory Cache\niOS: NSCache\nAndroid: LRUCache\nFastest — in RAM\nLost on app terminate"]
-    MEM --> DISK["Disk Cache\nPersistent across launches\nSlower than memory\nLimited by storage"]
-    DISK --> DB_CACHE["DB / Repository Cache\nRoom / Core Data\nStructured, queryable\nLong-lived"]
+    subgraph iOS_RT ["iOS Runtime"]
+        SwiftSrc["Swift Source"] --> LLVM["LLVM Compiler"] --> NativeCode["Native ARM64<br>Machine Code"]
+    end
+    subgraph And_RT ["Android Runtime - ART"]
+        KotlinSrc["Kotlin Source"] --> DEX["DEX Bytecode"] --> ART_JIT["JIT Profiling<br>Hot paths identified"]
+        ART_JIT --> AOT["AOT Compilation<br>dex2oat on idle/charging"]
+        AOT --> OAT["OAT File<br>Optimized Native Code"]
+    end
 
-    APP(["App Request"]) -->|"Check caches in order:\nmem → disk → network"| MEM
-
-    style CDN fill:#8b5cf6,color:#fff
-    style MEM fill:#22c55e,color:#fff
-    style DISK fill:#0078D4,color:#fff
-    style SERVER fill:#0f172a,color:#fff
-    style APP fill:#0f172a,color:#fff
+    classDef ios fill:#0f172a,color:#fff
+    classDef android fill:#22c55e,color:#fff
+    class SwiftSrc,LLVM,NativeCode ios
+    class KotlinSrc,DEX,ART_JIT,AOT,OAT android
 ```
 
-### Cache Invalidation Strategies
+**Interview Talking Points:**
 
-| Strategy | How it works | Use case |
-|---|---|---|
-| **Time-based (TTL)** | Cache expires after N seconds/minutes | Weather data, news feeds |
-| **ETag** | Server returns ETag header; client sends `If-None-Match`; server returns 304 if unchanged | Static assets, API responses |
-| **Last-Modified** | Server returns `Last-Modified`; client sends `If-Modified-Since`; 304 if unchanged | Documents, images |
-| **Manual invalidation** | App explicitly clears cache on user action or event | After user logs out, after write operation |
-| **Write-through** | Update cache and backend simultaneously on write | Inventory, account balance |
+| Question | Answer |
+|---|---|
+| What is ART vs Dalvik? | Dalvik used JIT-only compilation; ART (Android 5.0+) combines AOT at install + JIT profiling at runtime for progressive optimization |
+| How does Swift's dispatch differ from Objective-C? | Obj-C uses dynamic message dispatch (slow but flexible); Swift uses static dispatch by default (faster, inlinable). Use `@objc dynamic` to opt back into dynamic dispatch |
+| What is whole-module optimization in Swift? | `SWIFT_COMPILATION_MODE = wholemodule` lets LLVM analyze all Swift files together, enabling cross-file inlining and dead code elimination for smaller, faster binaries |
 
 ---
 
-## 11. Authentication
+## 3. Observability & Testing
 
-### Auth Flow Overview
+### Overview
+A robust testing strategy forms a pyramid: many fast unit tests at the base, fewer integration tests in the middle, and a small E2E suite at the top. Production observability (crash reporting, metrics, logging) closes the feedback loop between deployment and debugging.
+
+### Testing Pyramid
 
 ```mermaid
 flowchart TD
-    LOGIN(["User Login"]) --> Q{"Auth method?"}
+    E2E["E2E Tests<br>Detox / Appium<br>Full user journey — slowest"]
+    UI_T["UI Tests<br>XCUITest / Espresso<br>Screen interactions"]
+    INT["Integration Tests<br>Module boundaries<br>Real DB / stubbed network"]
+    UNIT["Unit Tests<br>XCTest / JUnit<br>Isolated logic — fastest"]
 
-    Q -->|"Email + Password"| BASIC["HTTPS POST credentials\nServer returns JWT access + refresh token\nNever send password over HTTP"]
+    E2E --> UI_T --> INT --> UNIT
 
-    Q -->|"Social Login"| OAUTH["OAuth 2.0 / OpenID Connect\nSign in with Apple / Google\nClient gets ID token\nExchange for app token"]
-
-    Q -->|"Biometric"| BIO["Face ID / Touch ID / Fingerprint\nOS-level biometric challenge\nKeychain / KeyStore releases\nsecret on success"]
-
-    Q -->|"MFA"| MFA["Multi-Factor Auth\nFactor 1: password\nFactor 2: TOTP (Google Auth)\nor SMS OTP"]
-
-    BASIC --> TOKEN["Access Token (short-lived: 15min)\n+ Refresh Token (long-lived: 30 days)\nStored in Keychain / EncryptedPrefs"]
-    OAUTH --> TOKEN
-    BIO --> TOKEN
-
-    TOKEN --> EXPIRE{"Token expired?"}
-    EXPIRE -->|"Yes"| REFRESH["POST /auth/refresh\nSend refresh token\nGet new access token"]
-    EXPIRE -->|"No"| API["Call API with\nBearer {access_token}"]
-    REFRESH --> API
-
-    style LOGIN fill:#0f172a,color:#fff
-    style API fill:#22c55e,color:#fff
-    style TOKEN fill:#1e40af,color:#fff
-    style REFRESH fill:#f59e0b,color:#fff
-    style BIO fill:#8b5cf6,color:#fff
+    classDef e2e  fill:#ef4444,color:#fff
+    classDef ui   fill:#f59e0b,color:#fff
+    classDef int  fill:#8b5cf6,color:#fff
+    classDef unit fill:#22c55e,color:#fff
+    class E2E e2e
+    class UI_T ui
+    class INT int
+    class UNIT unit
 ```
-
-### Token Storage Best Practices
-
-| Token | Storage | Why |
-|---|---|---|
-| Access Token (short-lived) | In-memory (variable) | Least exposure; lost on app termination |
-| Refresh Token (long-lived) | iOS Keychain / Android EncryptedSharedPreferences | Encrypted by OS; protected from other apps |
-| **Never store in** | UserDefaults / SharedPreferences (unencrypted) | Accessible in device backups, unprotected |
 
 ---
 
-## 12. Retry Policies & Resilience
+### 3.1 Unit Testing
 
-### Retry Decision Flow
+```swift
+// iOS — XCTest
+import XCTest
+@testable import MyApp
 
-```mermaid
-flowchart TD
-    REQ(["API Request"]) --> FAIL{"Request\nfailed?"}
-    FAIL -->|"No"| DONE(["Success"])
-    FAIL -->|"Yes"| CLASSIFY{"Error type?"}
+final class LoginViewModelTests: XCTestCase {
+    var sut: LoginViewModel!
+    override func setUp() { sut = LoginViewModel(authService: MockAuthService()) }
 
-    CLASSIFY -->|"5xx (server error)\n429 (rate limited)\nNetwork timeout"| RETRY["Retry eligible"]
-    CLASSIFY -->|"4xx (client error)\n400, 401, 403, 404"| NORETRY["Do NOT retry\n(fix the request)"]
+    func test_loginEnabled_withValidCredentials() {
+        sut.email = "test@example.com"; sut.password = "secret123"
+        XCTAssertTrue(sut.isLoginEnabled)
+    }
 
-    RETRY --> STRAT{"Retry strategy?"}
-    STRAT -->|"Simple"| LINEAR["Linear Backoff\nWait: 1s, 2s, 3s, 4s..."]
-    STRAT -->|"Recommended"| EXP["Exponential Backoff + Jitter\nWait: 1s, 2s, 4s, 8s + random jitter\nPrevents thundering herd"]
-
-    STRAT -->|"Service consistently failing"| CB["Circuit Breaker\nOpen: stop sending requests\nWait cooling-off period\nHalf-open: test one request\nClose if success"]
-
-    NORETRY --> ERR(["Show user-friendly error"])
-    CB -->|"Open state"| FALLBACK(["Return cached data\nor graceful degradation"])
-
-    style DONE fill:#22c55e,color:#fff
-    style ERR fill:#ef4444,color:#fff
-    style FALLBACK fill:#f59e0b,color:#fff
-    style EXP fill:#22c55e,color:#fff
-    style CB fill:#8b5cf6,color:#fff
+    func test_loginDisabled_withShortPassword() {
+        sut.email = "test@example.com"; sut.password = "abc"
+        XCTAssertFalse(sut.isLoginEnabled)
+    }
+}
 ```
 
-### OAuth Token Refresh Retry
+```kotlin
+// Android — JUnit + coroutines test
+class LoginViewModelTest {
+    @get:Rule val mainDispatcherRule = MainDispatcherRule()
+
+    private val mockAuthService: AuthService = mockk()
+    private lateinit var sut: LoginViewModel
+
+    @Before fun setUp() { sut = LoginViewModel(mockAuthService) }
+
+    @Test fun `login enabled with valid credentials`() {
+        sut.email = "test@example.com"; sut.password = "secret123"
+        assertTrue(sut.isLoginEnabled)
+    }
+
+    @Test fun `login disabled with short password`() {
+        sut.email = "test@example.com"; sut.password = "abc"
+        assertFalse(sut.isLoginEnabled)
+    }
+}
+```
+
+---
+
+### 3.2 Mocking Frameworks
+
+```swift
+// iOS — protocol-based manual mock (Mockingbird for codegen)
+protocol AuthService {
+    func login(email: String, password: String) async throws -> AuthToken
+}
+
+final class MockAuthService: AuthService {
+    var stubbedResult: Result<AuthToken, Error> = .failure(AuthError.unknown)
+    var callCount = 0
+
+    func login(email: String, password: String) async throws -> AuthToken {
+        callCount += 1
+        return try stubbedResult.get()
+    }
+}
+```
+
+```kotlin
+// Android — MockK
+@Test fun `login calls service with correct credentials`() = runTest {
+    val mockService: AuthService = mockk()
+    coEvery { mockService.login("a@b.com", "pass123") } returns AuthToken("token")
+
+    LoginViewModel(mockService).login("a@b.com", "pass123")
+
+    coVerify(exactly = 1) { mockService.login("a@b.com", "pass123") }
+}
+```
+
+---
+
+### 3.3 UI Testing
+
+```swift
+// iOS — XCUITest
+final class LoginUITests: XCTestCase {
+    let app = XCUIApplication()
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+        app.launch()
+    }
+
+    func test_loginFlow_navigatesToHome() {
+        app.textFields["emailField"].tap()
+        app.textFields["emailField"].typeText("user@example.com")
+        app.secureTextFields["passwordField"].typeText("password123")
+        app.buttons["loginButton"].tap()
+        XCTAssertTrue(app.otherElements["homeScreen"].waitForExistence(timeout: 5))
+    }
+}
+```
+
+```kotlin
+// Android — Espresso
+@RunWith(AndroidJUnit4::class)
+class LoginScreenTest {
+    @get:Rule val activityRule = ActivityScenarioRule(LoginActivity::class.java)
+
+    @Test fun loginFlow_displaysHome_onSuccess() {
+        onView(withId(R.id.emailField))
+            .perform(typeText("user@example.com"), closeSoftKeyboard())
+        onView(withId(R.id.passwordField))
+            .perform(typeText("password123"), closeSoftKeyboard())
+        onView(withId(R.id.loginButton)).perform(click())
+        onView(withId(R.id.homeScreen)).check(matches(isDisplayed()))
+    }
+}
+```
+
+---
+
+### 3.4 CI/CD Pipeline
+
+```mermaid
+flowchart LR
+    Push["Git Push"] --> CI["CI Runner<br>GitHub Actions /<br>Bitrise / Fastlane"]
+    CI --> Build["Build<br>xcodebuild /<br>gradle assembleRelease"]
+    Build --> Tests["Unit + UI Tests<br>Simulator / Emulator"]
+    Tests -->|Pass| Sign["Code Signing<br>Provisioning / Keystore"]
+    Sign --> Beta["Beta Distribution<br>TestFlight /<br>Play Internal Track"]
+    Beta --> Rollout["Phased Rollout<br>1% → 10% → 100%"]
+    Tests -->|Fail| Alert["Notify Team<br>Slack / Email"]
+
+    classDef pass fill:#22c55e,color:#fff
+    classDef fail fill:#ef4444,color:#fff
+    classDef neutral fill:#1e40af,color:#fff
+    class Sign,Beta,Rollout pass
+    class Alert fail
+    class Push,CI,Build,Tests neutral
+```
+
+---
+
+### 3.5 E2E Testing
+
+```javascript
+// Detox (React Native or native)
+describe('Login flow', () => {
+  beforeAll(async () => { await device.launchApp(); });
+
+  it('logs in with valid credentials', async () => {
+    await element(by.id('emailField')).typeText('user@example.com');
+    await element(by.id('passwordField')).typeText('password123');
+    await element(by.id('loginButton')).tap();
+    await expect(element(by.id('homeScreen'))).toBeVisible();
+  });
+});
+```
+
+---
+
+### 3.6 Beta Distribution & Phased Rollouts
 
 ```mermaid
 sequenceDiagram
-    participant APP as Mobile App
-    participant API as Backend API
-    participant AUTH as Auth Server
+    participant Dev as Developer
+    participant CI as CI/CD Pipeline
+    participant TF as TestFlight / Play Console
+    participant Beta as Beta Users
+    participant Prod as Production Users
 
-    APP->>API: GET /user (with expired access token)
-    API-->>APP: 401 Unauthorized
-
-    APP->>AUTH: POST /auth/refresh (refresh token)
-    AUTH-->>APP: New access token
-
-    APP->>API: GET /user (with NEW access token)
-    API-->>APP: 200 OK + user data
+    Dev->>CI: Push release tag
+    CI->>CI: Build + sign
+    CI->>TF: Upload build
+    TF->>Beta: Distribute to testers
+    Beta-->>Dev: Feedback / crash reports
+    Dev->>TF: Promote to production
+    TF->>Prod: Phased rollout 1%
+    Note over TF,Prod: Monitor crash-free rate<br>Expand to 10% → 50% → 100%
 ```
 
 ---
 
-## 13. Performance & Optimization
-
-### Memory Management
-
-```mermaid
-flowchart LR
-    subgraph iOS_MEM ["iOS Memory Issues"]
-        RC["Retain Cycles\nStrong reference cycles\nin Swift closures\n[weak self] fixes it"]
-        PROF["Xcode Instruments\nLeaks instrument\nAllocation graph"]
-    end
-
-    subgraph AND_MEM ["Android Memory Issues"]
-        CTX["Context Leaks\nHolding Activity reference\nin long-lived objects\n(static fields, singletons)"]
-        APROF["Android Studio Profiler\nHeap dumps\nAllocation tracking"]
-    end
-
-    style RC fill:#ef4444,color:#fff
-    style CTX fill:#ef4444,color:#fff
-    style PROF fill:#22c55e,color:#fff
-    style APROF fill:#22c55e,color:#fff
-```
-
-### CPU & Battery Optimization
-
-| Area | iOS | Android |
-|---|---|---|
-| **Background tasks** | `BackgroundTasks` framework (`BGTaskScheduler`) | `WorkManager` (guaranteed deferred work) |
-| **Power-saving mode** | **App Nap** — reduces background app power | **Doze Mode** — deep sleep when stationary; defers most app activity |
-| **Location** | Use `kCLLocationAccuracyReduced` when precision not needed | Use `PRIORITY_BALANCED_POWER_ACCURACY` over `HIGH_ACCURACY` |
-| **Target FPS** | 60fps (or 120fps ProMotion) | 60fps; use `RecyclerView` for smooth lists |
-
-### App Startup Optimization
+### 3.7 Logging, Monitoring & Crash Reporting
 
 ```mermaid
 flowchart TD
-    LAUNCH(["App Launch"]) --> TYPES{"Launch type"}
-    TYPES --> COLD["Cold Start\nProcess not running\nSlowest: load all code"]
-    TYPES --> WARM["Warm Start\nProcess alive, Activity destroyed\nFaster: skip app init"]
-    TYPES --> HOT["Hot Start\nActivity in backstack\nFastest: just re-display"]
+    Crash(["App Crash or ANR"]) --> SDK["Crashlytics / Sentry SDK"]
+    SDK --> Report["Crash Report<br>Stack trace · Device · OS version<br>App version · User session breadcrumbs"]
+    Report --> Sym["Symbolication<br>dSYM (iOS) / mapping.txt (Android)"]
+    Sym --> Dash["Dashboard<br>Crash-free rate · Impact scope<br>Version comparison"]
+    Dash --> Alert2["Alerting<br>Slack / PagerDuty"]
+    Dash --> Debug["Developer Debug<br>Repro steps · Affected users"]
 
-    COLD --> OPT["Optimization strategies:\n1. Defer non-essential init\n2. Lazy load heavy libs\n3. Use app startup library (Android)\n4. Avoid heavy work in didFinishLaunching\n5. Profile with Xcode/Android Studio\n6. Splash screen instead of blank screen"]
-
-    style COLD fill:#ef4444,color:#fff
-    style WARM fill:#f59e0b,color:#fff
-    style HOT fill:#22c55e,color:#fff
-    style LAUNCH fill:#0f172a,color:#fff
-    style OPT fill:#0078D4,color:#fff
+    classDef crash fill:#ef4444,color:#fff
+    classDef proc  fill:#8b5cf6,color:#fff
+    classDef out   fill:#22c55e,color:#fff
+    class Crash crash
+    class SDK,Report,Sym proc
+    class Dash,Alert2,Debug out
 ```
 
-### Rendering & Animation
-- **Target 60fps** — each frame budget = 16ms (1000ms ÷ 60)
-- **Never do heavy work on the main thread** — I/O, networking, large computation must be async
-- **Avoid overdraw** — multiple overlapping views painting the same pixels unnecessarily
-- **iOS tools**: Xcode View Debugger, Instruments (Core Animation)
-- **Android tools**: Android Studio Layout Inspector, GPU Overdraw visualization
+**Interview Talking Points — Observability & Testing:**
 
----
-
-## 14. Observability & Testing
-
-### Testing Pyramid for Mobile
-
-```mermaid
-flowchart TD
-    E2E["E2E Tests\n(Most expensive, slowest)\nDetox, Appium\nFull user journey\nCross-platform"]
-    UI_T["UI Tests\n(Simulate user interactions)\niOS: XCUITest, EarlGrey 2.0\nAndroid: Espresso, UI Automator"]
-    INT["Integration Tests\n(Modules working together)\nTest data flow between layers"]
-    UNIT["Unit Tests\n(Fastest, cheapest)\niOS: XCTest\nAndroid: JUnit + Mockito\nTest individual functions"]
-    UNIT --> INT --> UI_T --> E2E
-
-    style UNIT fill:#22c55e,color:#fff
-    style INT fill:#0078D4,color:#fff
-    style UI_T fill:#f59e0b,color:#fff
-    style E2E fill:#ef4444,color:#fff
-```
-
-### Beta Distribution & Rollout Strategy
-
-```mermaid
-flowchart LR
-    BUILD["Build"] --> BETA["Beta Distribution\niOS: TestFlight\nAndroid: Google Play\nInternal/Closed/Open test tracks"]
-    BETA --> PHASED["Phased Rollout\nRelease to 1% → 5% → 25% → 50% → 100%\nMonitor crash rate + ANR rate\nRollback instantly if metrics spike"]
-    PHASED --> GA(["General Availability"])
-
-    style BUILD fill:#0f172a,color:#fff
-    style GA fill:#22c55e,color:#fff
-    style PHASED fill:#f59e0b,color:#fff
-```
-
-### Crash Reporting & Monitoring
-
-| Tool | Use Case |
+| Question | Answer |
 |---|---|
-| **Firebase Crashlytics** | Crash reporting + stack traces + user impact |
-| **Sentry** | Crashes + performance monitoring + error tracking |
-| **Datadog / New Relic** | APM + mobile performance metrics |
-| **Xcode Instruments** | On-device profiling (memory, CPU, network) |
-| **Android Studio Profiler** | CPU, memory, network, energy profiling |
+| What is the test pyramid and why does it matter for mobile? | Unit tests are fast and cheap; UI tests are slow and brittle on simulators/emulators. Inverting the pyramid leads to slow CI and fragile suites |
+| How do you test coroutines? | Replace `Dispatchers.Main` with `TestCoroutineDispatcher` via a test rule; use `runTest` to execute coroutines synchronously under test |
+| What is symbolication? | Maps crash addresses in stripped release builds back to source file + line number using dSYM (iOS) or ProGuard mapping.txt (Android) — critical for debugging production crashes |
+| How do phased rollouts reduce risk? | Release to 1–5% of users first; if crash-free rate drops below threshold (e.g., 99.5%), halt before reaching all users |
+| What is ANR in Android? | Application Not Responding — triggered when the main thread is blocked for >5 s (activity) or >10 s (broadcast). Detect with `StrictMode` in dev; visible in Play Console |
+| What is EarlGrey 2.0? | Google's open-source iOS UI testing framework built on XCUITest; offers synchronization with app thread states, reducing flakiness compared to vanilla XCUITest |
 
 ---
 
-## 15. Privacy & Security
+## 4. Privacy & Security
+
+### Overview
+Privacy and security span four layers: **data in transit** (TLS), **data at rest** (encryption, secure storage), **runtime protection** (code integrity, obfuscation), and **regulatory compliance** (GDPR, CCPA). Defense-in-depth means all four layers must be addressed simultaneously.
 
 ### Security Layers
 
 ```mermaid
 flowchart TD
-    subgraph DataInTransit ["Data In Transit"]
-        TLS["HTTPS / TLS 1.3\nEncrypts all network traffic\nPrevents man-in-the-middle\nCertificate pinning for extra security"]
-    end
+    App(["Mobile App"]) --> Transit["In Transit<br>HTTPS / TLS 1.3<br>Certificate Pinning"]
+    App --> AtRest["At Rest<br>Keychain / EncryptedSharedPreferences<br>Database encryption"]
+    App --> Perm["Minimal Permissions<br>Least privilege<br>Contextual runtime requests"]
+    App --> Code["Code Protection<br>R8 / ProGuard obfuscation<br>Code signing + App Attest"]
+    App --> Comply["Compliance<br>GDPR · CCPA<br>App Store / Play policies"]
 
-    subgraph DataAtRest ["Data At Rest"]
-        ENC["Device Encryption\n(enabled by default on modern iOS/Android)\nKeychain / EncryptedSharedPreferences\nfor sensitive app data"]
-    end
-
-    subgraph CodeSec ["Code Security"]
-        OBF["Obfuscation\nAndroid: R8 / ProGuard\niOS: Swift native (less needed)\nMakes reverse engineering harder"]
-        INT["Code Integrity\nCode signing (both platforms)\nApp Store / Play Store verification"]
-    end
-
-    subgraph Compliance ["Privacy Compliance"]
-        GDPR["GDPR (EU)\nUser consent, data access rights\nRight to be forgotten\nData portability"]
-        CCPA["CCPA (California)\nOpt-out of data sale\nDisclosure of data collected"]
-        STORE["App Store / Play Store Policies\nPrivacy manifests (iOS 17+)\nData safety section (Android)"]
-    end
-
-    style TLS fill:#22c55e,color:#fff
-    style ENC fill:#0078D4,color:#fff
-    style OBF fill:#8b5cf6,color:#fff
-    style GDPR fill:#ef4444,color:#fff
-    style CCPA fill:#ef4444,color:#fff
+    classDef transit fill:#22c55e,color:#fff
+    classDef storage fill:#1e40af,color:#fff
+    classDef perm    fill:#8b5cf6,color:#fff
+    classDef code    fill:#f59e0b,color:#fff
+    classDef legal   fill:#ef4444,color:#fff
+    class Transit transit
+    class AtRest storage
+    class Perm perm
+    class Code code
+    class Comply legal
 ```
 
-### Privacy Best Practices
+---
 
-| Practice | Why it matters |
+### 4.1 Data Encryption — In Transit & At Rest
+
+```swift
+// iOS — CryptoKit AES-GCM (at rest)
+import CryptoKit
+
+struct EncryptionService {
+    private let key = SymmetricKey(size: .bits256)
+
+    func encrypt(_ data: Data) throws -> Data {
+        try AES.GCM.seal(data, using: key).combined!
+    }
+
+    func decrypt(_ sealed: Data) throws -> Data {
+        let box = try AES.GCM.SealedBox(combined: sealed)
+        return try AES.GCM.open(box, using: key)
+    }
+}
+```
+
+```kotlin
+// Android — AES-GCM with Android Keystore
+object EncryptionService {
+    private const val KEY_ALIAS = "app_master_key"
+    private const val TRANSFORMATION = "AES/GCM/NoPadding"
+
+    private fun getOrCreateKey(): SecretKey {
+        val ks = java.security.KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+        ks.getKey(KEY_ALIAS, null)?.let { return it as SecretKey }
+        val spec = KeyGenParameterSpec.Builder(
+            KEY_ALIAS, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+        ).setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+         .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+         .build()
+        return KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+            .apply { init(spec) }.generateKey()
+    }
+
+    fun encrypt(data: ByteArray): Pair<ByteArray, ByteArray> {
+        val cipher = Cipher.getInstance(TRANSFORMATION).apply { init(Cipher.ENCRYPT_MODE, getOrCreateKey()) }
+        return Pair(cipher.doFinal(data), cipher.iv)
+    }
+
+    fun decrypt(data: ByteArray, iv: ByteArray): ByteArray {
+        val cipher = Cipher.getInstance(TRANSFORMATION).apply {
+            init(Cipher.DECRYPT_MODE, getOrCreateKey(), GCMParameterSpec(128, iv))
+        }
+        return cipher.doFinal(data)
+    }
+}
+```
+
+---
+
+### 4.2 Certificate Pinning
+
+```swift
+// iOS — URLSession delegate for certificate pinning
+class PinnedSessionDelegate: NSObject, URLSessionDelegate {
+    private let pinnedKeyHash = "sha256/BASE64_ENCODED_PUBLIC_KEY_HASH=="
+
+    func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        guard let serverTrust = challenge.protectionSpace.serverTrust,
+              let cert = SecTrustGetCertificateAtIndex(serverTrust, 0),
+              publicKeyHash(for: cert) == pinnedKeyHash else {
+            completionHandler(.cancelAuthenticationChallenge, nil)
+            return
+        }
+        completionHandler(.useCredential, URLCredential(trust: serverTrust))
+    }
+}
+```
+
+```kotlin
+// Android — OkHttp certificate pinning
+val client = OkHttpClient.Builder()
+    .certificatePinner(
+        CertificatePinner.Builder()
+            .add("api.example.com", "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
+            .build()
+    )
+    .build()
+```
+
+---
+
+### 4.3 Minimize Permission Usage
+
+```swift
+// iOS — request coarse location only
+import CoreLocation
+
+class LocationManager: NSObject, CLLocationManagerDelegate {
+    private let manager = CLLocationManager()
+
+    func requestApproximateLocation() {
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyKilometer
+        manager.requestWhenInUseAuthorization()
+        manager.requestLocation()
+    }
+}
+```
+
+```kotlin
+// Android — contextual runtime permission
+class LocationPermissionHandler(private val activity: ComponentActivity) {
+    private val launcher = activity.registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) startLocationUpdates() else showPermissionRationale()
+    }
+
+    fun requestCoarseLocation() {
+        launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+    }
+}
+```
+
+---
+
+### 4.4 Code Security, Integrity & Obfuscation
+
+```mermaid
+flowchart TD
+    Src["Source Code"] --> Compile["Compile"] --> Sign["Code Signing<br>iOS: Provisioning Profile<br>Android: Keystore"]
+    Sign --> Obf["Obfuscation<br>Android: R8 / ProGuard<br>iOS: Bitcode + strip symbols"]
+    Obf --> Attest["Runtime Integrity<br>iOS: App Attest<br>Android: Play Integrity API"]
+    Attest --> Store["App Store /<br>Google Play"]
+
+    classDef stage fill:#1e40af,color:#fff
+    classDef check fill:#22c55e,color:#fff
+    class Src,Compile stage
+    class Sign,Obf,Attest,Store check
+```
+
+```kotlin
+// Android — R8 in build.gradle (ProGuard rules)
+// buildTypes { release { minifyEnabled true; shrinkResources true
+//   proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro' } }
+
+// proguard-rules.pro — keep model classes used in JSON deserialization
+// -keep class com.app.model.** { *; }
+// -keepattributes Signature
+```
+
+---
+
+### 4.5 Data Retention & Deletion
+
+```kotlin
+// Android — account deletion (GDPR right to erasure)
+class AccountDeletionService(
+    private val db: AppDatabase,
+    private val prefs: SecurePreferences,
+    private val api: ApiService
+) {
+    suspend fun deleteAccount(userId: String) {
+        withContext(Dispatchers.IO) {
+            api.requestAccountDeletion(userId)     // backend purge
+            db.userDao().deleteAll()               // local DB
+            prefs.clearToken()                     // secure prefs
+            File(context.filesDir, userId).deleteRecursively() // files
+        }
+    }
+}
+```
+
+---
+
+### 4.6 Privacy Compliance
+
+**Overview:** GDPR (EU), CCPA (California), and platform policies (App Store, Google Play) all impose requirements on data collection, consent, and user rights.
+
+```mermaid
+flowchart LR
+    Collect["Collect Data"] --> Consent{"User Consent<br>Obtained?"}
+    Consent -->|No| Block["Do Not Collect<br>Block feature"]
+    Consent -->|Yes| Minimize["Collect Minimum<br>Required Data Only"]
+    Minimize --> Store2["Store Encrypted<br>Retain Policy Applied"]
+    Store2 --> Delete["User Requests Deletion<br>Right to Erasure"]
+    Delete --> Purge["Purge: DB + Files<br>+ Backend + Backups"]
+
+    classDef good fill:#22c55e,color:#fff
+    classDef warn fill:#f59e0b,color:#fff
+    classDef bad  fill:#ef4444,color:#fff
+    class Minimize,Store2,Purge good
+    class Consent warn
+    class Block bad
+```
+
+**Interview Talking Points — Privacy & Security:**
+
+| Question | Answer |
 |---|---|
-| **Minimize data collection** | Less data = less breach risk + easier GDPR compliance |
-| **Minimum permissions** | Request only permissions needed for core function. Camera app shouldn't need contacts. |
-| **Clear data retention policy** | Define how long you keep data; delete on user request |
-| **Certificate pinning** | Prevents MITM even if a CA is compromised — pin the server's cert in the app |
-| **Jailbreak/root detection** | Compromised devices bypass OS-level security; detect and warn/restrict |
+| What is certificate pinning and when to use it? | Ensures server cert/public key matches a known-good value, preventing MITM even if a CA is compromised. Use for high-value apps (banking, health) — but plan a key rotation strategy |
+| GDPR vs CCPA — key differences? | GDPR covers all EU residents globally with strict consent + right to erasure; CCPA covers California residents with opt-out rights for data sale — less prescriptive on consent |
+| What is App Attest / Play Integrity? | Hardware-backed attestation verifying the app is genuine, unmodified, and on a real device — used to protect sensitive API endpoints from emulator abuse |
+| Why is R8 not a security mechanism? | Obfuscation makes reverse-engineering harder but not impossible; decompilers can rename symbols back. Security must come from server-side validation, not code secrecy |
+| How do you implement right-to-erasure? | In-app delete flow → propagate to all backends → purge local DB, files, Keychain/EncryptedPrefs → confirm to user; document in privacy policy |
 
 ---
 
-## 16. App-Wide Architecture Patterns
+## 5. Cross-Cutting Themes
 
-### Pattern Evolution
-
-```mermaid
-flowchart LR
-    MVC["MVC\n(1979 — original)\nModel-View-Controller\nFat controller problem"] -->
-    MVP["MVP\n(1990s)\nModel-View-Presenter\nPassive view, testable"] -->
-    MVVM["MVVM\n(2005)\nModel-View-ViewModel\nTwo-way binding,\nUI / business logic split"] -->
-    MVI["MVI\n(2016)\nModel-View-Intent\nUnidirectional data flow\nImmutable state"] -->
-    CLEAN["Clean Architecture\n(Robert Martin)\nConcentric layers\nDependency rule:\nouter depends on inner"]
-
-    style MVC fill:#ef4444,color:#fff
-    style MVP fill:#f59e0b,color:#fff
-    style MVVM fill:#0078D4,color:#fff
-    style MVI fill:#8b5cf6,color:#fff
-    style CLEAN fill:#22c55e,color:#fff
-```
-
-### VIPER Architecture (Mobile)
-
-```mermaid
-flowchart LR
-    V["View\nDisplays UI\nPassive — no logic\nDelegates user events\nto Presenter"] <--> P["Presenter\nPrepares data for View\nReceives View events\nCalls Interactor\nHandles presentation logic"]
-    P <--> I["Interactor\nBusiness logic\nFetches / processes data\nCalls entities\nUse case layer"]
-    I <--> E["Entity\nData models only\nNo business logic\nPure data structures"]
-    P <--> R["Router\nNavigation logic\nCreates next screen\nInjects dependencies"]
-
-    style V fill:#0078D4,color:#fff
-    style P fill:#8b5cf6,color:#fff
-    style I fill:#22c55e,color:#fff
-    style E fill:#1e40af,color:#fff
-    style R fill:#f59e0b,color:#fff
-```
-
-### Clean Architecture Layers
+### Pattern Selection Guide
 
 ```mermaid
 flowchart TD
-    subgraph Outer ["Outer Layer — Infrastructure"]
-        UI["UI / Views\n(React, SwiftUI, Compose)"]
-        DB["Database\n(Room, Core Data, SQLite)"]
-        NET["Network\n(Retrofit, URLSession)"]
-    end
+    Need(["App Requirement"]) --> Q1{"Data type?"}
+    Q1 -->|"Small settings<br>flags / prefs"| KV2["UserDefaults<br>Preferences DataStore"]
+    Q1 -->|"Sensitive<br>tokens / keys"| SEC2["Keychain<br>EncryptedSharedPreferences"]
+    Q1 -->|"Structured<br>relational"| DB2{"Query complexity?"}
+    Q1 -->|"Large binary<br>media / docs"| FS2["File System<br>Documents / Internal"]
 
-    subgraph Middle ["Interface Adapters"]
-        CTRL["Controllers / Presenters / ViewModels"]
-        REPO["Repository Implementations"]
-        MAP["Data Mappers (DTO → Domain)"]
-    end
+    SEC2 --> Q2{"Cross-device sync?"}
+    Q2 -->|Yes| Sync["iCloud Keychain<br>Sync-enabled access group"]
+    Q2 -->|No| Local2["Device-only<br>kSecAttrAccessibleWhenUnlocked"]
 
-    subgraph Inner ["Application Business Logic"]
-        UC["Use Cases\n(app-specific business rules)"]
-    end
+    DB2 -->|High| ORM2["Room / Core Data<br>Full ORM + migrations"]
+    DB2 -->|Low| Fast["Realm / ObjectBox<br>Object-graph speed"]
 
-    subgraph Core ["Core — Domain"]
-        ENT["Entities\n(enterprise business rules)\nRarely change"]
-    end
-
-    Outer --> Middle --> Inner --> Core
-    Note["Dependency Rule:\nouter depends on inner\nINNER NEVER knows about outer"]
-
-    style UI fill:#ef4444,color:#fff
-    style ENT fill:#22c55e,color:#fff
-    style UC fill:#0078D4,color:#fff
-    style Note fill:#f59e0b,color:#fff
+    classDef decision fill:#8b5cf6,color:#fff
+    classDef solution fill:#22c55e,color:#fff
+    classDef caution  fill:#f59e0b,color:#fff
+    class Q1,Q2,DB2 decision
+    class KV2,FS2,ORM2,Fast,Sync,Local2 solution
+    class SEC2 caution
 ```
-
-### Pattern Comparison
-
-| Pattern | Best For | Key Benefit | Key Con |
-|---|---|---|---|
-| **MVC** | Small apps, rapid prototyping | Simple, well-known | Fat controller; View+Model coupling |
-| **MVP** | Medium apps, high testability | Pure passive View | Fat Presenter risk |
-| **MVVM** | Apps with complex UI state, reactive data | Two-way binding; ViewModel survives rotation | Overkill for simple screens |
-| **MVI** | Predictable state machines, Redux-style | Immutable state; easy to debug/test | More boilerplate; learning curve |
-| **VIPER** | Large iOS apps with multiple teams | Maximum separation of concerns | Heavy boilerplate |
-| **Clean Architecture** | Enterprise apps, long-lived codebases | Framework-agnostic core; highly testable | High initial complexity |
 
 ---
 
-## 17. GoF Design Patterns
+### Common Interview Red Flags to Avoid
 
-### Pattern Taxonomy
-
-```mermaid
-flowchart TD
-    GOF["Gang of Four\nDesign Patterns (23)"] --> CREAT["Creational\n(Object Creation)"]
-    GOF --> STRUCT["Structural\n(Composition)"]
-    GOF --> BEHAV["Behavioral\n(Communication)"]
-
-    CREAT --> S["Singleton\nFactory Method\nAbstract Factory\nBuilder\nPrototype"]
-    STRUCT --> ST["Facade\nAdapter\nDecorator\nProxy\nComposite\nBridge\nFlyweight"]
-    BEHAV --> B["Observer\nStrategy\nCommand\nChain of Responsibility\nMediator\nMemento\nInterpreter\nVisitor\nTemplate Method\nIterator\nState"]
-
-    style GOF fill:#0f172a,color:#fff
-    style CREAT fill:#0078D4,color:#fff
-    style STRUCT fill:#8b5cf6,color:#fff
-    style BEHAV fill:#22c55e,color:#fff
-```
-
-### Most Common Mobile Patterns
-
-| Pattern | Category | Mobile Use Case | Example |
-|---|---|---|---|
-| **Singleton** | Creational | Network manager, Logger, Analytics | `NetworkManager.shared`, `Logger.instance` |
-| **Builder** | Creational | Complex object construction with optional params | `URLRequest.Builder`, `AlertDialog.Builder` (Android) |
-| **Factory** | Creational | Create objects based on type without specifying class | `ViewControllerFactory.make(type:)` |
-| **Observer** | Behavioral | Data binding, event handling | `NotificationCenter`, `LiveData`, SwiftUI `@Published` |
-| **Strategy** | Behavioral | Swappable algorithm at runtime | Payment strategy (card/PayPal/Apple Pay) |
-| **Facade** | Structural | Simplify complex subsystem | `NetworkLayer` hiding URLSession details |
-| **Adapter** | Structural | Bridge incompatible interfaces | Wrapping third-party SDK in your own protocol |
-| **Decorator** | Structural | Add behavior without subclassing | `UIView` layer decorators, middleware chains |
-
----
-
-## 18. SOLID Principles for Mobile
-
-### SOLID Quick Reference
-
-```mermaid
-flowchart TD
-    SOLID["SOLID Principles"] --> SRP["S — Single Responsibility\nA class should have only ONE reason to change\nProblem: Massive ViewController (iOS)\nSolution: Separate networking, parsing, UI logic"]
-    SOLID --> OCP["O — Open/Closed\nOpen for extension, closed for modification\nProblem: Endless if/else for cell types\nSolution: Protocol-based configurable cells"]
-    SOLID --> LSP["L — Liskov Substitution\nSubtypes must be substitutable for their base\nProblem: Subclass that breaks parent contract\nSolution: Proper protocol conformance"]
-    SOLID --> ISP["I — Interface Segregation\nDon't force classes to implement unused methods\nProblem: Huge ChatProtocol\nSolution: Split into smaller focused protocols"]
-    SOLID --> DIP["D — Dependency Inversion\nHigh-level modules depend on abstractions\nProblem: ViewController directly imports CoreData\nSolution: FeedProvider protocol — both depend on abstraction"]
-
-    style SRP fill:#0078D4,color:#fff
-    style OCP fill:#22c55e,color:#fff
-    style LSP fill:#8b5cf6,color:#fff
-    style ISP fill:#f59e0b,color:#fff
-    style DIP fill:#22c55e,color:#fff
-```
-
-### Dependency Injection
-
-```mermaid
-flowchart LR
-    subgraph Without_DI ["Without DI (Tight Coupling)"]
-        VC1["ViewController"] -->|"Creates directly"| CD["CoreData\n(specific implementation)"]
-    end
-
-    subgraph With_DI ["With DI (Loose Coupling)"]
-        VC2["ViewController"] -->|"Depends on abstraction"| FP["FeedProvider\n(protocol/interface)"]
-        FP -->|"Concrete impl injected"| CD2["CoreDataFeedProvider"]
-        FP -->|"Test impl injected"| MOCK["MockFeedProvider"]
-    end
-
-    style CD fill:#ef4444,color:#fff
-    style FP fill:#22c55e,color:#fff
-    style CD2 fill:#0078D4,color:#fff
-    style MOCK fill:#8b5cf6,color:#fff
-```
-
-| DI Tool | Platform | Notes |
+| Red Flag | Why It's Wrong | Correct Answer |
 |---|---|---|
-| Manual DI (constructor injection) | iOS / Android | Best for small apps; explicit, no magic |
-| **Swinject** | iOS | Type-safe DI container for Swift |
-| **Hilt** | Android | Official Jetpack DI; Dagger under the hood |
-| **Dagger** | Android | Compile-time, powerful, steeper learning curve |
+| "Store auth tokens in UserDefaults" | Plain-text file; readable from backups | Keychain (iOS) / EncryptedSharedPreferences (Android) with Keystore-backed key |
+| "Run DB queries on the main thread" | Blocks UI; causes ANR / frozen frames | `Dispatchers.IO` + coroutines; Core Data background context |
+| "Request all permissions at app launch" | Users deny upfront permission blasts | Request permissions contextually, just before the feature that needs them |
+| "Retry in a tight loop" | Thundering herd — hammers a recovering service | Exponential backoff with jitter and a max attempt cap |
+| "Disable ProGuard to fix crashes" | Leaves code exposed to reverse engineering | Fix the crash; add `-keep` rules for the specific class causing issues |
+| "Ignore certificate errors in debug builds" | Debug flags can ship to production via misconfigured builds | Gate on `BuildConfig.DEBUG`; never disable validation unconditionally |
+| "Put secrets in source code or BuildConfig" | Decompilable; visible with `strings` on the binary | Fetch secrets at runtime from a secure backend; use Android Keystore / iOS Keychain |
+| "SharedPreferences for offline access tokens" | Readable without root on older Android devices | EncryptedSharedPreferences backed by Android Keystore |
+| "SwiftUI everywhere in an existing UIKit app" | Interop overhead; SwiftUI lifecycle bugs in mixed contexts | Introduce SwiftUI screen by screen via `UIHostingController`; keep complex gesture/animation code in UIKit |
+| "Store images in the database as BLOBs" | Bloats DB, degrades query performance | Store images on the file system; persist only the file path in the DB |
 
 ---
 
-## 19. Advanced Topics
-
-### On-Device Machine Learning
-
-```mermaid
-flowchart LR
-    subgraph OnDevice ["On-Device ML"]
-        IOS_ML["iOS: Core ML\nPre-trained model .mlmodel\nObjective-C / Swift API\nOptimized for Apple Silicon"]
-        AND_ML["Android: TensorFlow Lite\n.tflite model\nKotlin / Java API\nGPU / NPU acceleration"]
-    end
-
-    subgraph Benefits ["Benefits vs Cloud ML"]
-        PRIV["Privacy: data never leaves device"]
-        SPEED["Speed: no network round-trip"]
-        OFFLINE["Offline: works without internet"]
-    end
-
-    style IOS_ML fill:#0078D4,color:#fff
-    style AND_ML fill:#22c55e,color:#fff
-    style PRIV fill:#22c55e,color:#fff
-    style SPEED fill:#22c55e,color:#fff
-    style OFFLINE fill:#22c55e,color:#fff
-```
-
-### Advanced Topics Summary
-
-| Topic | iOS | Android | Key Consideration |
-|---|---|---|---|
-| **On-Device ML** | Core ML | TensorFlow Lite | Model size vs accuracy trade-off |
-| **AR** | ARKit | ARCore | Plane detection, anchors, lighting |
-| **VR** | Vision Pro (RealityKit) | Cardboard / standalone HMDs | Comfort, motion sickness |
-| **Wearables** | WatchKit (watchOS) | Wear OS | Limited display, battery, input |
-| **Foldables** | iPad multi-window | WindowSizeClass (Compose) | Seamless layout transitions |
-| **Server-Driven UI** | Codable-driven rendering | JSON-driven component tree | Update UI without app update |
-| **Cross-Platform** | React Native / Flutter / Xamarin | Same | Trade-off: dev speed vs native feel |
-| **i18n** | Localizable.strings, RTL layouts | strings.xml, RTL support | Date/currency/text direction |
-
----
-
-## 20. Interview Strategy
-
-### RADIO Framework for System Design Interviews
-
-```mermaid
-flowchart TD
-    R["R — Requirements\n• Functional: What the app does\n• Non-Functional: offline, bandwidth,\n  battery, 60fps, consistency, scale"] --> A
-    A["A — Architecture\n• High-level component diagram\n• MVC/MVVM/Clean as starting point\n• Client, API, Controller, Model, View"] --> D
-    D["D — Data Model & API\n• Define key data types\n• Choose: REST / GraphQL / WebSocket\n• Design API contracts"] --> I
-    I["I — Interface / Optimizations\n• Network: caching, batching, HTTP/2\n• Rendering: lazy load, virtualization\n• App: offline support, pagination"] --> O
-    O["O — Observability & Security\n• Logging, crash reporting, metrics\n• Auth, CORS, XSS prevention\n• Privacy compliance"]
-
-    style R fill:#0078D4,color:#fff
-    style A fill:#8b5cf6,color:#fff
-    style D fill:#22c55e,color:#fff
-    style I fill:#f59e0b,color:#fff
-    style O fill:#ef4444,color:#fff
-```
-
-### Non-Functional Requirements Checklist
-
-| NFR | Questions to ask | Mobile implication |
-|---|---|---|
-| **Offline mode** | Which features must work offline? What data to cache? | SQLite + sync queue; WorkManager / URLSession background |
-| **Bandwidth** | Mobile data costs; slow networks (2G/3G) | Delta updates, image compression, pagination |
-| **Battery** | Background location? Push vs polling? | WorkManager batch jobs; avoid wake locks |
-| **Scroll performance** | FPS = 60; Long lists? | RecyclerView / LazyColumn; avoid heavy main-thread work |
-| **Data consistency** | Strong (chat) or eventual (feed)? | WebSockets for strong; polling/SSE for eventual |
-| **Scale** | DAU? Peak load? | Server concerns, but affects caching strategy |
-| **Authentication** | Which login methods? Token refresh? | Keychain + refresh token flow |
-
-### Interview Talking Point — Common Red Flags
-
-| Red Flag | Correct Approach |
-|---|---|
-| "We call the API on the main thread" | Always async; use coroutines / async-await / GCD background queue |
-| "We store auth tokens in UserDefaults" | Use Keychain (iOS) or EncryptedSharedPreferences (Android) |
-| "We reload all data on every app open" | Cache aggressively; use ETag / TTL; only fetch delta |
-| "We request all permissions at launch" | Request permissions just-in-time, when the feature is first used |
-| "We use offset pagination for the news feed" | Use cursor pagination for dynamic, frequently-updated datasets |
-| "We do heavy computation in cellForRow / onBindViewHolder" | Pre-compute off-screen; main thread for display only |
+*Generated from `Description-mobile.txt` · ConceptToMD Agent v1.0 · July 2026*

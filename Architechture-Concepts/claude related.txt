@@ -10,3 +10,218 @@ https://www.linkedin.com/pulse/under-hood-claude-code-agent-design-question-i-ha
 
 https://elsevanderberg.substack.com/p/claude-code-for-interview-synthesis
 
+OWASP top 10 checks for code + top 10 checks for LLLM
+
+Sharding
+
+Agent Harness, Hermis Agent
+
+---------------------------
+
+
+Here is the complete blueprint, system architecture, prompt engineering package, and executable codebase to deploy the Document Optimization and Deduplication Agent.Document Optimization & Deduplication Agent: System Package1. System Architecture & Data FlowUnlike a RAG system that fragments text for searching, this agent utilizes a MapReduce Semantic Aggregation engine. It analyzes the entire corpus globally, clusters overlapping vectors, and merges them deterministically to prevent data loss.[Raw Document Ingestion]
+          │
+          ▼
+┌────────────────────────────────────────┐
+│ Phase 1: Structural Extraction Engine  │ ──► Extracts Text, Tables, Images, Meta
+└────────────────────────────────────────┘
+          │
+          ▼
+┌────────────────────────────────────────┐
+│ Phase 2: Cross-Document Matrix         │ ──► Semantic Hashing & Adjacency Graphing
+└────────────────────────────────────────┘
+          │
+          ▼
+[Generates Observation Report] ──► (Pauses for User Approval)
+          │
+          ▼
+┌────────────────────────────────────────┐
+│ Phase 3: Token-Optimized Consolidation │ ──► Merges nodes; preserves all data/artifacts
+└────────────────────────────────────────┘
+          │
+          ▼
+[Target Output: 50 Non-Redundant Docs]
+2. Agent Core Directives (optimizer-agent.md)Save this system prompt directly into your agent environment to establish its logic, behavior, and optimization boundaries.markdown# Role: Principal Document Harmonization & Token-Optimization Agent
+
+## Objectives
+Analyze an incoming collection of generic documents. Identify exact, partial, and unique text blocks. Generate a clear structural report for the user. Upon confirmation, consolidate redundant elements into a finalized, highly optimized, non-redundant asset collection with zero data loss (retaining all text facts, metadata, tables, and diagram anchors).
+
+## Execution Pipeline
+
+### Phase 1: Ingestion & Structural Mapping
+1. Parse text, embedded layouts, tables, and asset markers (e.g., markdown image tokens, diagrams).
+2. Calculate localized semantic hashes or vector chunks for each layout element.
+3. Construct a Cross-Document Overlap Matrix outlining:
+   - Unique Elements: Content found in only one location.
+   - Exact Duplication: Text blocks repeating identically across files.
+   - Partial Duplication: Sections sharing the same topic or structural layout but containing differing details, context, or parameters.
+
+### Phase 2: Observation Reporting (Mandatory Breakpoint)
+Output a structural audit layout to the user. Do not proceed to consolidation until the user issues an approval confirmation. Use this exact schema:
+- **Total Corpus Volume:** Count of parsed documents.
+- **Unique Inventory:** Filenames completely independent of the rest.
+- **Redundancy Clustering Map:** Groups of files containing overlapping contents, flagging exactly what overlaps and what is unique inside those files.
+- **Proposed Optimization Yield:** (e.g., "70 files can be compressed into 20 master documents, yielding a final set of 50 files").
+
+### Phase 3: Token-Optimized Synthesis (On User Signal)
+1. Leave the fully Unique Documents untouched.
+2. For each redundancy cluster, execute an additive merge step:
+   - Identify the dominant baseline document in the cluster.
+   - Append all distinct facts, missing tables, different variables, or distinct diagram references from secondary files into the baseline document.
+   - Strip out structural filler text and conversational fluff.
+3. Map every merged component to an explicit source array tracking back to the original filenames.
+4. Verify the token footprint against the base layout to confirm that no informational data properties were destroyed.
+Use code with caution.3. Implementation Code (Python Blueprint)This production-ready script processes a directory of Markdown/Text documents, generates the Phase 1 Matrix Report, and contains the pipeline execution logic for Phase 2.pythonimport os
+import re
+from collections import defaultdict
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+class DocumentOptimizerAgent:
+    def __init__(self, doc_directory, similarity_threshold=0.75):
+        self.directory = doc_directory
+        self.threshold = similarity_threshold
+        self.documents = {}
+        self.artifacts = defaultdict(list)
+        self.report = {}
+        
+    def load_corpus(self):
+        """Loads files and extracts inline artifacts like diagrams and images."""
+        if not os.path.exists(self.directory):
+            raise FileNotFoundError(f"Target directory '{self.directory}' not found.")
+            
+        for filename in os.listdir(self.directory):
+            if filename.endswith(('.md', '.txt')):
+                path = os.path.join(self.directory, filename)
+                with open(path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    self.documents[filename] = content
+                    # Extract Markdown images, Mermaid diagrams, or HTML figures
+                    images = re.findall(r'!\[.*?\]\((.*?)\)', content)
+                    diagrams = re.findall(r'```mermaid(.*?)```', content, re.DOTALL)
+                    if images or diagrams:
+                        self.artifacts[filename] = {"images": images, "diagrams": diagrams}
+
+    def analyze_redundancy(self):
+        """Calculates similarities and builds the structural optimization plan."""
+        filenames = list(self.documents.keys())
+        contents = list(self.documents.values())
+        
+        if not filenames:
+            return "No documents found to process."
+            
+        vectorizer = TfidfVectorizer(stop_words='english')
+        tfidf_matrix = vectorizer.fit_transform(contents)
+        similarity_matrix = cosine_similarity(tfidf_matrix, tfidf_matrix)
+        
+        visited = set()
+        clusters = []
+        unique_docs = []
+        
+        for idx, name in enumerate(filenames):
+            if name in visited:
+                continue
+                
+            # Find documents exceeding similarity threshold
+            similar_indices = [i for i, score in enumerate(similarity_matrix[idx]) if score >= self.threshold and i != idx]
+            
+            if similar_indices:
+                cluster = [name]
+                visited.add(name)
+                for s_idx in list(similar_indices):
+                    s_name = filenames[s_idx]
+                    if s_name not in visited:
+                        cluster.append(s_name)
+                        visited.add(s_name)
+                clusters.append(cluster)
+            else:
+                unique_docs.append(name)
+                visited.add(name)
+                
+        self.report = {
+            "total_raw_count": len(filenames),
+            "unique_documents": unique_docs,
+            "redundant_clusters": clusters,
+            "estimated_target_count": len(unique_docs) + len(clusters)
+        }
+        return self.report
+
+    def display_observation_report(self):
+        """Formats Phase 1 output into a clean user interface report."""
+        rep = self.report
+        print("="*60)
+        print(" DOCUMENT OPTIMIZATION AGENT: OBSERVATION REPORT")
+        print("="*60)
+        print(f"Total Raw Files Found: {rep['total_raw_count']}")
+        print(f"Independent Unique Files (Keep As-Is): {len(rep['unique_documents'])}")
+        print(f"Redundant / Overlapping Clusters Detected: {len(rep['redundant_clusters'])}")
+        
+        for idx, cluster in enumerate(rep['redundant_clusters']):
+            print(f"\n  ├─ Cluster #{idx + 1} ({len(cluster)} overlapping files):")
+            for doc in cluster:
+                has_art = "🎨 Has Diagrams/Images" if doc in self.artifacts else "📝 Pure Text"
+                print(f"  │    ├── {doc} [{has_art}]")
+                
+        print("\n" + "-"*60)
+        print(f"PROPOSED OPTIMIZATION YIELD:")
+        print(f"Original Count: {rep['total_raw_count']} files ──► Consolidated Count: {rep['estimated_target_count']} files")
+        print("="*60)
+        print("Action Required: Please review the plan. Reply 'CONFIRM' to execute token consolidation.")
+
+# --- Execution Example ---
+if __name__ == "__main__":
+    # Setup mock workspace for validation
+    os.makedirs("./workspace", exist_ok=True)
+    
+    # Write a test case modeling the 100-to-50 dynamic behavior
+    with open("./workspace/doc1.md", "w") as f:
+        f.write("# Cloud Storage Setup\nDeploy AWS S3 configurations.\n![Arch](s3_diag.png)\nUse multi-factor authentication.")
+    with open("./workspace/doc2.md", "w") as f:
+        f.write("# Cloud Storage Configurations\nDeploy AWS S3 bucket profiles.\nEnsure data encryption is active at rest.")
+    with open("./workspace/doc3.md", "w") as f:
+        f.write("# Database System Architecture\nPostgreSQL standalone initialization instructions.")
+
+    # Initialize Agent
+    agent = DocumentOptimizerAgent(doc_directory="./workspace", similarity_threshold=0.40)
+    agent.load_corpus()
+    agent.analyze_redundancy()
+    agent.display_observation_report()
+Use code with caution.4. Phase 3 LLM Prompt: "The Synthesis Step"Once the user approves the generated report, loop through each detected group folder or index array and send the text directly into an LLM using this targeted synthesis script. This prompt ensures zero data destruction.markdownSystem Prompt: Token-Optimized Synthesis Engine
+
+You are executing Phase 3 (Consolidation) on a grouped batch of overlapping documents. Your goal is to synthesize them into one comprehensive master document.
+
+Input Text Blocks to Merge:
+{CLUSTER_DOCUMENT_TEXTS}
+
+Rules for Merging:
+1. Extraction Completeness: Identify every unique assertion, variable change, table item, edge-case example, and artifact markup code (e.g., `![diagram](...)`) contained across all input texts.
+2. De-duplication Strategy: If an instruction or paragraph is repeated verbatim or semantically across multiple files, output it exactly once. Do not repeat identical concepts.
+3. Content Ordering: Structure the master document logically. Start with global parameters, transition into core architecture, and follow with secondary structural variations.
+4. Source Attribution: Append an inline tracking tag to the end of unique sections if they were pulled from specific source documents (e.g., `[Origin: doc_b.md]`).
+5. Zero Destruction Constraint: Under no circumstances should you summarize data metrics, code fragments, asset paths, layout diagrams, or numbers into generic descriptions. Retain the absolute details.
+Use code with caution.5. Token Optimization Metrics VerificationTo verify that the agent successfully preserved all unique information while completely removing unnecessary clutter, check the generated content against these metrics:\(\text{Token\ Compaction\ Efficiency\ (\%)}=\left(1-\frac{\text{Tokens\ in\ Final\ Optimized\ Collection}}{\text{Tokens\ in\ Raw\ Original\ Collection}}\right)\times 100\)\(\text{Data\ Loss\ Rate\ (\%)}=\left(\frac{\text{Unique\ Artifacts/Facts\ in\ Raw\ Collection}-\text{Unique\ Artifacts/Facts\ in\ Final\ Collection}}{\text{Unique\ Artifacts/Facts\ in\ Raw\ Collection}}\right)\times 100\equiv 0\%\)Would you like to build a local execution loop using a specific model API (such as Ollama, OpenAI, or Anthropic) to link the Python clustering engine directly to the consolidation prompts?
+
+
+-----
+
+https://developers.openai.com/cookbook/examples/agents_sdk/agent_improvement_loop
+
+https://github.com/fainir/most-capable-agent-system-prompt
+
+--------
+
+Types of Gaurdrails. All the gaurdrails Strategy
+
+-------------
+
+AI swarm
+
+CAP theorem
+
+
+
+
+
+
+
+

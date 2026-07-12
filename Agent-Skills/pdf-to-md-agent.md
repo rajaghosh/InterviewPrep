@@ -23,6 +23,54 @@ Activate this agent when the user:
 
 ---
 
+## Token Optimization Protocol
+
+> **Calls:** `TokenOptimizer Agent` — see `Agent-Skills/token-optimizer-agent.md`
+
+After running the PyMuPDF conversion script and before delivering the Markdown output, pass the raw converted content through the TokenOptimizer.
+
+### Invocation Pattern
+
+```
+═══════════════════════════════════════════════════════════
+PHASE 0 — TOKEN OPTIMIZATION (TokenOptimizer Agent)
+═══════════════════════════════════════════════════════════
+content      : [raw text output from pdf_to_md.py conversion]
+task_context : "Clean and structure PDF content as readable Markdown"
+source_type  : "file_content"
+
+→ Run TokenOptimizer Skills 1–8:
+   • Strip page-number lines (e.g., "Page 3 of 47")
+   • Strip repeated headers/footers that appear on every page
+   • Collapse excessive blank lines (already done by script; verify)
+   • TOON-convert any uniform data tables extracted from the PDF
+   • Compact-engineer verbose prose sections
+→ Store OPTIMIZED_CONTENT (the final delivered Markdown)
+→ Store TOKEN_REPORT (print to terminal alongside quality checks)
+═══════════════════════════════════════════════════════════
+```
+
+### Generalization — Any PDF Domain
+
+This agent works on any PDF regardless of domain. The conversion script applies font-size heuristics universally. Domain-specific enrichment (diagrams, Q&A) is not part of this agent — use `concept-txt-to-md-agent.md` or `doc-to-md-diagram-agent.md` as a follow-up pass if enrichment is needed.
+
+### Token Usage Report (print to terminal after conversion)
+
+```
+═══════════════════════════════════════════════════════════
+Token Usage Report
+═══════════════════════════════════════════════════════════
+Estimated without optimization:  ~{original_tokens_estimate} tokens
+Actual (with optimization):      ~{optimized_tokens_estimate} tokens
+Savings:                         ~{savings_tokens} tokens ({savings_percent}%)
+Techniques applied:              {techniques_applied}
+PDF pages processed:             {N}
+═══════════════════════════════════════════════════════════
+* Estimates: prose chars ÷ 4, code chars ÷ 3. Actual API usage varies by model.
+```
+
+---
+
 ## Prerequisite – Install PyMuPDF
 
 ```bash
@@ -166,6 +214,14 @@ The agent will:
 2. Run the conversion script inline (no need to save separately)
 3. Save `document.md` next to `document.pdf`
 4. Print a line count + first 80 lines as a sanity check
+
+---
+
+## Workflow Note
+
+> **Phase 0 (Token Optimization) runs after the PyMuPDF script completes and before delivering the final Markdown.**
+> Typical PDF conversions produce verbose raw text with repeated page headers and footers — the optimizer strips these before the output is finalized.
+> See Token Optimization Protocol section above for details.
 
 ---
 
