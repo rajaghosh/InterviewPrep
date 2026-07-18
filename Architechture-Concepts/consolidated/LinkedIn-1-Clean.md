@@ -533,6 +533,25 @@ graph TB
     style G12 fill:#dc2626,color:#fff
 ```
 
+### Concept Reference Table
+
+| # | Concept | One-Line Definition | Interview Trigger |
+|---|---|---|---|
+| 1 | **Scalability** | Ability to handle growing load by adding resources (vertical = bigger machine; horizontal = more machines) | "Design for 10x current traffic" |
+| 2 | **Load Balancer** | Distributes incoming requests across server pool using Round Robin, Least Connections, or IP Hash | "How do you avoid single-server bottleneck?" |
+| 3 | **Cache** | In-memory store (Redis, Memcached) for hot data; avoids redundant database reads | "How do you reduce p99 latency?" |
+| 4 | **Sharding** | Partition data across multiple database nodes by a shard key; each node owns a subset | "Your DB is at 10TB — what next?" |
+| 5 | **Replication** | Sync data to multiple nodes (leader + followers); followers serve reads or take over on failure | "How do you achieve 99.99% availability?" |
+| 6 | **Message Queue** | Durable, async buffer (Kafka, SQS, Service Bus) decoupling producer rate from consumer rate | "How do you handle traffic spikes without dropping data?" |
+| 7 | **CDN** | Globally distributed PoPs cache static/dynamic content close to users; reduces origin load | "How do you serve 100M users with low latency globally?" |
+| 8 | **Rate Limiter** | Token Bucket or Sliding Window counter limits requests per client per time window | "How do you protect APIs from abuse?" |
+| 9 | **Monitoring** | Metrics (counters, gauges, histograms) + logs (structured) + traces (distributed) = full observability | "How do you know when something breaks?" |
+| 10 | **Failover** | Automatic promotion of standby to primary when health probes detect failure; requires state sync | "What is your RTO and RPO?" |
+| 11 | **Service Discovery** | Services register endpoints at startup (Consul, Kubernetes DNS); clients discover dynamically | "How do services find each other in a dynamic cluster?" |
+| 12 | **Circuit Breaker** | After N consecutive failures to a dependency, open the circuit and return fast-fail; re-probe after cooldown | "How do you prevent cascade failures?" |
+
+> **Interview tip:** "These 12 concepts form a dependency chain: scalability drives the need for load balancers, which expose caching opportunities, which require invalidation strategies, which lead to consistency trade-offs. Demonstrate that you see them as an interconnected system — not a checklist."
+
 ---
 
 ## 12. Agentic AI — Real-World Challenges
@@ -564,12 +583,26 @@ graph TD
     style W5 fill:#059669,color:#fff
 ```
 
+### Production Challenges vs Mitigations
+
+| Challenge | Root Cause | Production Mitigation | Azure / .NET Pattern |
+|---|---|---|---|
+| **Context amnesia** | Context window fills; older turns dropped | Sliding window + RAG-based long-term memory | Semantic Kernel `ChatHistory` + Azure AI Search |
+| **Confident hallucination** | Model generates plausible but wrong output | Groundedness evaluation + RAG citation check | Azure AI Evaluation (groundedness scorer) |
+| **Infinite tool loops** | Agent re-tries failed tool calls without a stopping rule | Max-iteration cap + step-level timeout | `IAutoFunctionInvocationFilter` abort after N steps |
+| **Silent cost burn** | Long-running agent accumulates token spend unnoticed | Per-session token budget + cost alerts | Azure Monitor custom metric on token count |
+| **Destructive tool calls** | Agent invokes irreversible actions without confirmation | Approval gate filter for mutating tools | `IAutoFunctionInvocationFilter` + human-in-the-loop |
+| **Prompt injection** | Malicious data in tool output hijacks agent instructions | Input/output sanitization + content safety filter | Azure Content Safety + prompt shield |
+| **No observability** | Failures happen silently across multi-step pipelines | Distributed tracing of every tool call + LLM step | OpenTelemetry + Azure Monitor `ai.*` spans |
+
 > **Key questions to ask about any AI agent:**
 > - What happens when it **fails**?
 > - What happens when it **forgets**?
 > - What happens when it is **confidently wrong**?
 >
 > If you can answer those — you're not just using AI. You're **managing** it.
+
+> **Interview tip:** "The gap between demo and production in AI agents is wider than in any other software category. A senior architect's signal is asking 'what are the failure modes?' before discussing features. Name at least three: context overflow, hallucination without citation, and silent looping — then describe the mitigation pattern for each."
 
 ---
 

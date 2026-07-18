@@ -284,13 +284,44 @@ flowchart TD
 
 #### Transfer Learning
 
-Transfer learning reuses weights from a model trained on a large dataset (e.g., ImageNet for vision, BERT for NLP) and fine-tunes on a smaller task-specific dataset. This works because:
+Transfer learning reuses weights from a model pre-trained on a large general-purpose dataset and fine-tunes them on a smaller, task-specific dataset. The underlying rationale is that deep networks learn a hierarchy of representations: early layers encode universal low-level features (edges, textures, syntactic patterns) that transfer across domains, while later layers encode domain-specific abstractions that are replaced or fine-tuned. This dramatically reduces the labeled data and compute required to reach high accuracy.
 
-1. **Early layers** learn universal features (edges, curves, syntax patterns)
-2. **Later layers** learn task-specific features
-3. Fine-tuning updates only the final layers (or all layers with a very low learning rate)
+**How it works step by step:**
 
-**In Azure:** Custom Vision and Azure ML Designer both support transfer learning out of the box.
+1. **Load pre-trained backbone** — e.g., ResNet-50 (ImageNet) for vision, BERT (Wikipedia + BooksCorpus) for NLP
+2. **Freeze early layers** — their weights stay fixed; only gradients in later layers are computed
+3. **Replace the final classification head** — swap the 1000-class ImageNet head for your N-class softmax
+4. **Fine-tune with low learning rate** — typically 1e-4 to 1e-5, to avoid catastrophic forgetting
+5. **Optional: unfreeze more layers** — progressive unfreezing increases accuracy if you have enough labeled data
+
+```python
+import torch
+import torchvision.models as models
+import torch.nn as nn
+
+# Load pre-trained ResNet-50
+model = models.resnet50(weights="IMAGENET1K_V2")
+
+# Freeze all parameters
+for param in model.parameters():
+    param.requires_grad = False
+
+# Replace final FC layer (1000 classes → 5 classes for custom task)
+model.fc = nn.Linear(model.fc.in_features, 5)
+
+# Only the new head trains; all other weights are frozen
+optimizer = torch.optim.Adam(model.fc.parameters(), lr=1e-4)
+```
+
+| Fine-tuning Strategy | When to Use | Learning Rate |
+|---|---|---|
+| **Feature extraction** (freeze all, retrain head only) | Very small dataset (< 500 samples/class) | 1e-3 |
+| **Partial fine-tuning** (freeze early layers, unfreeze last N) | Medium dataset (500–5000/class) | 1e-4 |
+| **Full fine-tuning** (update all weights) | Large dataset (> 5000/class) | 1e-5 |
+
+**In Azure:** Custom Vision uses EfficientNet as a backbone — requires as few as 5 images per class. Azure AI Language (CLU) fine-tunes BERT/RoBERTa for intent classification. Azure ML Designer includes a Transfer Learning component for vision models.
+
+> **Interview tip:** "The key trade-off in transfer learning is catastrophic forgetting vs. task adaptation. Freezing more layers protects the general features but limits how much the model adapts to your domain. A common failure mode is fine-tuning with a learning rate too high — you overwrite valuable ImageNet/BERT representations in the first epoch."
 
 #### Transformer Architecture vs. RNN/LSTM
 
@@ -303,15 +334,92 @@ Transfer learning reuses weights from a model trained on a large dataset (e.g., 
 | **Azure Example** | Legacy LUIS models | Azure OpenAI GPT-4, BERT-based CLU |
 | **Positional information** | Inherent in sequence | Added via positional encoding |
 
+```mermaid
+flowchart TD
+    subgraph RNN_Flow["RNN / LSTM Processing"]
+        T1["Token 1\nh₁"] --> T2["Token 2\nh₂"] --> T3["Token 3\nh₃"] --> Tn["Token N\nhₙ"]
+        Note1["Sequential — token N\ncannot start until N-1 finishes\nGradient vanishes over long sequences"]
+    end
+
+    subgraph TF_Flow["Transformer Processing"]
+        Tok1["Token 1"] & Tok2["Token 2"] & Tok3["Token 3"] & TokN["Token N"]
+        Attn["Self-Attention Layer\nEvery token attends to every other\nSimultaneously — O(n²) but parallelizable"]
+        Tok1 & Tok2 & Tok3 & TokN --> Attn
+        Note2["All tokens process in parallel\nGradient flows directly between\nany two positions — O(1) path"]
+    end
+
+    classDef rnnNode fill:#E81123,stroke:#B30D1A,color:#fff
+    classDef tfNode  fill:#107C10,stroke:#0A5C0A,color:#fff
+    classDef noteNode fill:#605E5C,stroke:#3B3A39,color:#fff
+
+    class T1,T2,T3,Tn rnnNode
+    class Tok1,Tok2,Tok3,TokN,Attn tfNode
+    class Note1,Note2 noteNode
+```
+
+**Scaled dot-product attention** — the core Transformer computation:
+
+```
+Attention(Q, K, V) = softmax(QKᵀ / √d_k) × V
+```
+
+- **Q** (query): what this token is looking for
+- **K** (key): what each token offers
+- **V** (value): the actual content to aggregate
+- Division by `√d_k` prevents softmax saturation in high dimensions
+
+> **Interview tip:** "Transformers replaced RNNs not just for accuracy reasons but for training efficiency — RNNs cannot be parallelized across the time dimension, making them prohibitively slow on modern GPU hardware. The trade-off is O(n²) memory for self-attention, which is why techniques like sliding-window attention (Longformer) or sparse attention (BigBird) are needed for very long sequences. In Azure, GPT-4 and all Azure OpenAI models are Transformer-based."
+
 #### GANs (Generative Adversarial Networks)
 
-GANs use a two-player minimax game:
-- **Generator (G)**: Takes noise → produces fake data
-- **Discriminator (D)**: Takes real or fake data → outputs P(real)
+GANs consist of two neural networks — a Generator and a Discriminator — trained in a competitive minimax game. The Generator learns to produce realistic synthetic data by trying to fool the Discriminator, while the Discriminator learns to distinguish real from generated samples. As training progresses, both networks improve until the Generator produces samples indistinguishable from real data and the Discriminator can do no better than random guessing (P(real) = 0.5).
 
-Training objective: `min_G max_D [log D(x) + log(1 - D(G(z)))]`
+```mermaid
+sequenceDiagram
+    participant Noise as Random Noise z
+    participant G as Generator (G)
+    participant D as Discriminator (D)
+    participant Real as Real Data x
 
-Applications in Azure: Image synthesis (Azure AI Vision), data augmentation for training sets, anomaly detection via reconstruction error.
+    Note over Noise,Real: Training loop — alternating updates
+
+    Noise->>G: Sample z ~ N(0,1)
+    G-->>D: Fake sample G(z)
+    Real-->>D: Real sample x
+    D-->>G: Loss signal: log(1 - D(G(z)))\nG minimizes this (make D think fake is real)
+    D-->>D: Loss: log D(x) + log(1 - D(G(z)))\nD maximizes this (distinguish real vs fake)
+
+    Note over G,D: Convergence: D(G(z)) → 0.5\nGenerator indistinguishable from real data
+```
+
+**Training objective:**
+
+```
+min_G max_D  [ E_x[log D(x)] + E_z[log(1 - D(G(z)))] ]
+```
+
+**Key failure modes and fixes:**
+
+| Problem | Symptom | Fix |
+|---|---|---|
+| **Mode collapse** | G produces same output regardless of input z | Minibatch discrimination, Wasserstein loss (WGAN) |
+| **Training instability** | Loss oscillates, G and D diverge | WGAN-GP (gradient penalty), progressive growing |
+| **Discriminator dominates** | G never improves, D too strong | Balance update frequency, add label smoothing |
+| **Vanishing gradient** | G gradient saturates early | Use `log D(G(z))` maximization instead of `log(1-D(G(z)))` minimization |
+
+**GAN variants in practice:**
+
+| Variant | Key Innovation | Use Case |
+|---|---|---|
+| **DCGAN** | Convolutional G and D | Realistic image generation |
+| **WGAN** | Wasserstein distance instead of JS divergence | Training stability |
+| **StyleGAN / StyleGAN3** | Style-based generator with AdaIN | High-fidelity face/object synthesis |
+| **Conditional GAN (cGAN)** | Conditions G and D on class label | Controlled generation (e.g., "generate digit 7") |
+| **Pix2Pix** | Image-to-image translation | Sketch → photo, day → night |
+
+**Applications in Azure:** Azure AI Vision's image generation, synthetic data augmentation for Custom Vision training sets, anomaly detection via GAN reconstruction error (samples that the Generator cannot reconstruct well are anomalies).
+
+> **Interview tip:** "The core insight of GANs is that you don't need hand-designed loss functions — the Discriminator *learns* what constitutes a realistic sample, providing a rich gradient signal to the Generator. The main exam/interview question is about mode collapse: the Generator finds a narrow region of the data distribution that fools the Discriminator and keeps producing the same output. Wasserstein GANs address this by providing a smoother gradient landscape using Earth Mover distance."
 
 ---
 
@@ -339,6 +447,29 @@ Applications in Azure: Image synthesis (Azure AI Vision), data augmentation for 
 - Your domain requires highly custom feature engineering
 - You need full control over the training pipeline
 - Data privacy constraints prevent sending data to cloud APIs
+
+```mermaid
+flowchart TD
+    Problem(["ML Problem"]) --> Q1{"Pre-trained model\nexists for this domain?"}
+
+    Q1 -->|"Yes — Vision / Speech / NLP"| Q2{"Need customization?"}
+    Q2 -->|"No — standard task"| CogSvc["Azure Cognitive Services\nPre-built API\nZero training needed\nPay-per-call"]
+    Q2 -->|"Yes — domain-specific"| AutoMLPath{"Data volume?"}
+    AutoMLPath -->|"< 1000 samples"| CustomVision["Custom Vision / CLU\nTransfer learning\nFew-shot fine-tuning"]
+    AutoMLPath -->|"≥ 1000 samples"| AzureML["Azure ML + AutoML\nAutomated algo selection\nHyperDrive tuning"]
+
+    Q1 -->|"No — proprietary domain\nor tabular / time series"| Q3{"Feature engineering\ncomplexity?"}
+    Q3 -->|"Low — standard features"| AutoMLTab["Azure ML AutoML\nTabular mode\nGBT / Random Forest / Linear"]
+    Q3 -->|"High — domain expert\nfeatures needed"| ClassicML["Classic ML Pipeline\nscikit-learn / XGBoost\nCustom feature engineering\nManual cross-validation"]
+
+    style CogSvc fill:#00B294,stroke:#007D68,color:#fff
+    style CustomVision fill:#0078D4,stroke:#005A9E,color:#fff
+    style AzureML fill:#7719AA,stroke:#5A0E80,color:#fff
+    style AutoMLTab fill:#FF8C00,stroke:#CC7000,color:#fff
+    style ClassicML fill:#605E5C,stroke:#3B3A39,color:#fff
+```
+
+> **Interview tip:** "A common AI-900 exam trap is assuming Azure Cognitive Services and Azure Machine Learning are alternatives — they are complementary. Cognitive Services are best when you need a pre-trained capability quickly (e.g., detect language, transcribe speech). Azure ML is for when you have proprietary data and need to train a custom model. The real decision tree is: Can a pre-trained model solve my problem? If yes → Cognitive Services or Custom Vision/CLU. If no → Azure ML with AutoML or a custom script."
 
 ---
 

@@ -2,6 +2,44 @@
 
 ---
 
+## Slide 01 / 10 — What is LLM Inference?
+
+**Q: What does "inference" mean for a Large Language Model, and how is it different from training?**
+
+**Inference** is the process of using an already-trained LLM to generate output — it is what happens every time you send a prompt and get a response back.
+
+| | Training | Inference |
+|--|---------|-----------|
+| **Goal** | Learn weights from data | Use weights to generate output |
+| **Compute** | Extremely expensive (days/weeks on GPU clusters) | Per-request cost (milliseconds to seconds) |
+| **Direction** | Forward pass + backward pass (gradient update) | Forward pass only (no weight updates) |
+| **When it happens** | Once, before deployment | Every time a user sends a prompt |
+| **Memory** | All training data must be accessible | Only model weights + KV cache needed |
+
+**The inference pipeline in one sentence:**
+> A user prompt is tokenized → fed through the model's transformer layers → the model outputs a probability distribution → a token is sampled → repeat until the response is complete.
+
+```
+User Text
+   ↓
+Tokenizer        →  "Hello world" → [15496, 995]
+   ↓
+Transformer Layers (forward pass through N attention + FFN blocks)
+   ↓
+Output Logits    →  probability distribution over ~100K vocabulary
+   ↓
+Sampling         →  pick next token (greedy / temperature / top-p)
+   ↓
+Detokenizer      →  token IDs → human-readable text
+```
+
+**Key inference metrics:**
+- **Time to First Token (TTFT)** — latency before the first output token appears (prefill latency)
+- **Tokens per Second (TPS)** — throughput during the decode phase
+- **Context length** — how many tokens fit in one inference call (input + output combined)
+
+---
+
 ## Slide 02 / 10 — What is a Token?
 
 **Q: What is a token and how do LLMs read text?**

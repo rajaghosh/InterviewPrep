@@ -352,9 +352,364 @@ sequenceDiagram
 
 ---
 
-## Days 11–20 — *(Screenshots not captured)*
+## Day 11 — Caching Strategies: Which One When?
 
-*Topics in this range likely cover: Caching Strategies, CDN Architecture, API Gateway, Rate Limiting, Message Queues, Microservices Decomposition, Service Discovery, Data Sharding, Event-Driven Architecture, WebSockets.*
+**Q: What are the main caching strategies, and how do you choose between them?**
+
+**A:** Caching reduces database load and latency by serving frequently-accessed data from a fast in-memory store. The strategy determines how data gets into and out of the cache.
+
+| Strategy | Flow | Best For | Risk |
+|----------|------|----------|------|
+| **Cache-Aside (Lazy)** | App checks cache → miss → reads DB → writes to cache | General purpose | Cache miss penalty on cold start |
+| **Read-Through** | Cache sits in front of DB; cache fetches on miss | Read-heavy, transparent caching | Cache library must support it |
+| **Write-Through** | App writes to cache first → cache writes to DB | Strong consistency | Write latency increases |
+| **Write-Behind (Write-Back)** | App writes to cache → cache async flushes to DB | Write-heavy workloads | Data loss on crash before flush |
+| **Refresh-Ahead** | Cache pre-fetches data before TTL expires | Predictable access patterns | Wasted compute if prediction is wrong |
+
+```mermaid
+flowchart LR
+  subgraph CacheAside["Cache-Aside (most common)"]
+    App --> Cache{"Cache hit?"}
+    Cache -->|HIT| Response
+    Cache -->|MISS| DB[(Database)]
+    DB --> App2[App populates cache]
+    App2 --> Response
+  end
+```
+
+**Cache eviction policies:**
+- **LRU** (Least Recently Used) — evict item not accessed longest
+- **LFU** (Least Frequently Used) — evict item accessed fewest times
+- **TTL** — evict after fixed time regardless of access
+
+**Key rule:** Cache invalidation is hard. Prefer short TTLs or event-driven invalidation over manual cache busting.
+
+---
+
+## Day 12 — CDN Architecture: Pushing Data to the Edge
+
+**Q: How does a CDN work internally, and when does it NOT help?**
+
+**A:** A CDN (Content Delivery Network) is a geographically distributed network of edge servers (Points of Presence — PoPs) that cache content close to users.
+
+```mermaid
+graph LR
+  User_India["User (India)"] --> PoP_India["PoP Mumbai\n(Cache)"]
+  User_EU["User (Germany)"] --> PoP_EU["PoP Frankfurt\n(Cache)"]
+  PoP_India -->|"Cache MISS"| Origin["Origin Server\n(US East)"]
+  PoP_EU -->|"Cache MISS"| Origin
+```
+
+**How a request flows:**
+1. User requests `cdn.example.com/image.png`
+2. DNS resolves to nearest PoP (via Anycast or GeoDNS)
+3. PoP checks local cache — HIT: serves immediately; MISS: fetches from origin, caches, serves
+4. Subsequent requests from same region → always served from PoP
+
+**What CDNs cache:** Static assets (JS, CSS, images, videos), large file downloads, public API responses with `Cache-Control` headers.
+
+**When CDN does NOT help:**
+- Highly personalized or dynamic responses (user-specific HTML)
+- POST/PUT/DELETE requests (non-cacheable)
+- Very small user bases in one geography
+- Authenticated endpoints that vary per user
+
+**CDN cache invalidation:** Use versioned filenames (`bundle.v3.js`) or explicit purge APIs — never rely on TTL alone for critical deploys.
+
+---
+
+## Day 13 — API Gateway: The System's Front Door
+
+**Q: What does an API Gateway do that a load balancer cannot?**
+
+**A:** A load balancer distributes traffic across servers. An API Gateway is a smart application-layer proxy that understands HTTP semantics and adds cross-cutting concerns.
+
+```mermaid
+graph TD
+  Clients["Web / Mobile / 3rd Party"] --> GW["API Gateway"]
+  GW -->|"Auth verified"| SvcA["User Service"]
+  GW -->|"Rate limit OK"| SvcB["Order Service"]
+  GW -->|"Request transformed"| SvcC["Payment Service"]
+  GW -->|"Cached response"| Client2["Client (fast path)"]
+```
+
+**API Gateway responsibilities:**
+
+| Concern | What It Does |
+|---------|-------------|
+| **Authentication** | Validate JWT / API keys before request reaches services |
+| **Rate Limiting** | Throttle per-client, per-endpoint, per-tier |
+| **Request Routing** | Route `/v1/users` → User Service, `/v1/orders` → Order Service |
+| **SSL Termination** | Handle TLS at the gateway; backend uses plain HTTP |
+| **Request/Response Transform** | Modify headers, aggregate responses from multiple services |
+| **Caching** | Cache GET responses at the gateway layer |
+| **Observability** | Centralized logging, tracing, and metrics for all traffic |
+| **Circuit Breaking** | Stop forwarding requests to unhealthy upstream services |
+
+**Load Balancer vs API Gateway:**
+- Load Balancer: L4/L7, distributes traffic by IP/hostname, no business logic
+- API Gateway: L7, understands routes + auth + rate limits, acts as a policy enforcement point
+
+**Popular options:** Kong, AWS API Gateway, Apigee, Traefik, Azure API Management.
+
+---
+
+## Day 14 — Rate Limiting: Protecting the System from Overload
+
+**Q: What are the main rate limiting algorithms and their tradeoffs?**
+
+**A:** Rate limiting controls how many requests a client can make in a given window, protecting services from abuse, DoS, and cost overruns.
+
+| Algorithm | How It Works | Pros | Cons |
+|-----------|-------------|------|------|
+| **Fixed Window** | N requests per fixed period (e.g., 100/min) | Simple | Allows burst at window boundaries |
+| **Sliding Window** | Rolling time window — track request timestamps | Accurate, no burst at boundary | More memory (per-user request log) |
+| **Token Bucket** | Tokens added at fixed rate; each request consumes 1 | Allows bursts up to bucket size | More complex |
+| **Leaky Bucket** | Requests processed at fixed rate; excess queued or dropped | Smooths bursty traffic | Adds latency |
+| **Concurrency Limit** | Max N in-flight requests at any moment | Protects downstream capacity | Doesn't limit total rate |
+
+```mermaid
+flowchart LR
+  Request --> TB{"Token\nBucket"}
+  TB -->|"Token available"| Process["Process Request"]
+  TB -->|"Empty"| Reject["429 Too Many Requests"]
+  Clock["Refill: +1 token/100ms"] --> TB
+```
+
+**Where to enforce:**
+- API Gateway (global, per-client)
+- Application middleware (per-user, per-endpoint)
+- Distributed with Redis (shared state across instances)
+
+**Sliding window with Redis:**
+```
+ZADD user:123:requests <timestamp> <request_id>
+ZREMRANGEBYSCORE user:123:requests 0 <now - window>
+count = ZCARD user:123:requests
+if count >= limit: reject
+```
+
+---
+
+## Day 15 — Message Queues: Decoupling with Durability
+
+**Q: What problem do message queues solve, and when should you NOT use one?**
+
+**A:** Message queues decouple producers and consumers — the producer sends a message and continues; the consumer processes it independently, at its own pace.
+
+```mermaid
+graph LR
+  Producer["Order Service\n(Producer)"] --> Queue["Message Queue\n(RabbitMQ / SQS / Kafka)"]
+  Queue --> C1["Email Service"]
+  Queue --> C2["Inventory Service"]
+  Queue --> C3["Analytics Service"]
+```
+
+**Problems queues solve:**
+- **Traffic spikes:** Queue absorbs burst; consumers process at steady rate
+- **Decoupling:** Order Service doesn't need to know Email Service exists
+- **Reliability:** If Email Service crashes, messages wait — no data loss
+- **Async processing:** Long tasks (PDF generation, video encoding) move off the request path
+
+**Delivery guarantees:**
+
+| Guarantee | Meaning | Risk |
+|-----------|---------|------|
+| At-most-once | Delivered ≤1 time; may be lost | Message loss |
+| At-least-once | Delivered ≥1 time; may duplicate | Duplicate processing — requires idempotency |
+| Exactly-once | Delivered exactly once | Most expensive; Kafka Transactions |
+
+**When NOT to use a queue:**
+- When you need a synchronous response (user waiting for a result)
+- Very low-volume systems where queue overhead outweighs benefit
+- When ordering guarantees are critical and you don't want to manage partition keys
+
+**Dead Letter Queue (DLQ):** Messages that fail after N retries go here for manual inspection — always configure a DLQ in production.
+
+---
+
+## Day 16 — Microservices Decomposition: How to Split a Monolith
+
+**Q: What strategies and principles guide decomposing a monolith into microservices?**
+
+**A:** Decomposition is the hardest part of microservices — wrong cuts lead to chatty services, distributed transactions, and higher operational cost than the original monolith.
+
+**Decomposition strategies:**
+
+| Strategy | How to Apply | Example |
+|----------|-------------|---------|
+| **By Business Capability** | Each capability = one service | Orders, Payments, Catalog, Notifications |
+| **By Domain (DDD Bounded Context)** | Each bounded context = one service | User domain, Inventory domain, Billing domain |
+| **By Subdomain** | Core vs. supporting vs. generic | Core: Cart; Supporting: Search; Generic: Email |
+| **Strangler Fig Pattern** | Incrementally migrate monolith routes to new services | Route `/new-feature` to microservice; legacy handles rest |
+
+```
+Monolith:
+  ┌─────────────────────────────────────────┐
+  │  Users + Orders + Payments + Catalog    │
+  └──────────────────────────────────────���──┘
+                      ↓  Strangler Fig
+  ┌──────────┐  ┌──────────┐  ┌──────────────────────┐
+  │  User    │  │ Payments │  │  Monolith (shrinking) │
+  │ Service  │  │ Service  │  │  Orders + Catalog     │
+  └──────────┘  └──────────┘  └──────────────────────┘
+```
+
+**Anti-patterns to avoid:**
+- **Nano-services:** Services so small they require a network call for every operation (chatty)
+- **Shared database:** Two services writing to the same table — defeats independence
+- **Distributed monolith:** Services that must deploy together or share state tightly
+
+**Rule of thumb:** A microservice should be owned by one team, deployed independently, and testable in isolation. If you can't do all three, the boundary is wrong.
+
+---
+
+## Day 17 — Service Discovery: Finding Services in a Dynamic Environment
+
+**Q: How do services find each other when IPs change constantly in containers?**
+
+**A:** In a containerized world, service instances start, stop, and scale dynamically — hardcoded IPs break immediately. Service discovery solves this by maintaining a live registry of healthy service instances.
+
+```mermaid
+sequenceDiagram
+  participant SA as Service A
+  participant SR as Service Registry
+  participant SB as Service B
+
+  SB->>SR: Register (IP:port, health check URL)
+  SA->>SR: Lookup "payment-service"
+  SR-->>SA: [10.0.1.5:8080, 10.0.1.6:8080]
+  SA->>SB: Request to 10.0.1.5:8080
+  Note over SR: Health checks every 10s
+  SB--xSR: Health check fails (crash)
+  SR->>SR: Remove 10.0.1.6:8080 from registry
+```
+
+**Two models:**
+
+| Model | Who Queries Registry | Example |
+|-------|---------------------|---------|
+| **Client-side** | The calling service queries and load-balances | Eureka + Ribbon (Spring), Consul |
+| **Server-side** | A load balancer queries registry on behalf of caller | AWS ALB, Kubernetes |
+
+**Kubernetes DNS (server-side, most common today):**
+- Every Service gets a stable DNS name: `http://payment-service.default.svc.cluster.local`
+- kube-dns resolves this to the current Pod IPs automatically
+- No client-side library needed
+
+**Health check types:**
+- HTTP: `GET /health` must return 200
+- TCP: Connection must be accepted
+- gRPC: Health checking protocol
+- Command: Exec a command inside the container
+
+---
+
+## Day 18 — Data Sharding: Scaling Writes Beyond One Machine
+
+**Q: What is database sharding, what are the sharding strategies, and what problems does it create?**
+
+**A:** Sharding (horizontal partitioning) splits a single large dataset across multiple databases (shards), each responsible for a subset of the data.
+
+```
+Without sharding:           With sharding:
+┌─────────────┐             ┌──────────┐  ┌──────────┐  ┌──────────┐
+│  Single DB  │             │ Shard 1  │  │ Shard 2  │  │ Shard 3  │
+│ 1B rows     │             │ Users    │  │ Users    │  │ Users    │
+│ 1 machine   │             │ A–H      │  │ I–Q      │  │ R–Z      │
+└─────────────┘             └──────────┘  └──────────┘  └──────────┘
+```
+
+**Sharding strategies:**
+
+| Strategy | Shard Key | Pros | Cons |
+|----------|-----------|------|------|
+| **Range-based** | ID ranges (1–1M on shard 1) | Simple, range queries easy | Hotspots if data is skewed |
+| **Hash-based** | `hash(user_id) % N` | Even distribution | Range queries hit all shards |
+| **Geo-based** | Country/region | Low latency, data residency | Uneven shard sizes |
+| **Directory-based** | Lookup table maps key → shard | Flexible, easy to migrate | Lookup table is a bottleneck |
+
+**Consistent Hashing:** Used to minimize data movement when adding/removing shards. Each shard owns an arc of a virtual ring; only adjacent data moves on rebalance.
+
+**Problems sharding creates:**
+- **Cross-shard queries:** JOIN across shards requires scatter-gather
+- **Distributed transactions:** ACID across shards needs 2PC or SAGA
+- **Hot shards:** If shard key correlates with load (e.g., celebrity user), one shard gets all traffic
+- **Schema migrations:** Must run across all shards — operationally complex
+
+---
+
+## Day 19 — Event-Driven Architecture: Reacting to What Happened
+
+**Q: What is event-driven architecture, how does it differ from request/response, and when do you use it?**
+
+**A:** In a request/response system, Service A directly calls Service B and waits. In EDA, Service A emits an event ("OrderPlaced") to a broker; interested services subscribe and react independently.
+
+```mermaid
+graph LR
+  OrderSvc["Order Service"] -->|"OrderPlaced event"| Broker["Event Broker\n(Kafka / EventBridge)"]
+  Broker --> Inventory["Inventory Service\n(reserve stock)"]
+  Broker --> Notify["Notification Service\n(send confirmation email)"]
+  Broker --> Analytics["Analytics Service\n(update dashboards)"]
+  Broker --> Loyalty["Loyalty Service\n(award points)"]
+```
+
+**EDA vs Request/Response:**
+
+| | Request/Response | Event-Driven |
+|--|-----------------|--------------|
+| Coupling | Tight (caller knows callee) | Loose (emitter doesn't know subscribers) |
+| Availability dependency | Caller blocked if callee is down | Callee can be down; events wait in broker |
+| Latency | Synchronous, predictable | Eventual (slight delay) |
+| New subscribers | Requires code change in producer | Subscribe without touching producer |
+| Debugging | Easy to trace | Harder — requires distributed tracing |
+
+**Event types:**
+- **Domain events:** Something happened in the business domain (`OrderShipped`, `PaymentFailed`)
+- **Commands:** Request to do something, sent to one consumer (`ProcessPayment`)
+- **Notifications:** Informational, no response expected (`UserLoggedIn`)
+
+**Key rule:** Events are immutable facts. Never update or delete an event — append new compensating events.
+
+---
+
+## Day 20 — WebSockets: Full-Duplex Real-Time Communication
+
+**Q: How do WebSockets work, how do they differ from HTTP, and when should you use SSE instead?**
+
+**A:** HTTP is request-response — the client initiates every exchange. WebSockets provide a persistent, full-duplex channel: either side can send messages at any time after the initial handshake.
+
+```mermaid
+sequenceDiagram
+  participant C as Client (Browser)
+  participant S as Server
+
+  C->>S: HTTP GET /chat (Upgrade: websocket)
+  S-->>C: 101 Switching Protocols
+  Note over C,S: Persistent TCP connection established
+  C->>S: {"type": "message", "text": "Hello"}
+  S->>C: {"type": "message", "from": "Bob", "text": "Hi!"}
+  S->>C: {"type": "typing", "user": "Alice"}
+  C->>S: {"type": "ping"}
+  S-->>C: {"type": "pong"}
+```
+
+**WebSocket vs HTTP polling vs SSE:**
+
+| | HTTP Polling | Server-Sent Events (SSE) | WebSockets |
+|--|-------------|--------------------------|-----------|
+| Direction | Client → Server (repeated) | Server → Client only | Bidirectional |
+| Connection | New HTTP request each time | One long-lived HTTP connection | Upgraded TCP connection |
+| Overhead | High (headers each poll) | Low | Lowest |
+| Use case | Simple status checks | Live feeds, notifications | Chat, gaming, collaborative editing |
+| Firewall/proxy | Works everywhere | Works everywhere | May be blocked by some proxies |
+
+**When to choose:**
+- **WebSockets:** Chat, multiplayer games, collaborative editing, live trading — any scenario requiring true bidirectional real-time communication
+- **SSE:** Live dashboards, notifications, news feeds — server pushes to client, client doesn't need to send back
+- **Polling:** Fallback when WebSockets/SSE aren't available; acceptable for low-frequency updates (every 30s+)
+
+**Scaling WebSockets:** Sticky sessions or a pub/sub layer (Redis Pub/Sub) so any server can receive client messages and broadcast to all connections.
 
 ---
 

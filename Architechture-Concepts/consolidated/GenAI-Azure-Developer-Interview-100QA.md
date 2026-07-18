@@ -1436,6 +1436,12 @@ Prompt tuning (soft prompts) is not to be confused with prompt engineering — t
 
 ## 9. Architecture Diagrams
 
+These diagrams represent the two most frequently whiteboarded architectures in Azure GenAI architect interviews: the full production RAG application stack with all layers explicitly annotated, and the developer skill progression roadmap for positioning yourself or your team. When drawing these on a whiteboard, narrate each layer — interviewers assess whether you understand the *why* behind each component, not just whether you can draw boxes.
+
+For the production architecture, the layers to articulate are: (1) Client layer — how users reach the system; (2) Safety layer — why Content Safety sits before and after the LLM, not just at the edge; (3) Orchestration layer — why Semantic Kernel or PromptFlow sits between retrieval and generation; (4) Retrieval layer — the embedding + search flow; (5) Generation layer — why PTU is specified for the LLM; (6) Ingestion layer — the offline pipeline feeding the search index; (7) Security layer — why every arrow between major components crosses through Entra ID RBAC.
+
+> **Interview tip:** "When presenting a system architecture diagram, I use the phrase 'the interesting trade-off here is...' for at least three components. For example: Content Safety adds 50–100ms latency per call — the trade-off is latency vs. safety guarantee. PTU adds a fixed hourly cost — the trade-off is cost predictability vs. utilization efficiency. Naming trade-offs signals architect-level thinking, not just implementation-level knowledge."
+
 ### Full Azure GenAI Application Architecture
 
 ```mermaid
@@ -1539,6 +1545,19 @@ flowchart LR
     class L5 l5
     class L6 l6
 ```
+
+This progression reflects how hiring committees score candidates: Level 1–2 skills are expected for any GenAI role; Level 3–4 differentiate mid-senior engineers; Level 5–6 are the AI Architect domain. Certifications map directly: Azure AI-102 validates Level 3; Azure AI Foundry skill badges validate Level 4; enterprise design experience validates Level 5–6. Use this progression to identify your current level and the specific skills gap to the next level.
+
+| Level | Interview signal keywords | Typical blocking question |
+|---|---|---|
+| L1 | Zero-shot, few-shot, CoT, temperature | "What is ReAct and when do you use it?" |
+| L2 | Chunking, HNSW, hybrid search, RAGAS | "How do you evaluate RAG quality?" |
+| L3 | Managed Identity, RBAC, PTU, PromptFlow | "How do you secure Azure OpenAI in enterprise?" |
+| L4 | Tool calling, LangGraph, multi-agent | "Design a multi-agent system for document processing" |
+| L5 | LoRA, QLoRA, PEFT, MLflow, drift | "When do you fine-tune vs RAG?" |
+| L6 | WAF, cost governance, AI Act, gateway pattern | "Design an enterprise RAG platform for 10 teams" |
+
+> **Interview tip:** "When asked 'where do you see yourself in the AI stack,' I use this progression chart — not to self-rate, but to frame the conversation: 'I'm strong at L3–L4 and actively developing L5. Here are the concrete projects where I operated at each level.' This gives interviewers a calibrated answer and surfaces talking points for follow-up technical questions."
 
 ---
 

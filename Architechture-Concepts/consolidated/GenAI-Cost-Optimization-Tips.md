@@ -61,20 +61,203 @@ Generative AI costs are growing explosively — average monthly AI spend per org
 ### Minimum Viable Tokens (MVT)
 The discipline of achieving the same output quality with the fewest possible input + output tokens. Applied to prompts, retrieved context, and response length constraints simultaneously.
 
+MVT is the LLM equivalent of "premature optimization" prevention applied in reverse — instead of avoiding over-engineering, you systematically audit for token waste. Since every input and output token has a direct dollar cost on a per-million basis, even a 20% reduction in average prompt length across millions of daily requests translates directly to significant monthly savings.
+
+**How to measure and reduce token waste:**
+1. Log `usage.input_tokens` and `usage.output_tokens` for every API call by feature and endpoint.
+2. Identify the top 10 highest-token-consumption endpoints — these are the highest-leverage optimization targets.
+3. For each: run the prompt through a token counter (`tiktoken` for OpenAI, Anthropic's token counter API) and audit what each token contributes to quality.
+4. Apply reductions: remove filler language, deduplicate system prompt content, cut retrieved context to only the top-k relevant chunks.
+5. Run A/B quality evaluation before and after — use RAGAS or a judge LLM to confirm quality is maintained.
+
+**Before vs. after MVT prompt:**
+```
+BEFORE (87 tokens):
+"Hello! I would like you to please help me by summarizing the following document. 
+It is very important that your summary is concise and accurate. 
+The document is as follows: {document}"
+
+AFTER (12 tokens + document):
+"Summarize in 3 bullet points: {document}"
+```
+
+| MVT Target | Typical Token Reduction | Technique |
+|---|---|---|
+| System prompt filler | 15–30% | Remove courtesy phrases, redundant instructions |
+| Retrieved RAG context | 40–70% | Re-ranking, top-k reduction, chunk size tuning |
+| Output verbosity | 20–50% | Explicit `max_tokens` + format constraints (JSON/bullets) |
+| Chat history window | 30–60% | Sliding window truncation, summarization of old turns |
+
+> **Interview tip:** "Quantify MVT with unit economics: if your app does 10M requests/month with an average of 1,000 input tokens at $3/M tokens, a 25% token reduction saves $7,500/month — and that's before counting output tokens. Always frame token optimization in dollars, not token counts."
+
 ### Model Routing
 Dynamically directing each inference request to the cheapest model capable of handling that task's complexity — rather than defaulting all traffic to the most powerful (and most expensive) model available.
+
+Model routing is the highest-leverage single optimization for most GenAI applications because the cost gap between model tiers is enormous: a small model like Claude Haiku costs ~19x less per output token than Claude Opus. Since the majority of real-world LLM requests are relatively simple (classification, summarization, short Q&A), routing them to a capable but cheaper model leaves quality unchanged while dramatically reducing the per-request cost.
+
+**Routing decision flow:**
+```mermaid
+flowchart TD
+    Req["Incoming Request"]
+    Classifier["Complexity Classifier\n(rules / small model / keyword)"]
+    Simple["Simple Task\nclassification · intent · short Q&A"]
+    Medium["Medium Task\nsummarization · translation · FAQ"]
+    Complex["Complex Task\nmulti-step reasoning · code gen · agents"]
+    Haiku["Small Model\n(Haiku / GPT-3.5)\n~$0.80/M input tokens"]
+    Sonnet["Mid Model\n(Sonnet / GPT-4o-mini)\n~$3/M input tokens"]
+    Opus["Premium Model\n(Opus / GPT-4o)\n~$15/M input tokens"]
+
+    Req --> Classifier
+    Classifier --> Simple --> Haiku
+    Classifier --> Medium --> Sonnet
+    Classifier --> Complex --> Opus
+```
+
+**Routing classifier strategies:**
+- **Rule-based:** keyword match, prompt length threshold, endpoint identity (cheap for `/classify`, premium for `/analyze`)
+- **ML classifier:** fine-tune a small model on labeled examples of simple/medium/complex — 95%+ accuracy achievable
+- **LLM-as-judge routing:** use the cheapest model to classify complexity, then route to appropriate tier
+
+| Routing Method | Accuracy | Latency overhead | Best For |
+|---|---|---|---|
+| Rule-based | 70–80% | <1ms | High-volume, predictable tasks |
+| ML classifier | 90–95% | 5–20ms | Mixed workloads with training data |
+| LLM-as-judge | 95–98% | 50–200ms | High-stakes routing where misrouting is costly |
+
+> **Interview tip:** "The business case for routing is straightforward arithmetic: if 70% of your requests are 'simple' and you route them to a 19x cheaper model, your blended cost drops by ~60% assuming quality holds. Always benchmark quality before and after routing — a routing error that degrades user experience costs more than the savings."
 
 ### Prompt Caching
 Storing the processed key-value (KV) state of static prompt prefixes (system messages, knowledge bases, instructions) so repeated requests skip recomputation. Most providers offer 50–90% token cost discounts on cached prefixes.
 
+Prompt caching exploits the fact that in most production applications, the system prompt and few-shot examples are identical across thousands or millions of requests — only the user query changes. Without caching, the model re-processes those identical tokens on every single call. With caching, the KV attention states for the static prefix are stored server-side and reused, charging only a fraction of the original token price.
+
+**Prompt structure for maximum cache utilization:**
+```
+┌──────────────────────────────────────────────────────┐
+│ SYSTEM PROMPT (2,000 tokens)  [cache_control: true]  │  ← Cached after first call
+│ FEW-SHOT EXAMPLES (500 tokens) [cache_control: true]  │  ← Cached after first call
+│ KNOWLEDGE BASE (1,000 tokens) [cache_control: true]  │  ← Cached after first call
+│ USER QUERY (50–200 tokens)    [no cache control]     │  ← Fresh each call
+└──────────────────────────────────────────────────────┘
+```
+
+**Provider pricing comparison:**
+
+| Provider | Cache write cost | Cache read cost | Min cacheable tokens |
+|---|---|---|---|
+| Anthropic (Claude) | 1.25x normal | 0.10x (90% off) | 1,024 tokens |
+| OpenAI (GPT-4o) | Normal | 0.50x (50% off) | 1,024 tokens |
+| Google (Gemini) | 1x normal | 0.25x (75% off) | 32,768 tokens |
+
+**Critical placement rule:** Static content must appear before dynamic content. Providers cache from the start of the prompt up to the first cache breakpoint — any dynamic token inserted before the static block prevents caching of everything after it.
+
+> **Interview tip:** "Prompt caching is free money for any application with a large, stable system prompt. If your system prompt is 2,000 tokens and you handle 100,000 requests/day at Anthropic pricing ($3/M input), caching reduces that cost from $600/day to $60/day — a $196,000/year saving from a one-line code change."
+
 ### RAG Context Efficiency
 The practice of retrieving only tokens the model will actually use — through better chunking, hybrid search, metadata filtering, and re-ranking — rather than flooding the context window.
+
+Naïve RAG implementations retrieve the top-k chunks by vector similarity and paste them wholesale into the context window before the user query. The problem is that similarity ≠ relevance: high cosine similarity doesn't guarantee the retrieved chunk actually contains the answer. Studies show that 70–80% of tokens in naïve RAG pipelines are noise — text the model weighs but cannot use to improve its answer. Since every context token costs money, unoptimized RAG is one of the most common sources of runaway LLM spend.
+
+**RAG cost optimization pipeline:**
+```mermaid
+flowchart LR
+    Query["User Query"]
+    Embed["Embed Query\n(e.g. OpenAI ada-002)"]
+    VSR["Vector Search\ntop_k=20\n(broad recall)"]
+    Filter["Metadata Filter\ncategory · date · source"]
+    Rerank["Cross-encoder\nReranker\nMistral / Cohere Rerank"]
+    TopK["Top 3–5 chunks\n(high precision)"]
+    LLM["LLM Call\nwith lean context"]
+
+    Query --> Embed --> VSR --> Filter --> Rerank --> TopK --> LLM
+```
+
+**Optimization levers and their typical impact:**
+
+| Lever | How it works | Token reduction |
+|---|---|---|
+| Reduce `top_k` | Retrieve 5 instead of 20 chunks | 60–75% |
+| Metadata pre-filtering | Filter by date, category, source before vector search | 30–60% |
+| Cross-encoder re-ranking | Score each candidate for relevance to query; keep top 3 | 40–70% |
+| Smaller chunk size | 256-token chunks vs. 1024 — less noise per chunk | 20–50% |
+| Contextual compression | Summarize or extract only the answer-relevant sentence from each chunk | 50–80% |
+
+**Anti-pattern to avoid:** retrieving top-20 full-document chunks with no re-ranking and passing all of them to a premium model. This is the costliest combination possible in RAG.
+
+> **Interview tip:** "Frame RAG efficiency as a precision-recall tradeoff. Broader retrieval (top-20) maximizes recall but kills precision and spends tokens on noise. A re-ranking step lets you retrieve broadly for recall, then filter tightly for precision before context assembly. This is the architecture that delivers both quality and cost efficiency simultaneously."
 
 ### Agentic Cost Guardrails
 Hard architectural limits on agent reasoning loops, iteration counts, and token budgets that prevent runaway spend from recursive or malformed agentic execution.
 
+Agentic systems create a class of cost risk that doesn't exist in simple request-response LLM calls: unbounded iteration. A single agent that loops indefinitely — triggered by a malformed input, an edge case in tool output parsing, or a deadlock between two sub-agents — can generate tens of thousands of API calls before any human notices. At $15–75 per million output tokens, a runaway overnight agent can generate a five-figure bill from a single trigger event.
+
+**Guardrail architecture layers:**
+
+```mermaid
+flowchart TD
+    AgentTrigger["Agent Task Triggered"]
+    IterCap["Hard Iteration Cap\nmax_iterations = 10\ncode-enforced, not configurable"]
+    TokenBudget["Per-Request Token Budget\nInput cap + Output cap per use case"]
+    SpendMonitor["Real-Time Spend Monitor\nper-API-key cost accumulator"]
+    Alert["Alert Tier\n50% → Slack\n80% → PagerDuty\n100% → Kill switch"]
+    SubAgentCap["Sub-agent Spawn Limit\nmax depth = 2\nmax concurrent = 5"]
+    Output["Task Completes"]
+
+    AgentTrigger --> IterCap --> TokenBudget --> SpendMonitor
+    SpendMonitor --> Alert
+    SpendMonitor --> SubAgentCap --> Output
+```
+
+**Guardrail types and implementation:**
+
+| Guardrail | What it prevents | Implementation |
+|---|---|---|
+| `max_iterations` hard cap | Infinite reasoning loops | `for i in range(MAX_ITER): ... else: raise` |
+| Per-use-case `max_tokens` | Prompt bloat, verbose output waste | Enforce at API call construction time |
+| Sub-agent depth limit | Recursive agent spawning | Track spawn depth in agent context |
+| Spend threshold auto-shutoff | Budget exhaustion before alert is seen | Provider API key rate limits + app-layer kill switch |
+| Timeout per agent run | Deadlocked agents waiting on slow tools | `asyncio.wait_for(agent_task, timeout=300)` |
+
+**Why "soft guidelines" fail:** A `# TODO: don't exceed 10 iterations` comment in code provides zero protection. The cap must be a code-enforced `raise` or `return` at the iteration boundary — developers forget to check it, edge cases bypass it, and on-call engineers don't know to look for it.
+
+> **Interview tip:** "Agentic cost guardrails are a safety primitive, not an optimization. Frame them the way you'd frame circuit breakers in distributed systems — you design them to fail safely and fast, not to optimize the happy path. The test: if an agent loops infinitely at 2 AM, what stops it and how fast? If the answer is 'the morning engineer,' the guardrail is insufficient."
+
 ### FinOps for AI
 Cross-functional discipline where ML engineering, platform engineering, product, and finance share accountability for AI unit economics — measured as cost per outcome, not aggregate monthly bills.
+
+Traditional cloud FinOps tracks VM-hours, egress bytes, and storage GB — all relatively predictable. AI FinOps is harder because LLM costs are non-linear: a single poorly-scoped prompt or a traffic spike in a high-token-density feature can blow the monthly budget in hours. The discipline requires moving from reactive monthly invoice review to proactive per-request, per-feature, per-team attribution with real-time alerting.
+
+**The unit economics shift:**
+
+| Traditional Cloud FinOps | AI FinOps |
+|---|---|
+| Optimize VM size and reservation | Optimize model tier, token count, batch schedule |
+| Monthly cost per service | Cost per inference request, per user, per feature |
+| Reserved instances / savings plans | Prompt caching, batch API discounts |
+| Utilization % (CPU, memory) | Cache hit rate, model routing accuracy, token efficiency |
+| Tag-based cost allocation | API key + metadata tagging by feature/team/user |
+| Cost alert on monthly budget | Real-time spend alert + auto-shutoff on daily budget |
+
+**Organizational ownership model:**
+- **ML/AI team:** Token optimization, model selection, quality-vs-cost benchmarking
+- **Platform engineering:** Infrastructure, batch scheduling, cost monitoring tooling
+- **Product management:** Feature-level cost budgeting, success metric definition
+- **Finance:** Unit economics targets (cost per outcome), overall budget governance
+
+**Key metrics for an AI FinOps dashboard:**
+
+| Metric | Target | What It Signals |
+|---|---|---|
+| Cost per successful interaction | Decreasing over time | Core unit economics health |
+| Cache hit rate | >60% for FAQ/support | Effectiveness of prompt caching |
+| Model routing accuracy | >90% | Correct tier assignment |
+| Average tokens per request | Flat or decreasing | Prompt bloat under control |
+| Agent task completion rate | >95% | Guardrails not over-triggering |
+| P99 inference latency | <3s for interactive | No quality/cost tradeoff creep |
+
+**Why aggregate monthly bills fail:** If total monthly spend went up 30%, was it because volume grew (good — product is working) or because cost per request grew (bad — prompt bloat or routing regression)? Aggregate bills cannot answer this question. Only per-request attribution with volume normalization can.
+
+> **Interview tip:** "FinOps for AI is a competitive advantage, not overhead. Teams that measure cost per outcome can make rational build-vs-buy decisions, justify infrastructure investment to CFOs, and scale AI features profitably. Teams that don't will hit cost ceilings and get features cut. Frame it as a business capability, not a cost-cutting exercise."
 
 ---
 
@@ -158,11 +341,125 @@ Simple tasks (classification, summarization, intent detection) don't require lar
 #### Tip 2: Use Model Routing Dynamically
 Implement a routing layer that classifies each request and dispatches to the appropriate model. Can reduce costs 30–50% while maintaining quality. See code example in §8.
 
+Dynamic routing requires three components: a **classifier** that determines task complexity, a **model registry** that maps complexity to model, and **quality gates** that validate the smaller model's output meets the standard before shipping to users.
+
+**Building the routing classifier — practical approach:**
+
+```python
+def classify_complexity(prompt: str, metadata: dict) -> str:
+    """
+    Classify a request into small/medium/large tier.
+    Uses layered heuristics — no LLM call required for routing.
+    """
+    # Tier 1: Endpoint-based routing (fastest, zero latency)
+    if metadata.get("endpoint") in {"/classify", "/intent", "/sentiment"}:
+        return "small"
+
+    # Tier 2: Instruction keyword detection
+    simple_verbs = {"summarize", "classify", "list", "translate", "detect"}
+    complex_verbs = {"analyze", "reason", "compare", "design", "explain why"}
+    prompt_lower = prompt.lower()
+    if any(v in prompt_lower for v in simple_verbs) and len(prompt.split()) < 80:
+        return "small"
+    if any(v in prompt_lower for v in complex_verbs) or len(prompt.split()) > 300:
+        return "large"
+
+    return "medium"  # Default to mid-tier
+```
+
+**Quality validation before routing goes live:**
+1. Sample 500 real requests from production logs.
+2. Run both the target small model and the premium model on each.
+3. Use an LLM judge or human raters to score quality parity.
+4. If small model achieves >95% quality parity for "simple" classified requests → routing is safe to deploy.
+5. Monitor quality metrics in production with the routing layer active — set rollback threshold.
+
+| Routing Decision | Risk If Wrong | Mitigation |
+|---|---|---|
+| Simple → Large (over-route) | Cost waste, no quality harm | Classifier threshold too conservative |
+| Complex → Small (under-route) | Quality degradation, user complaints | Classifier threshold too aggressive |
+| Correct routing | Cost saving + quality maintained | A/B test validates threshold calibration |
+
+> **Interview tip:** "Routing is not fire-and-forget. Build a routing feedback loop: log which model handled each request, score quality outcomes, and retrain or recalibrate the classifier quarterly as model capabilities change. Models that were 'large' tier tasks last year may be 'small' tier today."
+
 #### Tip 3: Apply Model Distillation
 Train a smaller, specialized model using outputs from a larger teacher model. The distilled model runs at a fraction of the cost for the narrow task it was trained on. Best for high-volume, narrow use cases (e.g., sentiment, entity extraction).
 
+Model distillation transfers the "knowledge" of a large model into a smaller one by training the student model to match the teacher's output distribution — not just its labels, but its token probabilities (soft targets). The result is a compact model that outperforms its size on the specific task it was distilled for, because the rich teacher signal provides far more information than binary correct/incorrect labels.
+
+**Distillation workflow:**
+
+```mermaid
+flowchart LR
+    RealTraffic["Production Traffic\n(anonymized)"]
+    Teacher["Teacher Model\n(GPT-4o / Claude Opus)\nHigh cost, high quality"]
+    LabeledData["Labeled Dataset\n~10k–100k examples\n(inputs + teacher outputs)"]
+    StudentTrain["Fine-tune Student Model\n(Llama 3.1 8B / Mistral 7B)\nSFT + KD loss"]
+    Student["Distilled Student\n(task-specific, small)\n~10–50x cheaper inference"]
+    QualityGate["Quality Benchmark\n≥95% parity vs. teacher\non held-out test set"]
+
+    RealTraffic --> Teacher --> LabeledData --> StudentTrain --> Student --> QualityGate
+```
+
+**When distillation makes business sense:**
+
+| Condition | Suitable for distillation | Reason |
+|---|---|---|
+| >1M requests/month on a narrow task | Yes | High volume justifies upfront training cost |
+| Task has clear correct/incorrect criteria | Yes | Easy to generate quality teacher labels |
+| Task domain is stable (rare new examples) | Yes | Distilled model won't become stale quickly |
+| Task requires broad general knowledge | No | Small model lacks breadth; teacher advantage is too large |
+| Request volume < 100k/month | No | ROI on training cost takes too long |
+
+**Realistic cost example:** Sentiment classification at 5M requests/day using GPT-4o costs ~$600/day. A distilled 7B model on a single A100 GPU handles the same volume for ~$50/day — a 91% cost reduction. The model training investment (typically $5,000–$15,000 in GPU time) pays back in 1–2 months.
+
+> **Interview tip:** "Distillation requires a business case calculation upfront: training cost ÷ daily savings = payback period in days. If that's under 90 days, it's almost always worth doing for a high-volume narrow task. If it's over 180 days, model routing (Tip 2) is usually a better first step since it requires zero training investment."
+
 #### Tip 4: Use Parameter-Efficient Fine-Tuning (PEFT)
 Techniques like LoRA, QLoRA, and prefix tuning adapt a base model to your domain without full retraining — at 10–100x lower compute cost than traditional fine-tuning.
+
+Traditional full fine-tuning updates all model weights — for a 70B parameter model, that requires dozens of high-memory GPUs and weeks of training time. PEFT methods instead freeze the original model weights and add a small number of trainable parameters (0.1–3% of total) that capture domain-specific adaptation. The resulting model performs on par with full fine-tuning for domain tasks at a fraction of the cost.
+
+**Core PEFT techniques:**
+
+| Technique | How it works | Trainable params | Best for |
+|---|---|---|---|
+| LoRA | Adds low-rank matrix pairs (A×B) to attention layers; rank r << d | ~0.1–1% of total | Chat, instruction following, code |
+| QLoRA | LoRA on a 4-bit quantized base model; saves GPU memory | ~0.1% of total | Fine-tuning on single consumer GPU |
+| Prefix Tuning | Prepends trainable virtual tokens to every layer input | Very small (prefix length × layers) | Task-specific prompting |
+| IA³ | Scales attention keys/values and FFN activations with learned vectors | <0.01% of total | Ultra-low resource fine-tuning |
+
+**LoRA training example (Hugging Face PEFT):**
+```python
+from peft import LoraConfig, get_peft_model
+from transformers import AutoModelForCausalLM
+
+base_model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-v0.1")
+
+lora_config = LoraConfig(
+    r=16,              # Rank — higher = more capacity, more params
+    lora_alpha=32,     # Scaling factor
+    target_modules=["q_proj", "v_proj"],  # Attention layers to adapt
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM"
+)
+
+peft_model = get_peft_model(base_model, lora_config)
+peft_model.print_trainable_parameters()
+# → trainable params: 8,388,608 || all params: 7,250,972,672 || trainable%: 0.12%
+```
+
+**PEFT vs. distillation vs. full fine-tuning:**
+
+| Approach | Compute cost | Quality (narrow task) | Deployment complexity |
+|---|---|---|---|
+| Full fine-tuning | Very high | Highest | High (new model weights) |
+| LoRA / QLoRA | Low–Medium | High | Medium (merge or serve adapter) |
+| Distillation | Medium | High (if teacher is good) | Low (standalone small model) |
+| Model routing (no training) | Zero | Depends on task | Low |
+
+> **Interview tip:** "PEFT and distillation are complementary, not competing. A common production pattern is to distill a large model's outputs into a mid-size base model, then apply LoRA to specialize it for your domain — getting both the efficiency of distillation and the precision of domain adaptation in a single deployable artifact."
 
 ---
 
@@ -179,6 +476,48 @@ Audit every prompt: eliminate filler phrases, redundant context, and verbose ins
 
 #### Tip 6: Keep Prompts Concise & Constrain Response Length
 Every additional token in the prompt is charged. Every additional output token is charged. Set explicit `max_tokens` limits per request class. A customer support reply doesn't need 2,000 tokens.
+
+Output token costs are typically 3–5x higher than input token costs per million tokens, making verbose responses the most expensive failure mode. Without explicit `max_tokens` constraints, LLMs default to generating until the task feels "complete" — which for an unconstrained summarization request might be 1,500 tokens when 200 would suffice.
+
+**Response length calibration process:**
+1. Sample 200 real responses for a given use case where no `max_tokens` was set.
+2. Have users or a judge LLM rate quality at various truncation points: 25%, 50%, 75%, 100% of average length.
+3. Find the knee of the quality-vs-length curve — the point where additional tokens add minimal quality.
+4. Set `max_tokens` at 110% of that knee value to avoid hard-truncating useful content.
+
+**Prompt constraints that reduce both input and output tokens:**
+```python
+# ❌ No constraints — model generates freely
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    messages=[{"role": "user", "content": f"Summarize this: {document}"}]
+)
+
+# ✅ Constrained for cost efficiency
+response = client.messages.create(
+    model="claude-haiku-4-5-20251001",  # Cheaper model for simple task
+    max_tokens=200,                      # Hard output cap
+    messages=[{
+        "role": "user",
+        "content": f"Summarize in exactly 3 bullet points (max 20 words each):\n\n{document}"
+        # ↑ Explicit format instruction further constrains output length
+    }]
+)
+```
+
+**Output length by use case — calibrated targets:**
+
+| Use Case | Unconstrained typical output | Recommended `max_tokens` | Savings |
+|---|---|---|---|
+| Customer support reply | 800–1,200 tokens | 300 | 65–75% |
+| Document summary | 1,500–3,000 tokens | 500 | 67–83% |
+| Sentiment classification | 200–500 tokens | 50 | 75–90% |
+| Code explanation | 600–1,000 tokens | 350 | 42–65% |
+| Intent detection | 100–300 tokens | 20 | 80–93% |
+
+**Chat history truncation:** In conversational applications, the full message history grows without bound if not managed. Apply a sliding window: keep the last N turns (e.g., 6), and summarize older context into a single compressed message. This prevents history from consuming 80%+ of the context window on long sessions.
+
+> **Interview tip:** "Output token budgets are one of the fastest wins because they require a single-line code change per API call and the savings are immediate. The common objection is 'what if the model needs more tokens?' — address it with format constraints and quality benchmarks, not by leaving `max_tokens` uncapped."
 
 #### Tip 7: Implement Prompt Caching
 Static content (system instructions, knowledge bases, few-shot examples) placed at the start of the prompt qualifies for cache pricing. Most providers charge 10–25% of normal input token price for cache hits.

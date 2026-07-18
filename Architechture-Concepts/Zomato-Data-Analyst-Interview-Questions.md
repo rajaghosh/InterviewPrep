@@ -476,4 +476,218 @@ LEFT JOIN employees m
 
 ## Data Analysis / Scenario-Based Questions
 
-*(Additional scenario-based questions section — to be continued)*
+### S1. Order volumes dropped 30% in Bangalore last week. How do you investigate?
+
+**Approach:**
+
+1. **Isolate the dimension** — Is it all of Bangalore or specific areas/cuisines?
+```sql
+SELECT city, zone, cuisine_type, COUNT(*) AS orders,
+       LAG(COUNT(*)) OVER (PARTITION BY city, zone ORDER BY week) AS prev_week
+FROM orders
+WHERE city = 'Bangalore'
+GROUP BY city, zone, cuisine_type, week
+ORDER BY week DESC;
+```
+
+2. **Check supply side** — Did active restaurant count or delivery partner availability drop?
+```sql
+SELECT date, COUNT(DISTINCT restaurant_id) AS active_restaurants,
+       COUNT(DISTINCT delivery_partner_id) AS active_partners
+FROM activity_log
+WHERE city = 'Bangalore'
+GROUP BY date ORDER BY date DESC;
+```
+
+3. **Check demand side** — Did app sessions, search queries, or cart additions drop?
+```sql
+SELECT date, event_type, COUNT(*) AS events
+FROM app_events
+WHERE city = 'Bangalore' AND event_type IN ('session_start', 'search', 'add_to_cart', 'order_placed')
+GROUP BY date, event_type ORDER BY date DESC;
+```
+
+4. **Funnel analysis** — Where in the funnel are users dropping off?
+```
+Sessions → Search → Restaurant View → Add to Cart → Checkout → Order Placed
+```
+
+5. **Hypothesis checklist:**
+   - Competitor promotion in Bangalore (check social/marketing data)
+   - Payment gateway failure (check payment success rate)
+   - Weather event (high cancellations, low partner availability)
+   - App update with bug (check crash logs, filter by app version)
+   - Pricing change (check average order value trend)
+
+**Conclusion format:** "The drop is localized to [zone X], driven by [supply/demand/funnel issue], starting on [date], likely caused by [hypothesis with supporting data]."
+
+---
+
+### S2. Zomato wants to reduce late deliveries. How do you measure and improve on-time delivery rate?
+
+**Define the metric first:**
+```
+On-Time Delivery Rate = (Orders delivered within promised ETA) / (Total delivered orders) × 100
+```
+
+**SQL to compute it:**
+```sql
+SELECT
+  DATE(order_placed_at) AS date,
+  city,
+  ROUND(100.0 * SUM(CASE WHEN actual_delivery_time <= promised_delivery_time THEN 1 ELSE 0 END)
+        / COUNT(*), 2) AS on_time_rate_pct,
+  AVG(actual_delivery_time - promised_delivery_time) AS avg_delay_minutes
+FROM deliveries
+WHERE status = 'delivered'
+GROUP BY DATE(order_placed_at), city
+ORDER BY date DESC;
+```
+
+**Root cause segmentation:**
+```sql
+SELECT
+  CASE
+    WHEN prep_time > estimated_prep_time + 5 THEN 'Restaurant delay'
+    WHEN pickup_to_delivery_time > estimated_transit_time + 5 THEN 'Transit delay'
+    WHEN assignment_time > 3 THEN 'Partner assignment delay'
+    ELSE 'On time'
+  END AS delay_cause,
+  COUNT(*) AS order_count,
+  ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 1) AS pct_of_total
+FROM deliveries
+WHERE status = 'delivered'
+GROUP BY delay_cause ORDER BY order_count DESC;
+```
+
+**Improvement levers:**
+- Smarter ETA prediction (ML model using historical prep times + real-time traffic)
+- Partner pre-positioning based on order demand heatmaps
+- Restaurant performance SLA alerts and scoring
+- Dynamic ETA re-estimation with in-app updates for customers
+
+---
+
+### S3. How would you design an A/B test for a new Zomato feature: "Dish-level reviews"?
+
+**Objective:** Measure whether dish-level reviews increase order conversion rate.
+
+**Experiment design:**
+
+| Element | Decision |
+|---------|----------|
+| **Unit of randomization** | User ID (not session — dish reviews affect repeat users most) |
+| **Assignment** | 50/50 random split, stratified by city tier and order frequency |
+| **Control** | Existing restaurant-level reviews |
+| **Treatment** | Dish-level photo + rating alongside each menu item |
+| **Primary metric** | Order conversion rate (sessions → order placed) |
+| **Secondary metrics** | Average order value, repeat order rate, time-in-app |
+| **Guardrail metrics** | App crash rate, page load time (must not degrade) |
+| **Min detectable effect** | 2% relative uplift in conversion (based on historical variance) |
+| **Sample size** | Calculate via power analysis: ~500K users per group for 80% power |
+| **Duration** | 2 weeks minimum (captures weekday + weekend behavior) |
+
+**SQL to monitor during the test:**
+```sql
+SELECT
+  experiment_group,
+  COUNT(DISTINCT user_id) AS users,
+  COUNT(DISTINCT CASE WHEN event_type = 'order_placed' THEN session_id END) AS converting_sessions,
+  COUNT(DISTINCT session_id) AS total_sessions,
+  ROUND(100.0 * COUNT(DISTINCT CASE WHEN event_type = 'order_placed' THEN session_id END)
+        / COUNT(DISTINCT session_id), 2) AS conversion_rate_pct
+FROM ab_test_events
+WHERE experiment_name = 'dish_level_reviews'
+GROUP BY experiment_group;
+```
+
+**Decision framework:**
+- Statistical significance at p < 0.05 before calling a winner
+- Run for full 2 weeks — no peeking/stopping early (avoids p-hacking)
+- If guardrail metrics degrade → stop immediately regardless of primary metric
+
+---
+
+### S4. Customer complaints about incorrect charges have tripled. How do you investigate?
+
+**Step 1 — Quantify and segment:**
+```sql
+SELECT
+  complaint_type,
+  payment_method,
+  DATE(complaint_raised_at) AS date,
+  COUNT(*) AS complaints,
+  AVG(disputed_amount) AS avg_amount
+FROM customer_complaints
+WHERE complaint_type = 'incorrect_charge'
+  AND complaint_raised_at >= CURRENT_DATE - INTERVAL '30 days'
+GROUP BY complaint_type, payment_method, DATE(complaint_raised_at)
+ORDER BY date DESC;
+```
+
+**Step 2 — Find the spike date:**
+The tripling is a step change — look for the exact date it started. Cross-reference with:
+- Deployment logs (was there a billing code change?)
+- Payment gateway changelog
+- Promo/discount system changes
+
+**Step 3 — Check double-charge pattern:**
+```sql
+-- Find users charged more than once for same order
+SELECT user_id, order_id, COUNT(*) AS charge_count, SUM(amount) AS total_charged
+FROM payment_transactions
+WHERE status = 'success'
+GROUP BY user_id, order_id
+HAVING COUNT(*) > 1;
+```
+
+**Step 4 — Check refund gap:**
+```sql
+SELECT
+  DATE(order_placed_at) AS date,
+  COUNT(*) AS total_orders,
+  SUM(CASE WHEN refund_issued = TRUE THEN 1 ELSE 0 END) AS refunds,
+  ROUND(100.0 * SUM(CASE WHEN refund_issued = TRUE THEN 1 ELSE 0 END) / COUNT(*), 2) AS refund_rate
+FROM orders
+GROUP BY date ORDER BY date DESC;
+```
+
+**Resolution:** Match the tripling date to a specific system change, quantify affected users, compute total exposure, and provide a targeted refund run.
+
+---
+
+### S5. Zomato's Gold membership retention is 60% at 3 months. How do you improve it?
+
+**Define the cohort:**
+```sql
+-- 3-month retention: members who subscribed in month M still active in month M+3
+SELECT
+  DATE_TRUNC('month', subscription_start) AS cohort_month,
+  COUNT(DISTINCT user_id) AS cohort_size,
+  COUNT(DISTINCT CASE WHEN subscription_end > cohort_start + INTERVAL '3 months'
+                      OR subscription_end IS NULL THEN user_id END) AS retained_at_3m,
+  ROUND(100.0 * COUNT(DISTINCT CASE WHEN subscription_end > cohort_start + INTERVAL '3 months'
+                      OR subscription_end IS NULL THEN user_id END) / COUNT(DISTINCT user_id), 1) AS retention_pct
+FROM gold_subscriptions
+GROUP BY cohort_month ORDER BY cohort_month;
+```
+
+**Segment churned users:**
+```sql
+SELECT
+  AVG(orders_during_subscription) AS avg_orders,
+  AVG(discount_used_amount) AS avg_discount_used,
+  AVG(days_to_first_post_signup_order) AS days_to_first_order,
+  cancellation_reason
+FROM gold_subscriptions
+WHERE subscription_end BETWEEN subscription_start AND subscription_start + INTERVAL '3 months'
+GROUP BY cancellation_reason ORDER BY COUNT(*) DESC;
+```
+
+**Key levers:**
+- **Activation speed** — users who order within 3 days of signup retain significantly better; trigger onboarding nudge
+- **Perceived value** — if discount_used_amount is low, users don't feel the benefit; surface Gold savings in app
+- **Renewal reminder** — proactive reminder 7 days before renewal with savings summary
+- **Win-back campaign** — for users who cancelled, offer 1-month discounted re-activation
+
+**North Star improvement:** Move first-order-within-48-hours rate from X% → X+15%, measure 3-month retention delta in A/B test.

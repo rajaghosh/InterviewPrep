@@ -184,6 +184,38 @@
 
 > 60 questions across 4 scenarios. Format and difficulty match the real exam.
 
+This practice test covers the four scenario types that appear on the Claude Certified Architect exam, which assesses deep understanding of multi-agent system design, Claude Code CI integration, production code review patterns, and customer support agent architecture. Each question is situational — it presents a real production problem with observable symptoms (logs, metrics, error patterns) and asks for the most effective architectural or configuration response.
+
+**How to use this practice test for maximum exam preparation:**
+
+1. **Time yourself:** Aim for 90 seconds per question on first pass. Mark questions you're uncertain about.
+2. **Eliminate first:** The exam uses plausible-sounding distractors. For each question, eliminate options that address a symptom rather than the root cause, add infrastructure complexity unnecessarily, or rely on non-deterministic LLM behavior for critical guarantees.
+3. **Learn the decision principles:** The exam tests a small set of architectural principles applied across many scenarios. Identify which principle each question tests (see table below).
+4. **Review wrong answers:** The "Why" explanation for each correct answer contains the key principle. Internalize the principle, not the scenario.
+
+**Core architectural principles tested across all scenarios:**
+
+| Principle | Exam application |
+|---|---|
+| Tool descriptions are the routing mechanism | Fix misrouting by improving descriptions, not adding classifiers |
+| Programmatic > prompt-based for critical guarantees | Business logic constraints (tool ordering) use code preconditions |
+| Structured error context enables intelligent recovery | Errors carry failure type + partial results + alternatives |
+| Least privilege for tool access | Agents get only the tools needed for their specific role |
+| Coordinator handles cross-cutting concerns | Error recovery, routing decisions, state synthesis |
+| Few-shot beats instructions for format/output consistency | When instructions fail, add targeted examples |
+| Batch API incompatible with tool-calling workflows | Fire-and-forget cannot execute mid-request tool calls |
+
+**Scoring guide:**
+
+| Score | Interpretation | Recommended focus |
+|---|---|---|
+| 54–60 (90%+) | Exam-ready | Review wrong answers for edge cases |
+| 48–54 (80–89%) | Near-ready | Focus on the 2 scenarios with lowest accuracy |
+| 40–48 (67–79%) | Needs work | Re-read "Why" explanations; re-test those questions |
+| < 40 (< 67%) | Foundation gaps | Study the first 12 questions (pre-Practice Test section) |
+
+> **Interview tip:** "The most common mistake on this exam is choosing options that solve a related but different problem — a well-written distractor that adds infrastructure (a classifier, a new agent, a retry loop) when the root cause is a configuration issue (tool description, prompt structure, context organization). Ask yourself: does this option fix the described root cause, or does it just work around the symptom?"
+
 ## Scenario: Multi-agent Research System
 
 ---
@@ -415,6 +447,8 @@
 
 ## Scenario: Claude Code for Continuous Integration
 
+This scenario tests your ability to design Claude Code integrations in automated CI/CD pipelines. Key considerations: synchronous vs batch API selection based on latency requirements, structured output for downstream tooling integration, iterative tool-calling workflows, and cost optimization without degrading developer experience. The distinguishing decision in this scenario type is always whether the workflow *requires* tool-call mid-request responses (incompatible with Batch API) or can tolerate asynchronous batch processing (24-hour window, 50% cost savings).
+
 ---
 
 ## Question 16 (Scenario: Claude Code for Continuous Integration)
@@ -644,6 +678,8 @@
 
 ## Scenario: Code Generation with Claude Code
 
+This scenario tests your understanding of Claude Code's project configuration features: CLAUDE.md for universal context, `.claude/rules/` with glob-pattern activation for file-type-specific conventions, Skills for on-demand workflow procedures, `context: fork` for isolated subagent execution, and MCP server configuration for team-wide tooling. The key principle throughout: match the scope of a context artifact to the scope of its intended application (universal → CLAUDE.md; file-type-specific → rules/; on-demand workflow → Skills; session-isolated exploration → `context: fork`).
+
 ---
 
 ## Question 31 (Scenario: Code Generation with Claude Code)
@@ -872,6 +908,8 @@
 ---
 
 ## Scenario: Customer Support Agent
+
+This scenario tests your ability to diagnose and fix customer support agent failures from production signals (logs, metrics, satisfaction scores). The four most-tested sub-topics are: (1) tool misrouting — usually fixed by expanding tool descriptions, not by adding routing infrastructure; (2) programmatic tool ordering — use code preconditions for business-critical sequences, not prompts; (3) memory and context degradation — extract transactional facts into structured persistent storage outside summarized history; (4) escalation calibration — explicit criteria with few-shot examples outperform confidence scores or classifiers as the first intervention. A recurring distractor across questions is the self-rated confidence approach (ask the agent to rate 1–10) — this is almost never the correct answer because LLMs can be confidently wrong.
 
 ---
 
