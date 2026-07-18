@@ -2,7 +2,7 @@
 
 ---
 
-## Polyfill
+## Polyfill 1
 
 In Angular, a polyfill is a piece of code that allows our application to run in older version browsers that do not support certain features.
 
