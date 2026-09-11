@@ -10,7 +10,26 @@
 
 A **Large Language Model (LLM)** is a neural network trained on vast corpora of text to predict the next token in a sequence. Through this deceptively simple objective — learned at massive scale — LLMs develop emergent capabilities: reasoning, code generation, translation, summarization, and instruction following.
 
-The term "foundation model" is broader: it refers to any large pre-trained model (text, image, audio, multi-modal) that can be adapted to downstream tasks via prompting or fine-tuning. LLMs are the text-centric subset of foundation models.
+The term **foundation model** is broader: it refers to any large pre-trained model (text, image, audio, multi-modal) that can be adapted to downstream tasks via prompting or fine-tuning. LLMs are the text-centric subset of foundation models.
+
+### What Is a Frontier Model?
+
+A **frontier model** is an AI model that sits at the current capability frontier — the most capable models available at any given moment, trained at the largest scale of compute, data, and parameters that is technically and economically feasible. The term describes a *moving boundary*: today's frontier models are GPT-4o, Claude Opus 4, and Gemini Ultra; yesterday's was GPT-3.5.
+
+Frontier models are characteristically:
+- Trained by a small number of well-resourced organisations (OpenAI, Anthropic, Google DeepMind, Meta)
+- Evaluated across a broad suite of capability benchmarks (MMLU, HumanEval, MATH, GPQA) and safety red-teaming before release
+- The first to exhibit emergent capabilities not seen in smaller models — e.g., multi-step reasoning, tool use, and instruction following at scale
+
+**Relationship between the three terms:**
+
+| Term | Scope | Examples |
+|---|---|---|
+| **LLM** | Large neural network trained on text; predicts tokens | GPT-4o, Llama 3, Mistral 7B |
+| **Foundation Model** | Any large pre-trained model adaptable to downstream tasks (text, image, audio, multi-modal) | GPT-4o, DALL-E 3, Whisper, CLIP, Phi-3 |
+| **Frontier Model** | The *most capable* foundation models at the current state of the art; a subset of foundation models | GPT-4o, Claude Opus 4, Gemini Ultra, Llama 3.1 405B |
+
+> **Key distinction:** All frontier models are foundation models, but not all foundation models are frontier models. Phi-3-mini is a foundation model optimised for edge deployment — it is not a frontier model. GPT-4o is both. In enterprise interviews, using "frontier model" specifically when referring to state-of-the-art capability signals vocabulary precision.
 
 ### Why It Matters Enterprise-Wide
 

@@ -1,0 +1,26 @@
+1. Four pillars of an agent - 
+    - LLM (Brain)
+    - Context (Input)
+    - Planning (How to get the result)
+    - Tools 
+
+2. Tools - In Agentic AI context A tool is a function or API that an agent can call during its 
+reasoning loop to interact with the world.
+
+Agent (LLM) → decides to use Tool → Tool executes → Result returned → Agent continues reasoning
+Categories of Tools
+Category	                        Examples
+Information Retrieval	            Web search, vector DB lookup, RAG, file read
+Action / Write	                    Send email, update DB, call REST API, write file
+Computation	                        Code interpreter, calculator, data processing
+Agent-to-Agent	                    Spawn sub-agent, call specialist agent
+System / OS	                        Shell commands, browser control, GUI automation
+
+3. The ReAct Loop (Reason + Act)
+
+Observation	                        What the agent perceived after the last action.
+Thought	                            The agent’s internal reasoning about what to do next.
+Action	                            The tool call the agent decided to make.
+Final Answer	                    The final output returned to the user.
+
+4. 
