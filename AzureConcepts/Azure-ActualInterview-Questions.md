@@ -61,6 +61,7 @@ public class OrderFunction
 ```
 
 **Key points:**
+
 - Function class must be **non-static** to use constructor injection
 - Supports Singleton, Scoped, Transient lifetimes
 - `ILogger<T>` is auto-registered by the host
@@ -79,6 +80,40 @@ var host = new HostBuilder()
 await host.RunAsync();
 ```
 
+**Architecture Diagram:**
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    Azure Function Host                       │
+│                                                              │
+│  ┌──────────────────┐      ┌──────────────────────────────┐  │
+│  │  Startup.cs      │─────▶│        DI Container          │  │
+│  │  (FunctionsStart)│      │                              │  │
+│  └──────────────────┘      │  [Singleton]                 │  │
+│                            │   └─ IMyService              │  │
+│  ┌──────────────────┐      │  [Scoped]                    │  │
+│  │  appsettings /   │─────▶│   └─ IOrderRepository        │  │
+│  │  Environment Vars│      │  [Transient]                 │  │
+│  └──────────────────┘      │   └─ IHttpClientFactory      │  │
+│                            │  [Auto-registered]           │  │
+│                            │   └─ ILogger<T>              │  │
+│                            └──────────────┬───────────────┘  │
+│                                           │ constructor       │
+│                                           │ injection         │
+│                            ┌──────────────▼───────────────┐  │
+│                            │      OrderFunction           │  │
+│                            │   (non-static instance class)│  │
+│                            │                              │  │
+│                            │  [FunctionName("ProcessOrder")]  │
+│                            │  public async Task<IAction.. │  │
+│                            └──────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
+
+In-Process (.NET 6):         Isolated (.NET 7/8):
+  Startup : FunctionsStartup   Program.cs → HostBuilder
+  builder.Services.Add*()      .ConfigureServices(...)
+```
+
 ---
 
 ## 2. Logic App Types of Design Patterns
@@ -86,49 +121,60 @@ await host.RunAsync();
 Logic Apps supports several integration design patterns:
 
 ### a) Request-Response (Synchronous)
+
 - Triggered by HTTP request, returns response within the same call
 - Use when caller needs an immediate result
 - Timeout limit: 2 minutes (use async pattern for longer operations)
 
 ### b) Polling Pattern
+
 - Logic App polls an endpoint/queue at scheduled intervals
 - Built-in via Recurrence trigger or connector polling triggers (e.g., "When a message is available in Service Bus")
 
 ### c) Event-Driven / Push Pattern
+
 - Triggered by events from Event Grid, Service Bus, Event Hubs, or webhooks
 - Low latency; ideal for real-time processing
 
 ### d) Saga / Orchestration Pattern
+
 - Coordinates multi-step transactions across services
 - Each step has a compensating action for rollback on failure
 - Logic Apps acts as the orchestrator; individual services are participants
 
 ### e) Scatter-Gather (Fan-Out / Fan-In)
+
 - Splits a message into parallel branches (fan-out), collects results (fan-in)
 - Implemented using parallel branches + Join action or SplitOn + aggregation
 
 ### f) Publish-Subscribe (Pub/Sub)
+
 - Logic App subscribes to topics (Service Bus, Event Grid)
 - Multiple Logic Apps can subscribe independently to the same event
 
 ### g) Content-Based Routing
+
 - Routes messages to different backends based on message content
 - Implemented with Switch/Condition actions or Service Bus topic filters
 
 ### h) Aggregator Pattern
+
 - Collects multiple related messages and combines into a single output
 - Implemented using stateful workflows + variables or storage
 
 ### i) Sequential Convoy (FIFO per Session)
+
 - Processes ordered messages belonging to a session (e.g., all orders for a customer)
 - Uses Service Bus message sessions + Logic App session-aware trigger
 
 ### j) Async Request-Reply
+
 - HTTP trigger returns `202 Accepted` with a polling URL immediately
 - Caller polls the URL until work completes
 - Implemented via Logic App's built-in async HTTP pattern or with Durable Functions
 
 ### k) Adapter Pattern
+
 - Logic App acts as a **translator** between two systems that speak different protocols or data formats
 - The consumer calls Logic App with its native format/protocol; Logic App transforms and calls the target system in its format
 - Example: REST client → Logic App (converts JSON to SOAP/XML) → SAP or legacy SOAP service
@@ -136,6 +182,7 @@ Logic Apps supports several integration design patterns:
 - Common use: bridging REST ↔ SOAP, JSON ↔ EDI, HTTP ↔ FTP, modern app ↔ on-premises system via data gateway
 
 ### l) Facade Pattern
+
 - Logic App exposes a **simplified, unified interface** over multiple complex or granular backend services
 - The caller makes one call to Logic App; internally it orchestrates multiple service calls and returns a composed response
 - Example: single `/customer-summary` endpoint → Logic App calls CRM (Salesforce), ERP (SAP), and billing system in parallel, merges results
@@ -143,15 +190,92 @@ Logic Apps supports several integration design patterns:
 - Difference from Adapter: Adapter translates *one* system; Facade *aggregates and simplifies* multiple systems behind one interface
 - Often paired with APIM: APIM is the gateway, Logic App is the facade orchestration layer behind it
 
+**Pattern Diagrams:**
+
+```
+── a) Request-Response (Sync) ─────────────────────────────────
+  Caller ──HTTP POST──▶ Logic App ──process──▶ Response (sync)
+          ◀──200 OK──────────────────────────────────────────
+
+── b) Async Request-Reply ─────────────────────────────────────
+  Caller ──POST──▶ Logic App ──▶ 202 Accepted + polling URL
+  Caller ──GET polling URL──▶ 200 (result when ready)
+
+── c) Event-Driven / Push ─────────────────────────────────────
+  Event Grid / Service Bus / Webhook
+        │
+        ▼ trigger (push)
+  Logic App ──▶ Process & Route
+
+── d) Scatter-Gather (Fan-Out / Fan-In) ───────────────────────
+                    ┌──▶ Branch A (Service 1) ──┐
+  Logic App ────────┤──▶ Branch B (Service 2) ──┼──▶ Aggregate
+  (SplitOn/Parallel)└──▶ Branch C (Service 3) ──┘   & Respond
+
+── e) Saga / Orchestration ────────────────────────────────────
+  Orchestrator (Logic App)
+    ├──▶ Step 1 (succeed) ──▶ Step 2 ──▶ Step 3
+    │
+    └── if Step 2 fails:
+          ◀── Compensate Step 1  ◀── Compensate Step 2
+
+── f) Adapter ─────────────────────────────────────────────────
+  REST Client ──JSON──▶ Logic App ──SOAP/XML──▶ Legacy System
+               (translate format & protocol)
+
+── g) Facade ──────────────────────────────────────────────────
+  Consumer ──▶ Logic App /customer-summary
+                    ├──▶ CRM (Salesforce)  ─▶ ┐
+                    ├──▶ ERP (SAP)         ─▶ ├── merge ──▶ Response
+                    └──▶ Billing System    ─▶ ┘
+
+── h) Pub/Sub ─────────────────────────────────────────────────
+  Publisher ──▶ Service Bus Topic / Event Grid
+                    ├── Subscription 1 ──▶ Logic App A
+                    ├── Subscription 2 ──▶ Logic App B
+                    └── Subscription 3 ──▶ Logic App C
+```
+
 ---
 
 ## 3. Service Bus Filters
 
 Filters on Service Bus **Topic Subscriptions** control which messages a subscription receives.
 
+**Architecture Diagram:**
+
+```
+                        Service Bus Namespace
+                        ┌──────────────────────────────────────┐
+  Producer              │  Topic: "orders"                     │
+  ────────▶ Message ───▶│                                      │
+  (with properties:     │  ┌──────────────────────────────┐    │
+   Region="US"          │  │ Subscription: "us-orders"    │    │
+   Priority=5           │  │ Filter: Region='US'          │───▶│ Consumer A
+   Category="Electronics│  │ Action: SET Discount=0.15   │    │ (US orders)
+  )                     │  └──────────────────────────────┘    │
+                        │                                      │
+                        │  ┌──────────────────────────────┐    │
+                        │  │ Subscription: "high-priority" │    │
+                        │  │ Correlation Filter:          │───▶│ Consumer B
+                        │  │  CorrelationId="priority-hi" │    │ (High priority)
+                        │  └──────────────────────────────┘    │
+                        │                                      │
+                        │  ┌──────────────────────────────┐    │
+                        │  │ Subscription: "all-orders"   │    │
+                        │  │ Filter: True (default $Default│───▶│ Consumer C
+                        │  │ — receives every message)    │    │ (All orders)
+                        │  └──────────────────────────────┘    │
+                        └──────────────────────────────────────┘
+
+  Filter evaluation: OR logic — message delivered if ANY rule matches
+  Filters operate on message PROPERTIES, not the body
+```
+
 ### Types of Filters:
 
 #### a) SQL Filter (most common)
+
 - Evaluates a SQL-like expression against message **user-defined properties** and **system properties**
 - Syntax similar to SQL WHERE clause
 
@@ -164,6 +288,7 @@ sys.Label = 'order' AND sys.To = 'billing'
 ```
 
 #### b) Correlation Filter (most performant)
+
 - Matches one or more well-known message properties by equality
 - Evaluated server-side without SQL parsing — much faster than SQL filters
 - Use when filtering on: `CorrelationId`, `MessageId`, `To`, `ReplyTo`, `Subject/Label`, `SessionId`, or custom properties
@@ -178,13 +303,16 @@ var filter = new CorrelationRuleFilter
 ```
 
 #### c) True Filter
+
 - Default filter on every new subscription — matches ALL messages
 - Every message goes to this subscription
 
 #### d) False Filter
+
 - Matches NO messages — effectively disables a subscription without deleting it
 
 ### Filter Actions
+
 Filters can optionally include an **action** to modify message properties before delivery:
 
 ```sql
@@ -194,6 +322,7 @@ SET user.DiscountRate = 0.15
 ```
 
 ### Key Points:
+
 - A subscription can have **multiple filter rules** (evaluated with OR logic — if any rule matches, message is delivered)
 - Default subscription has one True filter rule named `$Default`
 - SQL filters support `IN`, `LIKE`, `IS NULL`, arithmetic, and boolean operators
@@ -207,6 +336,7 @@ SET user.DiscountRate = 0.15
 **Products** in Azure API Management are a way to **bundle APIs and apply a shared access policy** to a group of consumers.
 
 ### What a Product Is:
+
 - A logical container that groups one or more APIs
 - Consumers (developers) subscribe to a **Product**, not directly to an API
 - Subscription generates a **subscription key** used to call any API in that product
@@ -214,6 +344,7 @@ SET user.DiscountRate = 0.15
 ### Why Use Products:
 
 #### a) Tiered Access / Monetization
+
 - Create different products for different consumer tiers:
   - **Free Tier**: 100 calls/day, rate-limited
   - **Standard Tier**: 10,000 calls/day
@@ -221,28 +352,34 @@ SET user.DiscountRate = 0.15
 - Apply different `rate-limit` and `quota` policies per product
 
 #### b) Audience Segmentation
+
 - **Internal Product**: Only internal developers, no approval needed
 - **Partner Product**: Requires admin approval before access granted
 - **Public Product**: Open subscription, broad API exposure
 
 #### c) Policy Application
+
 - Policies set at the **Product scope** apply to all APIs in that product
 - Example: apply `validate-jwt` or `set-header` for all APIs under a product without repeating it per API
 
 #### d) Subscription Key Isolation
+
 - Each subscriber gets a unique key tied to the product
 - Revoke one subscriber without affecting others
 - Track usage per subscriber via Azure Monitor / Application Insights
 
 ### Product States:
+
 - **Published**: Visible in Developer Portal, subscriptions allowed
 - **Not Published**: Hidden from portal; existing subscriptions still work
 
 ### Approval Workflow:
+
 - Products can require **admin approval** before a subscription key is issued
 - Useful for partner/enterprise onboarding with controlled access
 
 ### Example Scenario:
+
 ```
 APIM Instance
 ├── Product: "Internal" (no approval, unlimited quota)
@@ -255,3 +392,228 @@ APIM Instance
 ```
 
 **Key distinction:** APIs define *what* is exposed; Products define *who* can access it and *under what terms*.
+
+**Architecture Diagram:**
+
+```
+                     Azure API Management
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│  Consumers / Developers                                      │
+│  ┌────────────┐  ┌──────────────┐  ┌────────────────────┐   │
+│  │ Internal   │  │   Partner    │  │      Public        │   │
+│  │ Developer  │  │   Company    │  │    Developer       │   │
+│  └─────┬──────┘  └──────┬───────┘  └─────────┬──────────┘   │
+│        │ subscribes     │ subscribes          │ subscribes   │
+│        ▼                ▼                     ▼              │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │                    Products Layer                    │    │
+│  │                                                      │    │
+│  │  ┌──────────────┐ ┌────────────────┐ ┌───────────┐  │    │
+│  │  │   Internal   │ │    Partner     │ │  Public   │  │    │
+│  │  │  (no approval│ │ (admin approval│ │(no approval│  │    │
+│  │  │  unlimited)  │ │ 5000 calls/day)│ │100 calls/d│  │    │
+│  │  └──────┬───────┘ └───────┬────────┘ └─────┬─────┘  │    │
+│  └─────────┼─────────────────┼────────────────┼─────────┘   │
+│            │                 │                │              │
+│            ▼                 ▼                ▼              │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │                      APIs Layer                      │    │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌───────────┐  │    │
+│  │  │ Customer API │  │  Order API   │  │ Catalog   │  │    │
+│  │  └──────────────┘  └──────────────┘  │    API    │  │    │
+│  │                                      └───────────┘  │    │
+│  └──────────────────────────────────────────────────────┘    │
+│                                                              │
+│  Product Policy Scope:  rate-limit, quota, validate-jwt,     │
+│                         set-header (applies to all APIs      │
+│                         bundled in the product)              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+## 5. Adding APIM Logs to Log Analytics
+
+Azure API Management integrates with **Azure Monitor** for diagnostics and observability. Logs are routed to Log Analytics via **Diagnostic Settings**, and metrics are viewable in the Azure Metrics tab.
+
+---
+
+### How to Configure
+
+#### Step 1 — Enable Diagnostic Settings
+
+In the Azure Portal:
+> APIM → Diagnostic settings → + Add diagnostic setting
+
+Or via Azure CLI:
+
+```bash
+az monitor diagnostic-settings create \
+  --name "apim-to-law" \
+  --resource <APIM-resource-id> \
+  --workspace <log-analytics-workspace-id> \
+  --logs '[{"category":"GatewayLogs","enabled":true},{"category":"WebSocketConnectionLogs","enabled":true}]' \
+  --metrics '[{"category":"AllMetrics","enabled":true}]'
+```
+
+#### Step 2 — Enable Application Insights (optional but recommended)
+
+> APIM → Application Insights → + Add
+
+This gives request-level tracing, sampling, and richer telemetry beyond raw gateway logs.
+
+---
+
+### Log Categories Available
+
+| Category | Description |
+|---|---|
+| `GatewayLogs` | Every API request/response processed by the APIM gateway — method, URL, status, latency, backend URL, product, subscription key |
+| `WebSocketConnectionLogs` | WebSocket connect/disconnect events |
+| `DeveloperPortalAuditLogs` | Actions taken in the Developer Portal |
+
+**Destination options per Diagnostic Setting:**
+- Log Analytics Workspace (KQL queryable)
+- Storage Account (archival)
+- Event Hub (stream to SIEM / Splunk)
+- Partner solutions (Datadog, Elastic)
+
+---
+
+### Key Trigger Points / Events That Generate Logs
+
+These are the lifecycle stages of an APIM request that produce log entries:
+
+```
+Inbound Request ──▶ [Frontend] ──▶ [Inbound Policies] ──▶ [Backend Call]
+                                                                  │
+                                                                  ▼
+                   [Response to Client] ◀── [Outbound Policies] ◀── [Backend Response]
+```
+
+Each stage generates fields in `GatewayLogs`:
+
+| Trigger Point | Log Fields |
+|---|---|
+| Request received | `requestSize`, `method`, `url`, `clientProtocol`, `clientIp` |
+| Policy execution | `apimSubscriptionId`, `apimProductId`, `apimApiId`, `apimOperationId` |
+| Backend call | `backendMethod`, `backendUrl`, `backendProtocol` |
+| Backend response | `backendResponseCode`, `backendTime` |
+| Response sent | `responseCode`, `responseSize`, `totalTime`, `cache` (hit/miss) |
+| Error / exception | `lastError.source`, `lastError.reason`, `lastError.message` |
+
+---
+
+### Querying with KQL (Kusto Query Language)
+
+Once logs land in Log Analytics, query the `ApiManagementGatewayLogs` table:
+
+```kusto
+-- All failed requests (4xx/5xx) in last hour
+ApiManagementGatewayLogs
+| where TimeGenerated > ago(1h)
+| where ResponseCode >= 400
+| project TimeGenerated, OperationId, Url, ResponseCode, TotalTime, BackendResponseCode
+
+-- Average latency per API
+ApiManagementGatewayLogs
+| where TimeGenerated > ago(1d)
+| summarize AvgLatency = avg(TotalTime), Count = count() by ApiId
+| order by AvgLatency desc
+
+-- Top consumers by subscription key
+ApiManagementGatewayLogs
+| where TimeGenerated > ago(1d)
+| summarize RequestCount = count() by ApimSubscriptionId
+| top 10 by RequestCount
+
+-- Cache hit/miss ratio
+ApiManagementGatewayLogs
+| where TimeGenerated > ago(1h)
+| summarize count() by Cache
+```
+
+---
+
+### Azure Monitor Metrics Tab
+
+The **Metrics** tab in APIM gives pre-aggregated time-series without needing KQL:
+
+| Metric | Use |
+|---|---|
+| `Total Requests` | Overall traffic volume |
+| `Successful Requests` | 2xx count |
+| `Unauthorized Requests` | 401/403 count — spike = auth misconfiguration |
+| `Failed Requests` | 5xx count — spike = backend errors |
+| `Capacity` | CPU/memory utilization of the APIM unit |
+| `Duration` | End-to-end request latency (gateway + backend) |
+| `Backend Duration` | Backend-only latency (isolate slow backends) |
+| `Cache Hit Count` / `Cache Miss Count` | Response cache effectiveness |
+
+Metrics support **splitting by dimension** (by API, Operation, Product, Location).
+
+---
+
+### Alerting
+
+Set Azure Monitor Alerts on metrics or log query results:
+
+```
+Metrics Alert:  Failed Requests > 50 in 5 minutes → Page on-call
+Log Alert (KQL): ResponseCode = 429 (throttled) count > 100 → Slack notification
+```
+
+---
+
+### Architecture Diagram
+
+```
+                    API Management Instance
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│  Client Request ──▶ Gateway ──▶ Backend API                  │
+│                        │                                     │
+│                        │ emit logs per request lifecycle     │
+│                        ▼                                     │
+│             ┌──────────────────────┐                         │
+│             │  Diagnostic Settings │                         │
+│             └──────────┬───────────┘                         │
+│                        │                                     │
+└────────────────────────┼─────────────────────────────────────┘
+                         │
+          ┌──────────────┼──────────────────────┐
+          ▼              ▼                       ▼
+┌─────────────────┐ ┌─────────────┐   ┌─────────────────────┐
+│  Log Analytics  │ │   Storage   │   │     Event Hub       │
+│   Workspace     │ │  (archival) │   │  (SIEM / Splunk /   │
+│                 │ └─────────────┘   │   Datadog stream)   │
+│  Table:         │                   └─────────────────────┘
+│  ApiManagement  │
+│  GatewayLogs    │        ┌──────────────────────────────┐
+│                 │        │    Application Insights       │
+│  KQL Queries:   │        │  (request tracing, sampling, │
+│  • Failed reqs  │        │   dependency map, live       │
+│  • Latency P99  │        │   metrics stream)            │
+│  • Top callers  │        └──────────────────────────────┘
+│  • Cache ratio  │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐    ┌───────────────────────────┐
+│ Azure Monitor   │    │     Azure Metrics Tab      │
+│   Alerts        │    │  (pre-aggregated metrics:  │
+│ • Metric alerts │    │   Capacity, Duration,      │
+│ • Log alerts    │    │   Failed Requests,         │
+│ (KQL scheduled) │    │   Cache Hit/Miss ratio)    │
+└─────────────────┘    └───────────────────────────┘
+```
+
+---
+
+### Key Points Summary
+
+- **Diagnostic Settings** is the primary mechanism to route APIM logs to Log Analytics, Storage, or Event Hub
+- `GatewayLogs` is the most useful category — one row per API request with full lifecycle metadata
+- **Metrics Tab** gives real-time aggregated counters without KQL — useful for dashboards and quick health checks
+- **Application Insights** provides deeper tracing (request dependencies, exceptions, sampling) and is configured separately from Diagnostic Settings
+- Logs land in the `ApiManagementGatewayLogs` table — query with KQL in Log Analytics workspace
+- Set **metric alerts** (e.g., spike in failed requests) and **log query alerts** (e.g., throttle rate above threshold) for proactive monitoring

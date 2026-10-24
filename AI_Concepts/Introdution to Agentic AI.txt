@@ -1,0 +1,33 @@
+What are AI Agents?
+Ans - AI Agents are autonomous reasoning engines (e.g the LLM) that can understand context,
+ plan workflows, connect to external tools and data, and execute multi-step actions to 
+ achieve a defined goal - with minimal human intervention.
+
+------------------
+
+AI Paradigm
+
+Different paradigms of AI learn from different complexities of data from human features, to 
+raw data, to dynamically observed.
+
+a. AI - It is the capacity for machines to perform human-like tasks.
+
+b. ML - It trains models to identify and predict patterns based on human processed data.
+e.g Predictive maintenance from time-series signals.
+
+c. DL (Deep Learning) - It is a powerfil paradigm that uses neural network models to 
+    learn pattern from raw data. This is specific to high volume of data. All LLMs are
+    developed using the deep learning.
+e.g Cancer detection in CT scans.
+
+d. Generative AI - It is a subset of AI using large models to learn patterns well enough
+to create new data
+e.g Simple customer chatbot.
+
+Agentic AI - It involves autonomous agaents that take actions and can learn to react based 
+on feedback information from their environment in a multi-step manner.
+e.g Strategic planning or code writing
+
+To achieve the highest level of automation every major org target is to reach AGI. Where 
+we can transfer all the repeatative task to a machine so we can work on th task we are interested in.
+
